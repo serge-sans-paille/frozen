@@ -1,0 +1,16 @@
+language: cpp
+addons:
+    apt:
+        sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise
+        packages:
+            - g++-6
+            - clang-5.0
+
+env:
+    - CXX_COMPILER=clang++-5.0
+
+script:
+  - make -C tests check CXX=${CXX_COMPILER}
+
