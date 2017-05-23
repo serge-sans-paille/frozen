@@ -38,6 +38,8 @@ auto constexpr next_highest_power_of_two(std::size_t v) {
   v |= v >> 4;
   v |= v >> 8;
   v |= v >> 16;
+  if(sizeof(v) > 32) // should be constant folded
+    v |= v >> 32;
   v++;
   return v;
 }
