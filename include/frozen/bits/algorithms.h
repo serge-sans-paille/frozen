@@ -25,6 +25,7 @@
 
 #include <array>
 #include <tuple>
+#include <limits>
 
 namespace frozen {
 
@@ -32,14 +33,10 @@ namespace bits {
 
 auto constexpr next_highest_power_of_two(std::size_t v) {
   // https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
+  constexpr auto trip_count = std::numeric_limits<decltype(v)>::digits;
   v--;
-  v |= v >> 1;
-  v |= v >> 2;
-  v |= v >> 4;
-  v |= v >> 8;
-  v |= v >> 16;
-  if(sizeof(v) > 32) // should be constant folded
-    v |= v >> 32;
+  for(std::size_t i = 1; i < trip_count; i <<= 1)
+    v |= v >> i;
   v++;
   return v;
 }
