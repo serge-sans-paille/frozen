@@ -43,7 +43,7 @@ template <class Key, class Value, std::size_t N, typename Hash = anna<Key>,
           class KeyEqual = std::equal_to<Key>>
 class unordered_map {
   static constexpr std::size_t storage_size =
-      bits::next_highest_power_of_two(N);
+      bits::next_highest_power_of_two(N) * (N < 32 ? 2 : 1); // size adjustment to prevent high collision rate for small sets
   using container_type = std::array<std::pair<Key, Value>, N>;
 
   Hash const hash_;

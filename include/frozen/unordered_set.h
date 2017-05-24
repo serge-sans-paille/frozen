@@ -45,7 +45,7 @@ template <class Key, std::size_t N, typename Hash = elsa<Key>,
           class KeyEqual = std::equal_to<Key>>
 class unordered_set {
   static constexpr std::size_t storage_size =
-      bits::next_highest_power_of_two(N);
+      bits::next_highest_power_of_two(N) * (N < 32 ? 2 : 1); // size adjustment to prevent high collision rate for small sets
   using container_type = std::array<Key, N>;
 
   Hash const hash_;
