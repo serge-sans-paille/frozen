@@ -1,7 +1,7 @@
 SRCS=test_main.cpp test_set.cpp test_map.cpp test_unordered_set.cpp test_unordered_str_set.cpp test_unordered_map.cpp test_unordered_map_str.cpp
 
 TARGET=test_main
-CXXFLAGS=-O2 -g -Wall -std=c++14
+CXXFLAGS=-O3 -g -Wall -std=c++14 -march=native
 CPPFLAGS=-I../include
 
 all:$(TARGET)
