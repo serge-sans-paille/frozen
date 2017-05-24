@@ -50,7 +50,7 @@ struct string {
 
 template <> struct elsa<string> {
   constexpr std::size_t operator()(string value) const {
-    std::size_t d = 0;
+    std::size_t d = 5381;
     for (std::size_t i = 0; i < value.size; ++i)
       d = d * 33 + value.data[i];
     return d;
