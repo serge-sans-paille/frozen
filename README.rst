@@ -85,6 +85,32 @@ one to resolve conflicts.
       constexpr std::size_t operator()(T const &value, std::size_t seed) const;
     };
 
+Troubleshooting
+---------------
+
+If you hit a message like this:
+
+.. code::
+
+    [...]
+    note: constexpr evaluation hit maximum step limit; possible infinite loop?
+
+Then either you've got a very big container and you should increase Clang's
+thresholds, using ``-fconstexpr-steps=1000000000`` for instance, or the hash
+functions used by frozen do not suit your data, and you should change them, as
+in the following:
+
+.. code:: c++
+
+    struct olaf {
+
+      constexpr std::size_t operator()(frozen::string const &value) const { return value.size; }
+
+      constexpr std::size_t operator()(frozen::string const &value, std::size_t seed) const { return seed ^ value[0];}
+    };
+
+    constexpr frozen::unordered_set<frozen::string, 2, olaf/*custom hash*/> hans = { "a"_s, "b"_s };
+
 Credits
 -------
 
