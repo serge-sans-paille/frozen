@@ -98,3 +98,10 @@ TEST_CASE("frozen::unordered_map<str, int> <> std::unordered_map",
     REQUIRE(std_duration > frozen_duration);
   }
 }
+
+TEST_CASE("various frozen::unordered_map config", "[unordered_map]") {
+  constexpr frozen::unordered_map<frozen::string, int, 2> olaf0 = {
+      {"19"_s, 19},
+      {"31"_s, 31},
+  };
+}
