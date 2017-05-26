@@ -69,6 +69,18 @@ constexpr auto min_element(Iter begin, const Iter &end,
   return result;
 }
 
+template <class T> constexpr void cswap(T &a, T &b) {
+  auto tmp = a;
+  a = b;
+  b = tmp;
+}
+
+template <class T0, class T1>
+constexpr void cswap(std::tuple<T0, T1> &a, std::tuple<T0, T1> &b) {
+  cswap(std::get<0>(a), std::get<0>(b));
+  cswap(std::get<1>(a), std::get<1>(b));
+}
+
 template <typename T, std::size_t N, class Compare>
 constexpr auto sort(std::array<T, N> const &data, Compare const &compare) {
   // get copy of incoming data
@@ -87,9 +99,7 @@ constexpr auto sort(std::array<T, N> const &data, Compare const &compare) {
     auto minelem = ::frozen::bits::min_element(begin, end, compare);
 
     // swap in the newly found minimum element
-    const auto tmp = *minelem;
-    *minelem = *begin;
-    *begin = tmp;
+    cswap(*minelem, *begin);
   }
 
   return retval;
@@ -113,27 +123,10 @@ constexpr auto sort(std::array<std::tuple<K, V>, N> const &data,
     auto minelem = ::frozen::bits::min_element(begin, end, compare);
 
     // swap in the newly found minimum element
-    const auto tmp = *minelem;
-    std::get<0>(*minelem) = std::get<0>(*begin);
-    std::get<1>(*minelem) = std::get<1>(*begin);
-    std::get<0>(*begin) = std::get<0>(tmp);
-    std::get<1>(*begin) = std::get<1>(tmp);
+    cswap(*minelem, *begin);
   }
 
   return retval;
-}
-template <class T> constexpr void cswap(T &a, T &b) {
-  auto tmp = a;
-  a = b;
-  b = tmp;
-}
-template <class T0, class T1>
-constexpr void cswap(std::tuple<T0, T1> &a, std::tuple<T0, T1> &b) {
-  std::tuple<T0, T1> t{std::get<0>(a), std::get<1>(a)};
-  std::get<0>(a) = std::get<0>(b);
-  std::get<1>(a) = std::get<1>(b);
-  std::get<0>(b) = std::get<0>(t);
-  std::get<1>(b) = std::get<1>(t);
 }
 
 template <typename T, std::size_t N, class Compare>
