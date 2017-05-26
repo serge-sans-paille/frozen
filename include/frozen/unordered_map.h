@@ -26,6 +26,7 @@
 #include <frozen/bits/elsa.h>
 #include <frozen/bits/pmh.h>
 #include <tuple>
+#include <functional>
 
 namespace frozen {
 
