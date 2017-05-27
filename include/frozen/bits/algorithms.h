@@ -69,16 +69,22 @@ constexpr auto min_element(Iter begin, const Iter &end,
   return result;
 }
 
-template <class T> constexpr void cswap(T &a, T &b) {
+template <class T>
+constexpr void cswap(T &a, T &b) {
   auto tmp = a;
   a = b;
   b = tmp;
 }
 
-template <class T0, class T1>
-constexpr void cswap(std::tuple<T0, T1> &a, std::tuple<T0, T1> &b) {
-  cswap(std::get<0>(a), std::get<0>(b));
-  cswap(std::get<1>(a), std::get<1>(b));
+template <class... Tys, std::size_t... Is> 
+constexpr void cswap(std::tuple<Tys...> &a, std::tuple<Tys...> &b, std::index_sequence<Is...>) {
+  using swallow = int[];
+  (void) swallow{(cswap(std::get<Is>(a), std::get<Is>(b)), 0)...};
+}
+
+template <class... Tys>
+constexpr void cswap(std::tuple<Tys...> &a, std::tuple<Tys...> &b) {
+  cswap(a, b, std::make_index_sequence<sizeof...(Tys)>());
 }
 
 template <typename T, std::size_t N, class Compare>
