@@ -174,8 +174,8 @@ constexpr std::array<T, N> quicksort(std::array<T, N> const &array,
 template <class T, class Compare> struct LowerBound {
   T const &value;
   Compare const &compare;
-  constexpr LowerBound(T const &value, Compare const &compare)
-      : value(value), compare(compare) {}
+  constexpr LowerBound(T const &_value, Compare const &_compare)
+      : value(_value), compare(_compare) {}
 
   template <class ForwardIt>
   inline constexpr ForwardIt doit(ForwardIt first,
