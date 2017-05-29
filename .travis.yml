@@ -1,4 +1,5 @@
 language: cpp
+
 addons:
     apt:
         sources:
@@ -7,9 +8,13 @@ addons:
         packages:
             - g++-6
             - clang-5.0
-
-env:
-    - CXX_COMPILER=clang++-5.0
+matrix:
+    include:
+        - os: linux
+          env: CXX_COMPILER=clang++-5.0
+        - os: osx
+          osx_image: xcode8.3
+          env: CXX_COMPILER=clang++
 
 script:
   - make -C tests check CXX=${CXX_COMPILER}
