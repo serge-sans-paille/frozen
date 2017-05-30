@@ -12,6 +12,8 @@ matrix:
     include:
         - os: linux
           env: CXX_COMPILER=clang++-5.0
+        - os: linux
+          env: CXX_COMPILER=g++-6
         - os: osx
           osx_image: xcode8.3
           env: CXX_COMPILER=clang++
