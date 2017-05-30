@@ -31,18 +31,25 @@
 
 namespace frozen {
 
-struct string {
-  char const *const data;
-  std::size_t const size;
+class string {
+  char const *const data_;
+  std::size_t const size_;
+
+  public:
   constexpr string(char const *data, std::size_t size)
-      : data(data), size(size) {}
-  string(std::string const &s) : data(s.data()), size(s.size()) {}
+      : data_(data), size_(size) {}
+
+  string(std::string const &s) : data_(s.data()), size_(s.size()) {}
+
+  constexpr std::size_t size() const { return size_; }
+
+  constexpr char operator[](std::size_t i) const { return data_[i]; }
 
   constexpr bool operator==(string other) const {
-    if (size != other.size)
+    if (size_ != other.size_)
       return false;
-    for (std::size_t i = 0; i < size; ++i)
-      if (data[i] != other.data[i])
+    for (std::size_t i = 0; i < size_; ++i)
+      if (data_[i] != other.data_[i])
         return false;
     return true;
   }
@@ -51,14 +58,14 @@ struct string {
 template <> struct elsa<string> {
   constexpr std::size_t operator()(string value) const {
     std::size_t d = 5381;
-    for (std::size_t i = 0; i < value.size; ++i)
-      d = d * 33 + value.data[i];
+    for (std::size_t i = 0; i < value.size(); ++i)
+      d = d * 33 + value[i];
     return d;
   }
   constexpr std::size_t operator()(string value, std::size_t seed) const {
     std::size_t d = seed;
-    for (std::size_t i = 0; i < value.size; ++i)
-      d = (d * 0x01000193) ^ value.data[i];
+    for (std::size_t i = 0; i < value.size(); ++i)
+      d = (d * 0x01000193) ^ value[i];
     return d;
   }
 };

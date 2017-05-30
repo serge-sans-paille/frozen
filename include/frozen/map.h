@@ -197,7 +197,7 @@ public:
       : map{items, Compare{}} {}
 
   /* element access */
-  constexpr const_reference at(Key const &key) const {
+  constexpr const_reference at(Key const &) const {
     throw std::out_of_range("invalid key");
   }
 
@@ -219,18 +219,18 @@ public:
 
   /* lookup */
 
-  constexpr std::size_t count(Key const &key) const { return 0; }
+  constexpr std::size_t count(Key const &) const { return 0; }
 
-  constexpr const_iterator find(Key const &key) const { return end(); }
+  constexpr const_iterator find(Key const &) const { return end(); }
 
   constexpr std::pair<const_iterator, const_iterator>
-  equal_range(Key const &key) const {
+  equal_range(Key const &) const {
     return {end(), end()};
   }
 
-  constexpr const_iterator lower_bound(Key const &key) const { return end(); }
+  constexpr const_iterator lower_bound(Key const &) const { return end(); }
 
-  constexpr const_iterator upper_bound(Key const &key) const { return end(); }
+  constexpr const_iterator upper_bound(Key const &) const { return end(); }
 
   /* observers */
   constexpr key_compare key_comp() const { return compare_; }
