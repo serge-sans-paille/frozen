@@ -102,7 +102,8 @@ public:
     auto const &kv = lookup(key);
     if (equal_(kv.first, key))
       return kv.second;
-    throw std::out_of_range("unknown key");
+    else
+      throw std::out_of_range("unknown key");
   }
 
   const_iterator find(Key const &key) const {
