@@ -110,30 +110,6 @@ constexpr auto sort(std::array<T, N> const &data, Compare const &compare) {
 
   return retval;
 }
-template <typename K, typename V, std::size_t N, class Compare>
-constexpr auto sort(std::array<std::tuple<K, V>, N> const &data,
-                    Compare const &compare) {
-  // get copy of incoming data
-  auto retval = data;
-
-  // Use std::get to get a non-const * to retval data
-  const auto array_head = &std::get<0>(retval);
-  const auto end = array_head + N;
-
-  // Loop over each position, finding the appropriate element,
-  // and swapping it into place
-  for (std::size_t i = 0; i < N; ++i) {
-    const auto begin = array_head + i;
-
-    // Treat pointers as iterators, perfectly valid
-    auto minelem = ::frozen::bits::min_element(begin, end, compare);
-
-    // swap in the newly found minimum element
-    cswap(*minelem, *begin);
-  }
-
-  return retval;
-}
 
 template <typename T, std::size_t N, class Compare>
 constexpr std::size_t partition(std::array<T, N> &array, std::size_t left,
