@@ -148,10 +148,10 @@ constexpr std::array<T, N> quicksort(std::array<T, N> const &array,
 }
 
 template <class T, class Compare> struct LowerBound {
-  T const &value;
-  Compare const &compare;
+  T const &value_;
+  Compare const &compare_;
   constexpr LowerBound(T const &value, Compare const &compare)
-      : value(value), compare(compare) {}
+      : value_(value), compare_(compare) {}
 
   template <class ForwardIt>
   inline constexpr ForwardIt doit(ForwardIt first,
@@ -164,7 +164,7 @@ template <class T, class Compare> struct LowerBound {
                                   std::integral_constant<std::size_t, N>) {
     auto constexpr step = N / 2;
     auto it = first + step;
-    if (compare(*it, value)) {
+    if (compare_(*it, value_)) {
       auto constexpr next_count = N - (step + 1);
       return doit(it + 1, std::integral_constant<std::size_t, next_count>{});
     } else {
