@@ -57,7 +57,7 @@ make_unordered_array(std::initializer_list<T> const values) {
 }
 
 template <typename Iter, typename Compare>
-constexpr auto min_element(Iter begin, const Iter &end,
+constexpr auto min_element(Iter begin, const Iter end,
                            Compare const &compare) {
   auto result = begin;
   while (begin != end) {
@@ -87,55 +87,27 @@ constexpr void cswap(std::tuple<Tys...> &a, std::tuple<Tys...> &b) {
   cswap(a, b, std::make_index_sequence<sizeof...(Tys)>());
 }
 
-template <typename T, std::size_t N, class Compare>
-constexpr auto sort(std::array<T, N> const &data, Compare const &compare) {
-  // get copy of incoming data
-  auto retval = data;
-
-  // Use std::get to get a non-const * to retval data
-  const auto array_head = &std::get<0>(retval);
-  const auto end = array_head + N;
-
-  // Loop over each position, finding the appropriate element,
-  // and swapping it into place
-  for (std::size_t i = 0; i < N; ++i) {
-    const auto begin = array_head + i;
-
-    // Treat pointers as iterators, perfectly valid
-    auto minelem = ::frozen::bits::min_element(begin, end, compare);
-
-    // swap in the newly found minimum element
-    cswap(*minelem, *begin);
-  }
-
-  return retval;
-}
-
-template <typename T, std::size_t N, class Compare>
-constexpr std::size_t partition(std::array<T, N> &array, std::size_t left,
-                                std::size_t right, Compare const &compare) {
+template <typename Iterator, class Compare>
+constexpr Iterator partition(Iterator left, Iterator right, Compare const &compare) {
   auto pivot = left + (right - left) / 2;
-  auto *arr = &std::get<0>(array);
-  T value = arr[pivot];
-  cswap(arr[right], arr[pivot]);
-  std::size_t store = left;
-  for (size_t i = left; i < right; ++i) {
-    if (compare(arr[i], value)) {
-      cswap(arr[i], arr[store]);
-      store++;
+  auto value = *pivot;
+  cswap(*right, *pivot);
+  for (auto it = left; it < right; ++it) {
+    if (compare(*it, value)) {
+      cswap(*it, *left);
+      left++;
     }
   }
-  cswap(arr[right], arr[store]);
-  return store;
+  cswap(*right, *left);
+  return left;
 }
 
-template <typename T, std::size_t N, class Compare>
-constexpr void quicksort(std::array<T, N> &array, std::size_t left,
-                         std::size_t right, Compare const &compare) {
+template <typename Iterator, class Compare>
+constexpr void quicksort(Iterator left, Iterator right, Compare const &compare) {
   if (left < right) {
-    std::size_t new_pivot = partition(array, left, right, compare);
-    quicksort(array, left, new_pivot, compare);
-    quicksort(array, new_pivot + 1, right, compare);
+    auto new_pivot = bits::partition(left, right, compare);
+    quicksort(left, new_pivot, compare);
+    quicksort(new_pivot + 1, right, compare);
   }
 }
 
@@ -143,7 +115,7 @@ template <typename T, std::size_t N, class Compare>
 constexpr std::array<T, N> quicksort(std::array<T, N> const &array,
                                      Compare const &compare) {
   std::array<T, N> res = array;
-  quicksort(res, 0, N - 1, compare);
+  quicksort(&std::get<0>(res), &std::get<N - 1>(res), compare);
   return res;
 }
 
