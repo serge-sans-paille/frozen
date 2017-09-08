@@ -28,6 +28,7 @@
 #include <utility>
 
 #include "frozen/bits/elsa.h"
+#include "frozen/bits/basic_types.h"
 
 namespace frozen {
 
@@ -70,12 +71,94 @@ template <> struct elsa<string> {
   }
 };
 
+template<std::size_t size>
+class string_needle {
+  bits::cvector<std::ptrdiff_t, size> cache_;
+  std::array<char, size> data_;
+
+  static constexpr
+  bits::cvector<std::ptrdiff_t, size>
+  build_kmp_cache(std::array<char, size> needle) {
+    char const* needle_view = needle.data();
+    std::ptrdiff_t cnd = 0;
+    bits::cvector<std::ptrdiff_t, size> cache;
+    for(std::size_t pos = 0; pos < size; ++pos)
+      cache[pos] = -1;
+
+    for(std::size_t pos = 1; pos < size; ++pos) {
+      if(needle_view[pos] == needle_view[cnd]) {
+        cache[pos] = cache[cnd];
+        cnd += 1;
+      }
+      else {
+        cache[pos] = cnd;
+        cnd = cache[cnd];
+        while(cnd >= 0 && needle_view[pos] != needle_view[cnd])
+          cnd = cache[cnd];
+        cnd += 1;
+      }
+    }
+    return cache;
+  }
+
+  public:
+    constexpr string_needle(std::array<char, size> data)
+      : cache_{build_kmp_cache(data)}, data_(data) {}
+
+    template<std::size_t... I>
+    constexpr string_needle(char const data[size], std::index_sequence<I...>)
+      : string_needle(std::array<char, size>{{data[I]...}})
+    {}
+    constexpr string_needle(char const data[size])
+      : string_needle(data, std::make_index_sequence<size>())
+    {}
+
+    constexpr char operator[](std::size_t i) const {
+      return (&std::get<0>(data_))[i];
+    }
+    constexpr std::ptrdiff_t step(std::size_t i) const {
+      return cache_[i];
+    }
+};
+
+template<class IteratorTy, std::size_t N>
+IteratorTy search(IteratorTy begin, IteratorTy end, string_needle<N> const& needle) {
+  std::size_t i = 0;
+  IteratorTy iter = begin;
+  while(iter != end) {
+    if(needle[i] == *iter) {
+      if(i == (N - 1))
+        return iter - i;
+      ++i;
+      ++iter;
+    }
+    else {
+      if(needle.step(i) > -1) {
+        i = needle.step(i);
+      }
+      else {
+        ++iter;
+        i = 0;
+      }
+    }
+  }
+  return end;
+}
+
 namespace string_literals {
 
 constexpr string operator"" _s(const char *data, std::size_t size) {
   return {data, size};
 }
+
+
 } // namespace string_literals
+
+template<std::size_t N>
+constexpr string_needle<N-1> make_needle(char const(&data)[N]) {
+  return {data};
+}
+
 } // namespace frozen
 
 namespace std {
