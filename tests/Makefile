@@ -1,7 +1,7 @@
-SRCS=test_main.cpp test_set.cpp test_map.cpp test_unordered_set.cpp test_unordered_str_set.cpp test_unordered_map.cpp test_unordered_map_str.cpp
+SRCS=test_main.cpp test_set.cpp test_map.cpp test_unordered_set.cpp test_unordered_str_set.cpp test_unordered_map.cpp test_unordered_map_str.cpp test_str.cpp
 
 TARGET=test_main
-CXXFLAGS=-O3 -Wall -std=c++14 -march=native -Wextra -W -Werror -Wshadow
+CXXFLAGS=-O3 -Wall -std=c++14 -march=native -Wextra -W -Werror -Wshadow -fPIC
 CPPFLAGS=-I../include
 
 all:$(TARGET)
@@ -42,6 +42,10 @@ test_unordered_set.o: test_unordered_set.cpp \
 test_unordered_str_set.o: test_unordered_str_set.cpp \
   ../include/frozen/unordered_set.h ../include/frozen/bits/pmh.h \
   ../include/frozen/bits/algorithms.h \
+  ../include/frozen/bits/basic_types.h ../include/frozen/bits/elsa.h \
+  ../include/frozen/string.h \
+  catch.hpp
+test_str.o: test_str.cpp \
   ../include/frozen/bits/basic_types.h ../include/frozen/bits/elsa.h \
   ../include/frozen/string.h \
   catch.hpp
