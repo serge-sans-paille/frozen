@@ -117,6 +117,8 @@ Credits
 The perfect hashing is strongly inspired by the blog post `Throw away the keys:
 Easy, Minimal Perfect Hashing <http://stevehanov.ca/blog/index.php?id=119>`_.
 
+Thanks a lot to Jérôme Dumesnil for his high-quality reviews!
+
 Contact
 -------
 
