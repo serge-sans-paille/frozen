@@ -39,7 +39,7 @@ Compiled with ``-std=c++14`` flag:
     bool letitgoooooo = some_ints.count(n);
 
 
-Has the constructor and some methods are ``constexpr``, it's also possible to write weird stuff like:
+As the constructor and some methods are ``constexpr``, it's also possible to write weird stuff like:
 
 .. code:: C++
 
