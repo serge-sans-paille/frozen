@@ -1,6 +1,9 @@
 Frozen
 ######
 
+.. image:: https://travis-ci.org/serge-sans-paille/frozen.svg?branch=master
+   :target: https://travis-ci.org/serge-sans-paille/frozen
+
 Header-only, immutable (a.ka. frozen), ``constexpr``-compatible versions of
 ``std::set``, ``std::unordered_set``, ``std::map`` and ``std::unordered_map``.
 
