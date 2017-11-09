@@ -46,12 +46,11 @@ class unordered_map {
   static constexpr std::size_t storage_size =
       bits::next_highest_power_of_two(N) * (N < 32 ? 2 : 1); // size adjustment to prevent high collision rate for small sets
   using container_type = std::array<std::pair<Key, Value>, N>;
+  using tables_type = bits::pmh_tables<storage_size, Hash>;
 
-  Hash const hash_;
   KeyEqual const equal_;
-  std::tuple<container_type, std::array<int64_t, storage_size>,
-             std::array<uint64_t, storage_size>>
-      items_;
+  container_type items_;
+  tables_type tables_;
 
 public:
   /* typedefs */
@@ -73,19 +72,20 @@ public:
   unordered_map(unordered_map const &) = default;
   constexpr unordered_map(std::initializer_list<std::pair<Key, Value>> items,
                           Hash const &hash, KeyEqual const &equal)
-      : hash_{hash}, equal_{equal},
-        items_{
-            bits::make_array_of_items<std::pair<Key, Value>, N, storage_size>(
-                bits::make_unordered_array<std::pair<Key, Value>, N>(items),
-                hash_, bits::GetKey{})} {}
+      : equal_{equal}
+      , items_{bits::make_unordered_array<std::pair<Key, Value>, N>(items)}
+      , tables_{
+            bits::make_pmh_tables<std::pair<Key, Value>, N, storage_size>(
+                items_,
+                hash, bits::GetKey{})} {}
   constexpr unordered_map(std::initializer_list<std::pair<Key, Value>> items)
       : unordered_map{items, Hash{}, KeyEqual{}} {}
 
   /* iterators */
-  const_iterator begin() const { return std::get<0>(items_).begin(); }
-  const_iterator end() const { return std::get<0>(items_).end(); }
-  const_iterator cbegin() const { return std::get<0>(items_).cbegin(); }
-  const_iterator cend() const { return std::get<0>(items_).cend(); }
+  const_iterator begin() const { return items_.begin(); }
+  const_iterator end() const { return items_.end(); }
+  const_iterator cbegin() const { return items_.cbegin(); }
+  const_iterator cend() const { return items_.cend(); }
 
   /* capacity */
   constexpr bool empty() const { return !N; }
@@ -111,7 +111,7 @@ public:
     if (equal_(kv.first, key))
       return &kv;
     else
-      return std::get<0>(items_).end();
+      return items_.end();
   }
 
   std::pair<const_iterator, const_iterator> equal_range(Key const &key) const {
@@ -119,7 +119,7 @@ public:
     if (equal_(kv.first, key))
       return {&kv, &kv + 1};
     else
-      return {std::get<0>(items_).end(), std::get<0>(items_).end()};
+      return {items_.end(), items_.end()};
   }
 
   /* bucket interface */
@@ -127,15 +127,12 @@ public:
   constexpr std::size_t max_bucket_count() const { return storage_size; }
 
   /* observers*/
-  constexpr hasher hash_function() const { return hash_; }
+  constexpr hasher hash_function() const { return tables_.hash_; }
   constexpr key_equal key_eq() const { return equal_; }
 
 private:
   constexpr auto const &lookup(Key const &key) const {
-    auto const d = std::get<1>(items_)[hash_(key) % storage_size];
-    auto index = (d < 0) ? (-d - 1) : (hash_(key, d) % storage_size);
-    auto const &kv = std::get<0>(items_)[std::get<2>(items_)[index]];
-    return kv;
+    return items_[tables_.lookup(key)];
   }
 };
 } // namespace frozen
