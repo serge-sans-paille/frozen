@@ -4,6 +4,7 @@
 #include <iostream>
 #include <unordered_set>
 
+#include "bench.hpp"
 #include "catch.hpp"
 
 using namespace frozen::string_literals;
@@ -94,8 +95,10 @@ TEST_CASE("frozen::unordered_set<str> <> std::unordered_set",
 
     auto std_start = std::chrono::steady_clock::now();
     for (int i = 0; i < 10000; ++i)
-      for (auto val : data)
-        volatile const auto __attribute__((unused)) c = std_set.count(val);
+      for (auto val : data) {
+        benchmark::DoNotOptimize(val);
+        benchmark::DoNotOptimize(std_set.count(val));
+      }
     auto std_stop = std::chrono::steady_clock::now();
     auto std_diff = std_stop - std_start;
     auto std_duration =
@@ -105,8 +108,10 @@ TEST_CASE("frozen::unordered_set<str> <> std::unordered_set",
 
     auto frozen_start = std::chrono::steady_clock::now();
     for (int i = 0; i < 10000; ++i)
-      for (auto val : data)
-        volatile const auto __attribute__((unused)) c = frozen_set.count(val);
+      for (auto val : data) {
+        benchmark::DoNotOptimize(val);
+        benchmark::DoNotOptimize(frozen_set.count(val));
+      }
     auto frozen_stop = std::chrono::steady_clock::now();
     auto frozen_diff = frozen_stop - frozen_start;
     auto frozen_duration =

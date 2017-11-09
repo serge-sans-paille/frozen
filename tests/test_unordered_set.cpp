@@ -4,6 +4,7 @@
 #include <iostream>
 #include <unordered_set>
 
+#include "bench.hpp"
 #include "catch.hpp"
 
 TEST_CASE("singleton frozen unordered set", "[unordered set]") {
@@ -126,8 +127,11 @@ TEST_CASE("frozen::unordered_set<int> <> std::unordered_set",
   SECTION("checking minimal performance requirements") {
     auto std_start = std::chrono::steady_clock::now();
     for (int i = 0; i < 10000; ++i)
-      for (int j = 0; j < 10000; ++j)
-        volatile const auto __attribute__((unused)) c = std_set.count(i + j);
+      for (int j = 0; j < 10000; ++j) {
+        benchmark::DoNotOptimize(i);
+        benchmark::DoNotOptimize(j);
+        benchmark::DoNotOptimize(std_set.count(i + j));
+      }
     auto std_stop = std::chrono::steady_clock::now();
     auto std_diff = std_stop - std_start;
     auto std_duration =
@@ -137,8 +141,11 @@ TEST_CASE("frozen::unordered_set<int> <> std::unordered_set",
 
     auto frozen_start = std::chrono::steady_clock::now();
     for (int i = 0; i < 10000; ++i)
-      for (int j = 0; j < 10000; ++j)
-        volatile const auto __attribute__((unused)) c = frozen_set.count(i + j);
+      for (int j = 0; j < 10000; ++j) {
+        benchmark::DoNotOptimize(i);
+        benchmark::DoNotOptimize(j);
+        benchmark::DoNotOptimize(frozen_set.count(i + j));
+      }
     auto frozen_stop = std::chrono::steady_clock::now();
     auto frozen_diff = frozen_stop - frozen_start;
     auto frozen_duration =

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <map>
 
+#include "bench.hpp"
 #include "catch.hpp"
 
 TEST_CASE("empty frozen map", "[map]") {
@@ -251,8 +252,11 @@ TEST_CASE("frozen::map <> std::map", "[map]") {
   SECTION("printing minimal performance requirements") {
     auto std_start = std::chrono::steady_clock::now();
     for (int i = 0; i < 10000; ++i)
-      for (int j = 0; j < 10000; ++j)
-        volatile const auto c = std_map.count(i + j);
+      for (int j = 0; j < 10000; ++j) {
+        benchmark::DoNotOptimize(i);
+        benchmark::DoNotOptimize(j);
+        benchmark::DoNotOptimize(std_map.count(i + j));
+      }
     auto std_stop = std::chrono::steady_clock::now();
     auto std_diff = std_stop - std_start;
     auto std_duration =
@@ -261,8 +265,11 @@ TEST_CASE("frozen::map <> std::map", "[map]") {
 
     auto frozen_start = std::chrono::steady_clock::now();
     for (int i = 0; i < 10000; ++i)
-      for (int j = 0; j < 10000; ++j)
-        volatile const auto c = frozen_map.count(i + j);
+      for (int j = 0; j < 10000; ++j) {
+        benchmark::DoNotOptimize(i);
+        benchmark::DoNotOptimize(j);
+        benchmark::DoNotOptimize(frozen_map.count(i + j));
+      }
     auto frozen_stop = std::chrono::steady_clock::now();
     auto frozen_diff = frozen_stop - frozen_start;
     auto frozen_duration =
