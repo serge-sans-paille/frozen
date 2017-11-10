@@ -24,8 +24,10 @@
 #define FROZEN_LETITGO_ALGORITHMS_H
 
 #include <array>
-#include <tuple>
 #include <limits>
+#include <tuple>
+#include <type_traits>
+#include <utility>
 
 namespace frozen {
 
@@ -52,6 +54,21 @@ constexpr std::array<T, N>
 make_unordered_array(std::initializer_list<T> const values) {
   auto iter = values.begin();
   return make_unordered_array<T, N>(iter, std::make_index_sequence<N>{});
+}
+
+// This is std::experimental::to_array
+// http://en.cppreference.com/w/cpp/experimental/to_array
+template <class T, std::size_t N, std::size_t... I>
+constexpr std::array<std::remove_cv_t<T>, N>
+    to_array_impl(T (&a)[N], std::index_sequence<I...>)
+{
+  return { {a[I]...} };
+}
+
+template <class T, std::size_t N>
+constexpr auto to_array(T (&a)[N]) -> std::array<std::remove_cv_t<T>, N>
+{
+  return to_array_impl(a, std::make_index_sequence<N>{});
 }
 
 template <typename Iter, typename Compare>

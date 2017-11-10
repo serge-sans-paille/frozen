@@ -253,3 +253,16 @@ TEST_CASE("frozen::set <> std::set", "[set]") {
     REQUIRE(std_duration > frozen_duration);
   }
 }
+
+TEST_CASE("frozen::set <> frozen::make_set", "[set]") {
+  constexpr frozen::set<int, 128> frozen_set = { INIT_SEQ };
+  constexpr auto frozen_set2 = frozen::make_set<int>({INIT_SEQ});
+
+  SECTION("checking size and content") {
+    REQUIRE(frozen_set.size() == frozen_set2.size());
+    for (auto v : frozen_set2)
+      REQUIRE(frozen_set.count(v));
+    for (auto v : frozen_set)
+      REQUIRE(frozen_set2.count(v));
+  }
+}

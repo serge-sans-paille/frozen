@@ -52,6 +52,8 @@ class unordered_map {
   container_type items_;
   tables_type tables_;
 
+  using pair_type = typename container_type::value_type;
+
 public:
   /* typedefs */
   using key_type = Key;
@@ -70,15 +72,22 @@ public:
 public:
   /* constructors */
   unordered_map(unordered_map const &) = default;
-  constexpr unordered_map(std::initializer_list<std::pair<Key, Value>> items,
+  constexpr unordered_map(container_type items,
                           Hash const &hash, KeyEqual const &equal)
       : equal_{equal}
-      , items_{bits::make_unordered_array<std::pair<Key, Value>, N>(items)}
+      , items_{items}
       , tables_{
-            bits::make_pmh_tables<std::pair<Key, Value>, N, storage_size>(
+            bits::make_pmh_tables<pair_type, N, storage_size>(
                 items_,
                 hash, bits::GetKey{})} {}
-  constexpr unordered_map(std::initializer_list<std::pair<Key, Value>> items)
+  explicit constexpr unordered_map(container_type items)
+      : unordered_map{items, Hash{}, KeyEqual{}} {}
+
+  constexpr unordered_map(std::initializer_list<pair_type> items,
+                          Hash const & hash, KeyEqual const & equal)
+      : unordered_map{bits::make_unordered_array<pair_type, N>(items), hash, equal} {}
+
+  constexpr unordered_map(std::initializer_list<pair_type> items)
       : unordered_map{items, Hash{}, KeyEqual{}} {}
 
   /* iterators */
@@ -135,6 +144,12 @@ private:
     return items_[tables_.lookup(key)];
   }
 };
+
+template <typename T, typename U, std::size_t N>
+constexpr auto make_unordered_map(std::pair<T, U> const (&items)[N]) {
+  return unordered_map<T, U, N>{bits::to_array(items)};
+}
+
 } // namespace frozen
 
 #endif

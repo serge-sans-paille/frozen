@@ -28,6 +28,7 @@
 
 #include <functional>
 #include <tuple>
+#include <utility>
 
 namespace frozen {
 
@@ -71,14 +72,20 @@ public:
 public:
   /* constructors */
   unordered_set(unordered_set const &) = default;
-  constexpr unordered_set(std::initializer_list<Key> keys, Hash const &hash,
+  constexpr unordered_set(container_type keys, Hash const &hash,
                           KeyEqual const &equal)
       : equal_{equal}
-      , items_(bits::make_unordered_array<Key, N>(keys))
+      , items_(keys)
       , tables_{bits::make_pmh_tables<Key, N, storage_size>(
             items_, hash, bits::Get{})} {}
-  constexpr unordered_set(std::initializer_list<Key> keys)
+  explicit constexpr unordered_set(container_type keys)
       : unordered_set{keys, Hash{}, KeyEqual{}} {}
+
+  constexpr unordered_set(std::initializer_list<Key> list)
+      : unordered_set(bits::make_unordered_array<Key, N>(list)) {}
+
+  constexpr unordered_set(std::initializer_list<Key> list, Hash const & hash, KeyEqual const & equal)
+      : unordered_set(bits::make_unordered_array<Key, N>(list), hash, equal) {}
 
   /* iterators */
   const_iterator begin() const { return items_.begin(); }
@@ -125,6 +132,12 @@ private:
     return items_[tables_.lookup(key)];
   }
 };
+
+template <typename T, std::size_t N>
+constexpr auto make_unordered_set(T const (&keys)[N]) {
+  return unordered_set<T, N>{bits::to_array(keys)};
+}
+
 } // namespace frozen
 
 #endif

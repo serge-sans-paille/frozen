@@ -26,6 +26,7 @@
 #include <array>
 #include <stdexcept>
 #include <tuple>
+#include <utility>
 
 #include "bits/algorithms.h"
 
@@ -91,10 +92,14 @@ public:
 
 public:
   /* constructors */
+  constexpr map(container_type items, Compare const &compare)
+      : compare_{compare}
+      , keys_{bits::quicksort(items, compare_)} {}
+  explicit constexpr map(container_type items)
+      : map{items, Compare{}} {}
+
   constexpr map(std::initializer_list<value_type> items, Compare const &compare)
-      : compare_{compare}, keys_{bits::quicksort(
-                               bits::make_unordered_array<value_type, N>(items),
-                               compare_)} {}
+      : map(bits::make_unordered_array<value_type, N>(items), compare) {}
   constexpr map(std::initializer_list<value_type> items)
       : map{items, Compare{}} {}
 
@@ -236,6 +241,12 @@ public:
   constexpr key_compare key_comp() const { return compare_; }
   constexpr key_compare value_comp() const { return compare_; }
 };
+
+template <typename T, typename U, std::size_t N>
+constexpr auto make_map(std::tuple<T, U> const (&items)[N]) {
+  return map<T, U, N>{bits::to_array(items)};
+}
+
 } // namespace frozen
 
 #endif

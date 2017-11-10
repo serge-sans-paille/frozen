@@ -156,3 +156,16 @@ TEST_CASE("frozen::unordered_set<int> <> std::unordered_set",
     REQUIRE(std_duration > frozen_duration);
   }
 }
+
+TEST_CASE("frozen::unordered_set <> frozen::make_unordered_set", "[unordered_set]") {
+  constexpr frozen::unordered_set<int, 129> frozen_set = { INIT_SEQ };
+  constexpr auto frozen_set2 = frozen::make_unordered_set<int>({INIT_SEQ});
+
+  SECTION("checking size and content") {
+    REQUIRE(frozen_set.size() == frozen_set2.size());
+    for (auto v : frozen_set2)
+      REQUIRE(frozen_set.count(v));
+    for (auto v : frozen_set)
+      REQUIRE(frozen_set2.count(v));
+  }
+}

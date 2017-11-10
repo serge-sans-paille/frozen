@@ -208,7 +208,6 @@ TEST_CASE("triple frozen map", "[map]") {
 
 TEST_CASE("frozen::map <> std::map", "[map]") {
 #define INIT_SEQ                                                               \
-  {                                                                            \
     {19, 12}, {1, 12}, {2, 12}, {4, 12}, {5, 12}, {6, 12}, {7, 12}, {8, 12},   \
         {9, 12}, {10, 12}, {11, 12}, {111, 12}, {1112, 12}, {1115, 12},        \
         {1118, 12}, {1110, 12}, {1977, 12}, {177, 12}, {277, 12}, {477, 12},   \
@@ -236,11 +235,10 @@ TEST_CASE("frozen::map <> std::map", "[map]") {
         {11779988, 12}, {111779988, 12}, {1112779988, 12}, {1115779988, 12},   \
         {1118779988, 12}, {                                                    \
       1110779988, 13                                                           \
-    }                                                                          \
-  }
+    }
 
-  const std::map<int, int> std_map = INIT_SEQ;
-  constexpr frozen::map<int, int, 128> frozen_map = INIT_SEQ;
+  const std::map<int, int> std_map = { INIT_SEQ };
+  constexpr frozen::map<int, int, 128> frozen_map = { INIT_SEQ };
   SECTION("checking size and content") {
     REQUIRE(std_map.size() == frozen_map.size());
     for (auto v : std_map)
@@ -277,5 +275,18 @@ TEST_CASE("frozen::map <> std::map", "[map]") {
     std::cout << "frozen::map<int, int>: " << frozen_duration << " ms"
               << std::endl;
     //REQUIRE(std_duration > frozen_duration);
+  }
+}
+
+TEST_CASE("frozen::map <> frozen::make_map", "[map]") {
+  constexpr frozen::map<int, int, 128> frozen_map = { INIT_SEQ };
+  constexpr auto frozen_map2 = frozen::make_map<int, int>({INIT_SEQ});
+
+  SECTION("checking size and content") {
+    REQUIRE(frozen_map.size() == frozen_map2.size());
+    for (auto v : frozen_map2)
+      REQUIRE(frozen_map.count(std::get<0>(v)));
+    for (auto v : frozen_map)
+      REQUIRE(frozen_map2.count(std::get<0>(v)));
   }
 }
