@@ -52,7 +52,7 @@ TEST_CASE("empty frozen map", "[map]") {
   std::for_each(ze_map.begin(), ze_map.end(), [](std::tuple<int, float>) {});
   REQUIRE(std::distance(ze_map.rbegin(), ze_map.rend()) == 0);
   REQUIRE(std::count(ze_map.crbegin(), ze_map.crend(),
-                     std::make_tuple(3, 5.3)) == 0);
+                     decltype(ze_map)::value_type(3, 5.3)) == 0);
 }
 
 TEST_CASE("singleton frozen map", "[map]") {
@@ -124,9 +124,9 @@ TEST_CASE("singleton frozen map", "[map]") {
   std::for_each(ze_map.begin(), ze_map.end(), [](std::tuple<int, float>) {});
   REQUIRE(std::distance(ze_map.rbegin(), ze_map.rend()) == 1);
   REQUIRE(std::count(ze_map.crbegin(), ze_map.crend(),
-                     std::make_tuple(3, 14)) == 0);
+                     decltype(ze_map)::value_type(3, 14)) == 0);
   REQUIRE(std::count(ze_map.crbegin(), ze_map.crend(),
-                     std::make_tuple(1, 3.14)) == 1);
+                     decltype(ze_map)::value_type(1, 3.14)) == 1);
 }
 
 TEST_CASE("triple frozen map", "[map]") {
@@ -201,9 +201,9 @@ TEST_CASE("triple frozen map", "[map]") {
   std::for_each(ze_map.begin(), ze_map.end(), [](std::tuple<long, bool>) {});
   REQUIRE(std::distance(ze_map.rbegin(), ze_map.rend()) == ze_map.size());
   REQUIRE(std::count(ze_map.crbegin(), ze_map.crend(),
-                     std::make_tuple(3, 14)) == 0);
+                     decltype(ze_map)::value_type(3, 14)) == 0);
   REQUIRE(std::count(ze_map.crbegin(), ze_map.crend(),
-                     std::make_tuple(20, false)) == 1);
+                     decltype(ze_map)::value_type(20, false)) == 1);
 }
 
 TEST_CASE("frozen::map <> std::map", "[map]") {
