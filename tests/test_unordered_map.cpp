@@ -51,6 +51,9 @@ TEST_CASE("singleton frozen unordered map", "[unordered map]") {
   REQUIRE(cbegin < cend);
 
   std::for_each(ze_map.begin(), ze_map.end(), [](std::tuple<int, float>) {});
+
+  static_assert(std::is_same<typename decltype(ze_map)::key_type, int>::value, "");
+  static_assert(std::is_same<typename decltype(ze_map)::mapped_type, double>::value, "");
 }
 
 TEST_CASE("frozen::unordered_map <> std::unordered_map", "[unordered_map]") {
@@ -124,6 +127,11 @@ TEST_CASE("frozen::unordered_map <> std::unordered_map", "[unordered_map]") {
 
     // REQUIRE(std_duration > frozen_duration);
   }
+
+  static_assert(std::is_same<typename decltype(std_map)::key_type,
+                             typename decltype(frozen_map)::key_type>::value, "");
+  static_assert(std::is_same<typename decltype(std_map)::mapped_type,
+                             typename decltype(frozen_map)::mapped_type>::value, "");
 }
 
 TEST_CASE("frozen::unordered_map <> frozen::make_unordered_map", "[unordered_map]") {

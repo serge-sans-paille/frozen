@@ -52,12 +52,11 @@ class unordered_map {
   container_type items_;
   tables_type tables_;
 
-  using pair_type = typename container_type::value_type;
-
 public:
   /* typedefs */
   using key_type = Key;
-  using value_type = Value;
+  using mapped_type = Value;
+  using value_type = typename container_type::value_type;
   using size_type = typename container_type::size_type;
   using difference_type = typename container_type::difference_type;
   using hasher = Hash;
@@ -77,17 +76,17 @@ public:
       : equal_{equal}
       , items_{items}
       , tables_{
-            bits::make_pmh_tables<pair_type, N, storage_size>(
+            bits::make_pmh_tables<value_type, N, storage_size>(
                 items_,
                 hash, bits::GetKey{})} {}
   explicit constexpr unordered_map(container_type items)
       : unordered_map{items, Hash{}, KeyEqual{}} {}
 
-  constexpr unordered_map(std::initializer_list<pair_type> items,
+  constexpr unordered_map(std::initializer_list<value_type> items,
                           Hash const & hash, KeyEqual const & equal)
-      : unordered_map{bits::make_unordered_array<pair_type, N>(items), hash, equal} {}
+      : unordered_map{bits::make_unordered_array<value_type, N>(items), hash, equal} {}
 
-  constexpr unordered_map(std::initializer_list<pair_type> items)
+  constexpr unordered_map(std::initializer_list<value_type> items)
       : unordered_map{items, Hash{}, KeyEqual{}} {}
 
   /* iterators */

@@ -276,6 +276,11 @@ TEST_CASE("frozen::map <> std::map", "[map]") {
               << std::endl;
     //REQUIRE(std_duration > frozen_duration);
   }
+
+  static_assert(std::is_same<typename decltype(std_map)::key_type,
+                             typename decltype(frozen_map)::key_type>::value, "");
+  static_assert(std::is_same<typename decltype(std_map)::mapped_type,
+                             typename decltype(frozen_map)::mapped_type>::value, "");
 }
 
 TEST_CASE("frozen::map <> frozen::make_map", "[map]") {
