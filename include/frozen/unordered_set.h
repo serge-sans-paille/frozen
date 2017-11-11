@@ -76,7 +76,7 @@ public:
                           KeyEqual const &equal)
       : equal_{equal}
       , items_(keys)
-      , tables_{bits::make_pmh_tables<Key, N, storage_size>(
+      , tables_{bits::make_pmh_tables<storage_size>(
             items_, hash, bits::Get{})} {}
   explicit constexpr unordered_set(container_type keys)
       : unordered_set{keys, Hash{}, KeyEqual{}} {}

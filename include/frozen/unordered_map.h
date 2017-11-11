@@ -76,9 +76,8 @@ public:
       : equal_{equal}
       , items_{items}
       , tables_{
-            bits::make_pmh_tables<value_type, N, storage_size>(
-                items_,
-                hash, bits::GetKey{})} {}
+            bits::make_pmh_tables<storage_size>(
+                items_, hash, bits::GetKey{})} {}
   explicit constexpr unordered_map(container_type items)
       : unordered_map{items, Hash{}, KeyEqual{}} {}
 

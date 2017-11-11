@@ -71,7 +71,7 @@ struct pmh_tables {
   }
 };
 
-template <class Item, std::size_t N, std::size_t M, class Hash, class Key>
+template <std::size_t M, class Item, std::size_t N, class Hash, class Key>
 pmh_tables<M, Hash> constexpr make_pmh_tables(const std::array<Item, N> &
                                                                items,
                                                            Hash const &hash,
