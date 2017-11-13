@@ -31,6 +31,7 @@ template <class T> struct elsa {
 
   constexpr std::size_t operator()(T const &value) const { return value; }
 
+/*
   constexpr std::size_t operator()(T const &value, std::size_t seed) const {
     std::size_t key = seed ^ value;
     key = (~key) + (key << 21); // key = (key << 21) - key - 1;
@@ -42,6 +43,7 @@ template <class T> struct elsa {
     key = key + (key << 31);
     return key;
   }
+*/
 };
 
 template <class T> using anna = elsa<T>;

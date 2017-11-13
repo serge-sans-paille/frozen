@@ -50,7 +50,7 @@ class unordered_set {
   static constexpr std::size_t storage_size =
       bits::next_highest_power_of_two(N) * (N < 32 ? 2 : 1); // size adjustment to prevent high collision rate for small sets
   static constexpr unsigned hash_bits = bits::log_base_two(storage_size);
-  using AdaptedHash = bits::multiply_shift<Hash, hash_bits>;
+  using AdaptedHash = decltype(bits::maybe_adapt_hash<hash_bits, Key>(std::declval<Hash>()));
   using container_type = std::array<Key, N>;
   using tables_type = bits::pmh_tables<storage_size, AdaptedHash>;
 
@@ -81,7 +81,7 @@ public:
       : equal_{equal}
       , items_(keys)
       , tables_{bits::make_pmh_tables<storage_size>(
-            items_, bits::adapt_hash<hash_bits>(hash), bits::Get{}, bits::LCG{})} {}
+            items_, bits::maybe_adapt_hash<hash_bits, Key>(hash), bits::Get{}, bits::LCG{})} {}
   explicit constexpr unordered_set(container_type keys)
       : unordered_set{keys, Hash{}, KeyEqual{}} {}
 
@@ -128,7 +128,7 @@ public:
   constexpr std::size_t max_bucket_count() const { return storage_size; }
 
   /* observers*/
-  constexpr hasher hash_function() const { return tables_.hash_.hash; }
+  constexpr hasher hash_function() const { return tables_.hash_; }
   constexpr key_equal key_eq() const { return equal_; }
 
 private:
