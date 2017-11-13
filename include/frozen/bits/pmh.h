@@ -86,8 +86,6 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const std::array<Item, N> &
                                                            PRG prg) {
   // Step 1: Place all of the keys into buckets
   cvector<bucket<M>, M> buckets;
-  cvector<uint64_t, M> values;
-  cvector<maybe_seed, M> G;
 
   auto *it = &std::get<0>(items);
 
@@ -96,6 +94,9 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const std::array<Item, N> &
 
   // Step 2: Sort the buckets and process the ones with the most items first.
   bits::quicksort(buckets.begin(), buckets.begin() + M - 1, bucket_size_compare{});
+
+  cvector<uint64_t, M> values;
+  cvector<maybe_seed, M> G;
 
   std::size_t b = 0;
   for (; b < M; ++b) {
