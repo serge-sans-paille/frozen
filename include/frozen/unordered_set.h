@@ -25,6 +25,7 @@
 #include <array>
 #include <frozen/bits/elsa.h>
 #include <frozen/bits/pmh.h>
+#include <frozen/bits/prg.h>
 
 #include <functional>
 #include <tuple>
@@ -77,7 +78,7 @@ public:
       : equal_{equal}
       , items_(keys)
       , tables_{bits::make_pmh_tables<storage_size>(
-            items_, hash, bits::Get{})} {}
+            items_, hash, bits::Get{}, bits::LCG{})} {}
   explicit constexpr unordered_set(container_type keys)
       : unordered_set{keys, Hash{}, KeyEqual{}} {}
 

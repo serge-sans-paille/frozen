@@ -78,11 +78,12 @@ struct pmh_tables {
   }
 };
 
-template <std::size_t M, class Item, std::size_t N, class Hash, class Key>
+template <std::size_t M, class Item, std::size_t N, class Hash, class Key, class PRG>
 pmh_tables<M, Hash> constexpr make_pmh_tables(const std::array<Item, N> &
                                                                items,
                                                            Hash const &hash,
-                                                           Key const &key) {
+                                                           Key const &key,
+                                                           PRG prg) {
   // Step 1: Place all of the keys into buckets
   cvector<bucket<M>, M> buckets;
   cvector<uint64_t, M> values;
@@ -103,7 +104,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const std::array<Item, N> &
     if (bsize > 1) {
       // Repeatedly try different values of d until we find a hash function
       // that places all items in the bucket into free slots
-      std::size_t d = 1;
+      uint64_t d = prg();
       cvector<std::size_t, M> slots;
 
       while (slots.size() < bsize) {
@@ -111,7 +112,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const std::array<Item, N> &
 
         if (values[slot] != 0 || !all_different_from(slots, slot)) {
           slots.clear();
-          d++;
+          d = prg();
           continue;
         }
 
