@@ -43,6 +43,11 @@ auto constexpr next_highest_power_of_two(std::size_t v) {
   return v;
 }
 
+inline constexpr unsigned log_base_two(std::size_t n) {
+  if (n > 1) { return 1 + log_base_two(n >> 1); }
+  return 0;
+}
+
 template <class T, std::size_t N, class Iter, std::size_t... I>
 constexpr std::array<T, N> make_unordered_array(Iter &iter,
                                                 std::index_sequence<I...>) {
