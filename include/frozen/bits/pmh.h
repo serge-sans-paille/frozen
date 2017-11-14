@@ -55,10 +55,21 @@ constexpr bool all_different_from(cvector<T, N> & data, T & a) {
 }
 
 // Represents either an index into data items, or a seed for use in
-// next hash table. Bool keeps track of which
-struct maybe_seed {
-  bool is_seed;
-  uint64_t value;
+// next hash table. Special bit keeps track of which.
+class maybe_seed {
+  static constexpr uint64_t special_bit = (1ull << 63);
+  uint64_t value_ = 0;
+
+public:
+  constexpr maybe_seed(bool is_seed, uint64_t value)
+    : value_(is_seed ? (value | special_bit) : (value & (~special_bit))) {}
+
+  constexpr maybe_seed() = default;
+  constexpr maybe_seed(const maybe_seed &) = default;
+  constexpr maybe_seed & operator =(const maybe_seed &) = default;
+  
+  constexpr bool is_seed() const { return value_ & special_bit; }
+  constexpr uint64_t value() const { return value_; }
 };
 
 // Represents the two hash tables created by pmh algorithm
@@ -74,8 +85,8 @@ struct pmh_tables {
   template <typename KeyType>
   constexpr uint64_t lookup(const KeyType & key) const {
     auto const & d = first_table_[hash_(key, first_seed_) % M];
-    if (!d.is_seed) { return d.value; }
-    return second_table_[hash_(key, d.value) % M];
+    if (!d.is_seed()) { return d.value(); }
+    return second_table_[hash_(key, d.value()) % M];
   }
 };
 
@@ -134,22 +145,22 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const std::array<Item, N> &
     if (bsize > 1) {
       // Repeatedly try different values of d until we find a hash function
       // that places all items in the bucket into free slots
-      uint64_t d = prg();
+      maybe_seed d{true, prg()};
       cvector<std::size_t, M> slots;
 
       while (slots.size() < bsize) {
-        std::size_t slot = hash(key(it[bucket[slots.size()] - 1]), d) % M;
+        std::size_t slot = hash(key(it[bucket[slots.size()] - 1]), d.value()) % M;
 
         if (values[slot] != 0 || !all_different_from(slots, slot)) {
           slots.clear();
-          d = prg();
+          d = maybe_seed{true, prg()};
           continue;
         }
 
         slots.push_back(slot);
       }
 
-      G[hash(key(it[bucket[0] - 1]), first_seed) % M] = maybe_seed{true, d};
+      G[hash(key(it[bucket[0] - 1]), first_seed) % M] = d;
       for (std::size_t i = 0; i < bsize; ++i)
         values[slots[i]] = bucket[i];
     } else if (bsize == 1) {
