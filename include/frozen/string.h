@@ -67,6 +67,10 @@ class string {
     }
     return size() < other.size();
   }
+
+  constexpr const char * data() const {
+    return data_;
+  }
 };
 
 template <> struct elsa<string> {
