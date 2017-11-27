@@ -25,6 +25,7 @@
 
 #include "bits/algorithms.h"
 #include <array>
+#include <utility>
 
 namespace frozen {
 
@@ -53,11 +54,19 @@ public:
 public:
   /* constructors */
   constexpr set(const set &other) = default;
-  constexpr set(std::initializer_list<Key> keys, Compare const &comp)
-      : compare_{comp}, keys_{bits::quicksort(
-                            bits::make_unordered_array<Key, N>(keys),
-                            compare_)} {}
-  constexpr set(std::initializer_list<Key> keys) : set{keys, Compare{}} {}
+
+  constexpr set(container_type keys, Compare const & comp)
+      : compare_{comp}
+      , keys_(bits::quicksort(container_type{keys}, compare_)) {}
+
+  explicit constexpr set(container_type keys)
+      : set{keys, Compare{}} {}
+
+  constexpr set(std::initializer_list<Key> list, Compare const & comp)
+      : set(bits::make_unordered_array<Key, N>(list), comp) {}
+
+  constexpr set(std::initializer_list<Key> list)
+      : set(bits::make_unordered_array<Key, N>(list)) {}
 
   /* capacity */
   constexpr bool empty() const { return !N; }
@@ -141,6 +150,9 @@ public:
 public:
   /* constructors */
   constexpr set(const set &other) = default;
+  constexpr set(std::array<Key, 0>, Compare const &) {}
+  explicit constexpr set(std::array<Key, 0>) {}
+
   constexpr set(std::initializer_list<Key>, Compare const &comp)
       : compare_{comp} {}
   constexpr set(std::initializer_list<Key> keys) : set{keys, Compare{}} {}
@@ -177,6 +189,12 @@ public:
   constexpr const_reverse_iterator rend() const { return nullptr; }
   constexpr const_reverse_iterator crend() const { return nullptr; }
 };
+
+template <typename T, std::size_t N>
+constexpr auto make_set(const T (&args)[N]) {
+  return set<T, N>(bits::to_array(args));
+}
+
 } // namespace frozen
 
 #endif

@@ -1,17 +1,16 @@
 #include <chrono>
 #include <frozen/string.h>
-#include <frozen/unordered_set.h>
+#include <frozen/set.h>
 #include <iostream>
-#include <unordered_set>
+#include <set>
 
 #include "bench.hpp"
 #include "catch.hpp"
 
 using namespace frozen::string_literals;
 
-TEST_CASE("tripleton int frozen unordered set", "[unordered set]") {
-  constexpr frozen::unordered_set<frozen::string, 3> ze_set{"1"_s, "2"_s,
-                                                            "3"_s};
+TEST_CASE("tripleton int frozen ordered set", "[set]") {
+  constexpr frozen::set<frozen::string, 3> ze_set{"1"_s, "2"_s, "3"_s};
 
   constexpr auto empty = ze_set.empty();
   REQUIRE(!empty);
@@ -40,22 +39,14 @@ TEST_CASE("tripleton int frozen unordered set", "[unordered set]") {
   auto begin = ze_set.begin(), end = ze_set.end();
   REQUIRE(begin != end);
 
-  auto constexpr key_hash = ze_set.hash_function();
-  auto constexpr key_hashed = key_hash("1"_s);
-  REQUIRE(key_hashed);
-
-  auto constexpr key_eq = ze_set.key_eq();
-  auto constexpr value_comparison = key_eq("11"_s, "11"_s);
-  REQUIRE(value_comparison);
-
   auto cbegin = ze_set.cbegin(), cend = ze_set.cend();
   REQUIRE(cbegin != cend);
 
   std::for_each(ze_set.begin(), ze_set.end(), [](frozen::string const &) {});
 }
 
-TEST_CASE("frozen::unordered_set<str> <> std::unordered_set",
-          "[unordered_set]") {
+TEST_CASE("frozen::set<str> <> std::set",
+          "[set]") {
 #define INIT_SEQ                                                               \
   "19"_s, "1"_s, "2"_s, "4"_s, "5"_s, "6"_s, "7"_s, "8"_s, "9"_s, "10"_s,      \
       "11"_s, "111"_s, "1112"_s, "1115"_s, "1118"_s, "1110"_s, "1977"_s,       \
@@ -79,8 +70,8 @@ TEST_CASE("frozen::unordered_set<str> <> std::unordered_set",
       "8779988"_s, "9779988"_s, "10779988"_s, "11779988"_s, "111779988"_s,     \
       "1112779988"_s, "1115779988"_s, "1118779988"_s, "1110779988"_s
 
-  const std::unordered_set<frozen::string> std_set = {INIT_SEQ};
-  constexpr frozen::unordered_set<frozen::string, 128> frozen_set = {INIT_SEQ};
+  const std::set<frozen::string> std_set = {INIT_SEQ};
+  constexpr frozen::set<frozen::string, 128> frozen_set = {INIT_SEQ};
   SECTION("checking size and content") {
     REQUIRE(std_set.size() == frozen_set.size());
     for (auto v : std_set)
@@ -103,7 +94,7 @@ TEST_CASE("frozen::unordered_set<str> <> std::unordered_set",
     auto std_diff = std_stop - std_start;
     auto std_duration =
         std::chrono::duration<double, std::milli>(std_diff).count();
-    std::cout << "std::unordered_set<str>: " << std_duration << " ms"
+    std::cout << "std::set<str>: " << std_duration << " ms"
               << std::endl;
 
     auto frozen_start = std::chrono::steady_clock::now();
@@ -116,9 +107,9 @@ TEST_CASE("frozen::unordered_set<str> <> std::unordered_set",
     auto frozen_diff = frozen_stop - frozen_start;
     auto frozen_duration =
         std::chrono::duration<double, std::milli>(frozen_diff).count();
-    std::cout << "frozen::unordered_set<str>: " << frozen_duration << " ms"
+    std::cout << "frozen::set<str>: " << frozen_duration << " ms"
               << std::endl;
 
-    REQUIRE(std_duration > frozen_duration);
+    // REQUIRE(std_duration > frozen_duration);
   }
 }

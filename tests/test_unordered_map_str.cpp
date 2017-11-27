@@ -4,6 +4,7 @@
 #include <iostream>
 #include <unordered_map>
 
+#include "bench.hpp"
 #include "catch.hpp"
 using namespace frozen::string_literals;
 
@@ -73,9 +74,10 @@ TEST_CASE("frozen::unordered_map<str, int> <> std::unordered_map",
     std::initializer_list<std::pair<frozen::string, int>> data = {INIT_SEQ};
     auto std_start = std::chrono::steady_clock::now();
     for (int i = 0; i < 10000; ++i)
-      for (auto val : data)
-        volatile const auto __attribute__((unused)) c =
-            std_map.count(val.first);
+      for (auto val : data) {
+        benchmark::DoNotOptimize(val);
+        benchmark::DoNotOptimize(std_map.count(val.first));
+      }
     auto std_stop = std::chrono::steady_clock::now();
     auto std_diff = std_stop - std_start;
     auto std_duration =
@@ -85,9 +87,10 @@ TEST_CASE("frozen::unordered_map<str, int> <> std::unordered_map",
 
     auto frozen_start = std::chrono::steady_clock::now();
     for (int i = 0; i < 10000; ++i)
-      for (auto val : data)
-        volatile const auto __attribute__((unused)) c =
-            frozen_map.count(val.first);
+      for (auto val : data) {
+        benchmark::DoNotOptimize(val);
+        benchmark::DoNotOptimize(frozen_map.count(val.first));
+      }
     auto frozen_stop = std::chrono::steady_clock::now();
     auto frozen_diff = frozen_stop - frozen_start;
     auto frozen_duration =

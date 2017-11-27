@@ -24,8 +24,10 @@
 #define FROZEN_LETITGO_ALGORITHMS_H
 
 #include <array>
-#include <tuple>
 #include <limits>
+#include <tuple>
+#include <type_traits>
+#include <utility>
 
 namespace frozen {
 
@@ -54,6 +56,21 @@ make_unordered_array(std::initializer_list<T> const values) {
   return make_unordered_array<T, N>(iter, std::make_index_sequence<N>{});
 }
 
+// This is std::experimental::to_array
+// http://en.cppreference.com/w/cpp/experimental/to_array
+template <class T, std::size_t N, std::size_t... I>
+constexpr std::array<std::remove_cv_t<T>, N>
+    to_array_impl(T (&a)[N], std::index_sequence<I...>)
+{
+  return { {a[I]...} };
+}
+
+template <class T, std::size_t N>
+constexpr auto to_array(T (&a)[N]) -> std::array<std::remove_cv_t<T>, N>
+{
+  return to_array_impl(a, std::make_index_sequence<N>{});
+}
+
 template <typename Iter, typename Compare>
 constexpr auto min_element(Iter begin, const Iter end,
                            Compare const &compare) {
@@ -72,6 +89,12 @@ constexpr void cswap(T &a, T &b) {
   auto tmp = a;
   a = b;
   b = tmp;
+}
+
+template <class T, class U>
+constexpr void cswap(std::pair<T, U> & a, std::pair<T, U> & b) {
+  cswap(a.first, b.first);
+  cswap(a.second, b.second);
 }
 
 template <class... Tys, std::size_t... Is> 

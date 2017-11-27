@@ -25,7 +25,7 @@
 
 #include <array>
 #include <stdexcept>
-#include <tuple>
+#include <utility>
 
 #include "bits/algorithms.h"
 
@@ -42,19 +42,19 @@ public:
       : comparator_(comparator) {}
 
   template <class Key, class Value>
-  constexpr int operator()(std::tuple<Key, Value> const &self,
-                           std::tuple<Key, Value> const &other) const {
+  constexpr int operator()(std::pair<Key, Value> const &self,
+                           std::pair<Key, Value> const &other) const {
     return comparator_(std::get<0>(self), std::get<0>(other));
   }
 
   template <class Key, class Value>
   constexpr int operator()(Key const &self_key,
-                           std::tuple<Key, Value> const &other) const {
+                           std::pair<Key, Value> const &other) const {
     return comparator_(self_key, std::get<0>(other));
   }
 
   template <class Key, class Value>
-  constexpr int operator()(std::tuple<Key, Value> const &self,
+  constexpr int operator()(std::pair<Key, Value> const &self,
                            Key const &other_key) const {
     return comparator_(std::get<0>(self), other_key);
   }
@@ -68,7 +68,7 @@ public:
 
 template <class Key, class Value, std::size_t N, class Compare = std::less<Key>>
 class map {
-  using container_type = std::array<std::tuple<Key, Value>, N>;
+  using container_type = std::array<std::pair<Key, Value>, N>;
   impl::CompareKey<Compare> compare_;
   container_type keys_;
 
@@ -91,10 +91,14 @@ public:
 
 public:
   /* constructors */
+  constexpr map(container_type items, Compare const &compare)
+      : compare_{compare}
+      , keys_{bits::quicksort(items, compare_)} {}
+  explicit constexpr map(container_type items)
+      : map{items, Compare{}} {}
+
   constexpr map(std::initializer_list<value_type> items, Compare const &compare)
-      : compare_{compare}, keys_{bits::quicksort(
-                               bits::make_unordered_array<value_type, N>(items),
-                               compare_)} {}
+      : map(bits::make_unordered_array<value_type, N>(items), compare) {}
   constexpr map(std::initializer_list<value_type> items)
       : map{items, Compare{}} {}
 
@@ -169,7 +173,7 @@ public:
 template <class Key, class Value, class Compare>
 class map<Key, Value, 0, Compare> {
   using container_type =
-      std::array<std::tuple<Key, Value>, 1>; // just for the type definitions
+      std::array<std::pair<Key, Value>, 1>; // just for the type definitions
   impl::CompareKey<Compare> compare_;
 
 public:
@@ -236,6 +240,12 @@ public:
   constexpr key_compare key_comp() const { return compare_; }
   constexpr key_compare value_comp() const { return compare_; }
 };
+
+template <typename T, typename U, std::size_t N>
+constexpr auto make_map(std::pair<T, U> const (&items)[N]) {
+  return map<T, U, N>{bits::to_array(items)};
+}
+
 } // namespace frozen
 
 #endif

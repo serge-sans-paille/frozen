@@ -3,6 +3,7 @@
 #include <iostream>
 #include <unordered_map>
 
+#include "bench.hpp"
 #include "catch.hpp"
 TEST_CASE("singleton frozen unordered map", "[unordered map]") {
   constexpr frozen::unordered_map<int, double, 1> ze_map{{1, 2.}};
@@ -50,11 +51,13 @@ TEST_CASE("singleton frozen unordered map", "[unordered map]") {
   REQUIRE(cbegin < cend);
 
   std::for_each(ze_map.begin(), ze_map.end(), [](std::tuple<int, float>) {});
+
+  static_assert(std::is_same<typename decltype(ze_map)::key_type, int>::value, "");
+  static_assert(std::is_same<typename decltype(ze_map)::mapped_type, double>::value, "");
 }
 
 TEST_CASE("frozen::unordered_map <> std::unordered_map", "[unordered_map]") {
 #define INIT_SEQ                                                               \
-  {                                                                            \
     {19, 12}, {1, 12}, {2, 12}, {4, 12}, {5, 12}, {6, 12}, {7, 12}, {8, 12},   \
         {9, 12}, {10, 12}, {11, 12}, {111, 12}, {1112, 12}, {1115, 12},        \
         {1118, 12}, {1110, 12}, {1977, 12}, {177, 12}, {277, 12}, {477, 12},   \
@@ -82,11 +85,10 @@ TEST_CASE("frozen::unordered_map <> std::unordered_map", "[unordered_map]") {
         {11779988, 12}, {111779988, 12}, {1112779988, 12}, {1115779988, 12},   \
         {1118779988, 12}, {                                                    \
       1110779988, 13                                                           \
-    }                                                                          \
-  }
+    }
 
-  const std::unordered_map<int, int> std_map = INIT_SEQ;
-  constexpr frozen::unordered_map<int, int, 128> frozen_map = INIT_SEQ;
+  const std::unordered_map<int, int> std_map = { INIT_SEQ };
+  constexpr frozen::unordered_map<int, int, 128> frozen_map = { INIT_SEQ };
   SECTION("checking size and content") {
     REQUIRE(std_map.size() == frozen_map.size());
     for (auto v : std_map)
@@ -98,21 +100,49 @@ TEST_CASE("frozen::unordered_map <> std::unordered_map", "[unordered_map]") {
   SECTION("checking minimal performance requirements") {
     auto std_start = std::chrono::steady_clock::now();
     for (int i = 0; i < 10000; ++i)
-      for (int j = 0; j < 10000; ++j)
-        volatile const auto c = std_map.count(i + j);
+      for (int j = 0; j < 10000; ++j) {
+        benchmark::DoNotOptimize(i);
+        benchmark::DoNotOptimize(j);
+        benchmark::DoNotOptimize(std_map.count(i + j));
+      }
     auto std_stop = std::chrono::steady_clock::now();
     auto std_diff = std_stop - std_start;
     auto std_duration =
         std::chrono::duration<double, std::milli>(std_diff).count();
+    std::cout << "std::unordered_map<int, int>: " << std_duration << " ms" << std::endl;
+
 
     auto frozen_start = std::chrono::steady_clock::now();
     for (int i = 0; i < 10000; ++i)
-      for (int j = 0; j < 10000; ++j)
-        volatile const auto c = frozen_map.count(i + j);
+      for (int j = 0; j < 10000; ++j) {
+        benchmark::DoNotOptimize(i);
+        benchmark::DoNotOptimize(j);
+        benchmark::DoNotOptimize(frozen_map.count(i + j));
+      }
     auto frozen_stop = std::chrono::steady_clock::now();
     auto frozen_diff = frozen_stop - frozen_start;
     auto frozen_duration =
         std::chrono::duration<double, std::milli>(frozen_diff).count();
-    REQUIRE(std_duration > frozen_duration);
+    std::cout << "frozen::unordered_map<int, int>: " << frozen_duration << " ms" << std::endl;
+
+    // REQUIRE(std_duration > frozen_duration);
+  }
+
+  static_assert(std::is_same<typename decltype(std_map)::key_type,
+                             typename decltype(frozen_map)::key_type>::value, "");
+  static_assert(std::is_same<typename decltype(std_map)::mapped_type,
+                             typename decltype(frozen_map)::mapped_type>::value, "");
+}
+
+TEST_CASE("frozen::unordered_map <> frozen::make_unordered_map", "[unordered_map]") {
+  constexpr frozen::unordered_map<int, int, 128> frozen_map = { INIT_SEQ };
+  constexpr auto frozen_map2 = frozen::make_unordered_map<int, int>({INIT_SEQ});
+
+  SECTION("checking size and content") {
+    REQUIRE(frozen_map.size() == frozen_map2.size());
+    for (auto v : frozen_map2)
+      REQUIRE(frozen_map.count(std::get<0>(v)));
+    for (auto v : frozen_map)
+      REQUIRE(frozen_map2.count(std::get<0>(v)));
   }
 }
