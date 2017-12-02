@@ -32,14 +32,13 @@ template <class T> struct elsa {
   constexpr std::size_t operator()(T const &value) const { return value; }
 
   constexpr std::size_t operator()(T const &value, std::size_t seed) const {
-    std::size_t key = seed ^ value;
-    key = (~key) + (key << 21); // key = (key << 21) - key - 1;
-    key = key ^ (key >> 24);
-    key = (key + (key << 3)) + (key << 8); // key * 265
-    key = key ^ (key >> 14);
-    key = (key + (key << 2)) + (key << 4); // key * 21
-    key = key ^ (key >> 28);
-    key = key + (key << 31);
+    // murmur3 finalizer, see https://github.com/aappleby/smhasher/wiki/MurmurHash3
+    std::size_t key = value ^ seed;
+    key ^= (key >> 33);
+    key *= 0xff51afd7ed558ccd;
+    key ^= (key >> 33);
+    key *= 0xc4ceb9fe1a85ec53;
+    key ^= (key >> 33);
     return key;
   }
 };
