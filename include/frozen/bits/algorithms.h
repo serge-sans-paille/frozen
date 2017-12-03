@@ -157,13 +157,19 @@ template <class T, class Compare> struct LowerBound {
                                   std::integral_constant<std::size_t, N>) {
     auto constexpr step = N / 2;
     auto it = first + step;
+#ifdef BRANCHLESS // the compiler is generally smart enough to deduce it
+    bool cmp = compare_(*it, value_);
+    auto next_it = cmp ? it + 1 : first;
+    auto constexpr next_count = (N&1) ? step : (N - (step + 1));
+    return doit(next_it, std::integral_constant<std::size_t, next_count>{});
+#else
+    auto constexpr next_count = (N&1) ? step : (N - (step + 1));
     if (compare_(*it, value_)) {
-      auto constexpr next_count = N - (step + 1);
       return doit(it + 1, std::integral_constant<std::size_t, next_count>{});
     } else {
-      auto constexpr next_count = step;
       return doit(first, std::integral_constant<std::size_t, next_count>{});
     }
+#endif
   }
 };
 
