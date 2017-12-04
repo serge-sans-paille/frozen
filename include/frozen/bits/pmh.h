@@ -71,6 +71,13 @@ struct pmh_tables {
   }
 };
 
+constexpr std::size_t next_candidate(std::size_t seed) {
+  // parameters from Numerical Recipes for an uint32_t, see https://en.wikipedia.org/wiki/Linear_congruential_generator
+  constexpr std::size_t a = 1664525;
+  constexpr std::size_t c = 1013904223;
+  return (a * seed + c) >> 1;
+}
+
 template <std::size_t M, class Item, std::size_t N, class Hash, class Key>
 pmh_tables<M, Hash> constexpr make_pmh_tables(const std::array<Item, N> &
                                                                items,
@@ -106,7 +113,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const std::array<Item, N> &
 
       if (values[slot] != 0 || !all_different_from(slots, slot)) {
         slots.clear();
-        d++;
+        d = next_candidate(d);
         continue;
       }
 
