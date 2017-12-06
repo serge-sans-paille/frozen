@@ -28,6 +28,7 @@
 #include <utility>
 
 #include "bits/algorithms.h"
+#include "bits/prg.h"
 
 namespace frozen {
 

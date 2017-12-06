@@ -24,7 +24,9 @@
 #define FROZEN_LETITGO_UNORDERED_MAP_H
 #include <array>
 #include <frozen/bits/elsa.h>
+#include <frozen/bits/multiply_shift.h>
 #include <frozen/bits/pmh.h>
+#include <frozen/bits/prg.h>
 #include <tuple>
 #include <functional>
 
@@ -45,8 +47,10 @@ template <class Key, class Value, std::size_t N, typename Hash = anna<Key>,
 class unordered_map {
   static constexpr std::size_t storage_size =
       bits::next_highest_power_of_two(N) * (N < 32 ? 2 : 1); // size adjustment to prevent high collision rate for small sets
+  static constexpr unsigned hash_bits = bits::log_base_two(storage_size);
+  using AdaptedHash = decltype(bits::maybe_adapt_hash<hash_bits, Key>(std::declval<Hash>()));
   using container_type = std::array<std::pair<Key, Value>, N>;
-  using tables_type = bits::pmh_tables<storage_size, Hash>;
+  using tables_type = bits::pmh_tables<storage_size, AdaptedHash>;
 
   KeyEqual const equal_;
   container_type items_;
@@ -77,7 +81,7 @@ public:
       , items_{items}
       , tables_{
             bits::make_pmh_tables<storage_size>(
-                items_, hash, bits::GetKey{})} {}
+                items_, bits::maybe_adapt_hash<hash_bits, Key>(hash), bits::GetKey{}, bits::LCG{})} {}
   explicit constexpr unordered_map(container_type items)
       : unordered_map{items, Hash{}, KeyEqual{}} {}
 

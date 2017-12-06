@@ -20,33 +20,32 @@
  * under the License.
  */
 
-#ifndef FROZEN_LETITGO_ELSA_H
-#define FROZEN_LETITGO_ELSA_H
+#ifndef FROZEN_LETITGO_PRG_H
+#define FROZEN_LETITGO_PRG_H
+
+#include <cstdint>
 
 namespace frozen {
+namespace bits {
 
-template <class T> struct elsa {
-  static_assert(std::is_integral<T>::value,
-                "only supports integral types, specialize for other types");
+// Parameters taken from
+// https://en.wikipedia.org/wiki/Linear_congruential_generator
+// Donald Knuth, MMIX generator
 
-  constexpr std::size_t operator()(T const &value) const { return value; }
+struct LCG {
+  static constexpr uint64_t a = 6364136223846793005;
+  static constexpr uint64_t c = 1442695040888963407;
 
-/*
-  constexpr std::size_t operator()(T const &value, std::size_t seed) const {
-    std::size_t key = seed ^ value;
-    key = (~key) + (key << 21); // key = (key << 21) - key - 1;
-    key = key ^ (key >> 24);
-    key = (key + (key << 3)) + (key << 8); // key * 265
-    key = key ^ (key >> 14);
-    key = (key + (key << 2)) + (key << 4); // key * 21
-    key = key ^ (key >> 28);
-    key = key + (key << 31);
-    return key;
+  uint64_t value = 0;
+  
+  constexpr uint64_t operator()() {
+  	value *= a;
+  	value += c;
+  	return value;
   }
-*/
 };
 
-template <class T> using anna = elsa<T>;
+} // namespace bits
 } // namespace frozen
 
 #endif

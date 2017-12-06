@@ -25,22 +25,30 @@ test_set.o: test_set.cpp ../include/frozen/set.h \
 test_unordered_map.o: test_unordered_map.cpp \
   ../include/frozen/unordered_map.h ../include/frozen/bits/elsa.h \
   ../include/frozen/bits/pmh.h \
+  ../include/frozen/bits/prg.h \
+  ../include/frozen/bits/multiply_shift.h \
   ../include/frozen/bits/algorithms.h \
   ../include/frozen/bits/basic_types.h \
   catch.hpp
 test_unordered_map_str.o: test_unordered_map_str.cpp \
   ../include/frozen/unordered_map.h ../include/frozen/bits/elsa.h \
   ../include/frozen/bits/pmh.h \
+  ../include/frozen/bits/prg.h \
+  ../include/frozen/bits/multiply_shift.h \
   ../include/frozen/bits/algorithms.h \
   ../include/frozen/bits/basic_types.h ../include/frozen/string.h \
   catch.hpp
 test_unordered_set.o: test_unordered_set.cpp \
   ../include/frozen/unordered_set.h ../include/frozen/bits/pmh.h \
+  ../include/frozen/bits/prg.h \
+  ../include/frozen/bits/multiply_shift.h \
   ../include/frozen/bits/algorithms.h \
   ../include/frozen/bits/basic_types.h ../include/frozen/bits/elsa.h \
   catch.hpp
 test_unordered_str_set.o: test_unordered_str_set.cpp \
   ../include/frozen/unordered_set.h ../include/frozen/bits/pmh.h \
+  ../include/frozen/bits/prg.h \
+  ../include/frozen/bits/multiply_shift.h \
   ../include/frozen/bits/algorithms.h \
   ../include/frozen/bits/basic_types.h ../include/frozen/bits/elsa.h \
   ../include/frozen/string.h \

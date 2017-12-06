@@ -56,6 +56,38 @@ TEST_CASE("singleton frozen unordered map", "[unordered map]") {
   static_assert(std::is_same<typename decltype(ze_map)::mapped_type, double>::value, "");
 }
 
+// This is mainly a test that construction does not time out
+TEST_CASE("frozen::unordered_map powers of two", "[unordered_map]") {
+    constexpr frozen::unordered_map<int, int, 14> frozen_map = {
+      {1, 0}, {2, 1}, {4, 2}, {8, 3}, {16, 4}, {32, 5}, {64, 6}, {128, 7},
+      {256, 8}, {512, 9}, {1024, 10}, {2048, 11}, {4096, 12}, {8192, 13}
+    };
+
+    for (const auto & pair : frozen_map) {
+      REQUIRE(pair.first == (1 << pair.second));
+    }
+}
+
+// This is also mainly a test that construction does not time out
+#define M64(X) { X * 64, X }
+TEST_CASE("frozen::unordered_map multiples of 64", "[unordered_map]") {
+    constexpr frozen::unordered_map<int, int, 57> frozen_map = {
+      M64(0), M64(1), M64(2), M64(3), M64(4), M64(5), M64(6), M64(7), M64(8),
+      M64(9), M64(10), M64(11), M64(12), M64(13), M64(14), M64(15), M64(16),
+      M64(17), M64(18), M64(19), M64(20), M64(21), M64(22), M64(23), M64(24),
+      M64(25), M64(26), M64(27), M64(28), M64(29), M64(30), M64(31), M64(32),
+      M64(33), M64(34), M64(35), M64(36), M64(37), M64(38), M64(39), M64(40),
+      M64(41), M64(42), M64(43), M64(44), M64(45), M64(46), M64(47), M64(48),
+      M64(49), M64(50), M64(51), M64(52), M64(53), M64(54), M64(55), M64(56),
+   };
+
+#  undef M64
+
+   for (const auto & pair : frozen_map) {
+     REQUIRE(pair.first == 64 * pair.second);
+   }
+}
+
 TEST_CASE("frozen::unordered_map <> std::unordered_map", "[unordered_map]") {
 #define INIT_SEQ                                                               \
     {19, 12}, {1, 12}, {2, 12}, {4, 12}, {5, 12}, {6, 12}, {7, 12}, {8, 12},   \

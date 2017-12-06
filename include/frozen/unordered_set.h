@@ -24,7 +24,9 @@
 #define FROZEN_LETITGO_UNORDERED_SET_H
 #include <array>
 #include <frozen/bits/elsa.h>
+#include <frozen/bits/multiply_shift.h>
 #include <frozen/bits/pmh.h>
+#include <frozen/bits/prg.h>
 
 #include <functional>
 #include <tuple>
@@ -47,8 +49,10 @@ template <class Key, std::size_t N, typename Hash = elsa<Key>,
 class unordered_set {
   static constexpr std::size_t storage_size =
       bits::next_highest_power_of_two(N) * (N < 32 ? 2 : 1); // size adjustment to prevent high collision rate for small sets
+  static constexpr unsigned hash_bits = bits::log_base_two(storage_size);
+  using AdaptedHash = decltype(bits::maybe_adapt_hash<hash_bits, Key>(std::declval<Hash>()));
   using container_type = std::array<Key, N>;
-  using tables_type = bits::pmh_tables<storage_size, Hash>;
+  using tables_type = bits::pmh_tables<storage_size, AdaptedHash>;
 
   KeyEqual const equal_;
   container_type items_;
@@ -77,7 +81,7 @@ public:
       : equal_{equal}
       , items_(keys)
       , tables_{bits::make_pmh_tables<storage_size>(
-            items_, hash, bits::Get{})} {}
+            items_, bits::maybe_adapt_hash<hash_bits, Key>(hash), bits::Get{}, bits::LCG{})} {}
   explicit constexpr unordered_set(container_type keys)
       : unordered_set{keys, Hash{}, KeyEqual{}} {}
 
