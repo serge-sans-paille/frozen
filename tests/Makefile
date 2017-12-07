@@ -1,4 +1,4 @@
-SRCS=test_main.cpp test_set.cpp test_map.cpp test_unordered_set.cpp test_str_set.cpp test_unordered_str_set.cpp test_unordered_map.cpp test_unordered_map_str.cpp test_str.cpp
+SRCS=test_main.cpp test_rand.cpp test_set.cpp test_map.cpp test_unordered_set.cpp test_str_set.cpp test_unordered_str_set.cpp test_unordered_map.cpp test_unordered_map_str.cpp test_str.cpp
 
 TARGET=test_main
 CXXFLAGS=-O3 -Wall -std=c++14 -march=native -Wextra -W -Werror -Wshadow -fPIC
@@ -18,6 +18,10 @@ check:$(TARGET)
 	./$(TARGET)
 
 test_main.o: test_main.cpp catch.hpp
+test_rand.o: test_rand.cpp \
+	../include/frozen/random.h \
+	../include/frozen/bits/algorithms.h \
+	catch.hpp
 test_map.o: test_map.cpp ../include/frozen/map.h \
   ../include/frozen/bits/algorithms.h catch.hpp
 test_set.o: test_set.cpp ../include/frozen/set.h \
