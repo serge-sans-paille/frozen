@@ -26,7 +26,7 @@
 #include <functional>
 #include <string>
 #include <utility>
-#include <string.h>
+#include <cstring>
 
 #include "frozen/bits/basic_types.h"
 #include "frozen/bits/elsa.h"
@@ -43,8 +43,6 @@ public:
       : data_(data), size_(N - 1) {}
   constexpr string(char const *data, std::size_t size)
       : data_(data), size_(size) {}
-
-  constexpr string(std::string const &s) : data_(s.data()), size_(s.size()) {}
 
   constexpr string(const string &) noexcept = default;
   constexpr string &operator=(const string &) noexcept = default;
@@ -193,7 +191,7 @@ template <std::size_t size> class string_needle {
 
   constexpr bool is_prefix(std::array<char, size> const &needle,
                            std::size_t pos) {
-    return strncmp(needle.data(), needle.data() + pos, size - pos) == 0;
+    return std::strncmp(needle.data(), needle.data() + pos, size - pos) == 0;
   }
 
   constexpr std::size_t suffix_length(std::array<char, size> const &needle,
