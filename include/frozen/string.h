@@ -38,10 +38,13 @@ class string {
   std::size_t size_;
 
 public:
+  template <std::size_t N>
+  constexpr string(char const (&data)[N])
+      : data_(data), size_(N - 1) {}
   constexpr string(char const *data, std::size_t size)
       : data_(data), size_(size) {}
 
-  string(std::string const &s) : data_(s.data()), size_(s.size()) {}
+  constexpr string(std::string const &s) : data_(s.data()), size_(s.size()) {}
 
   constexpr string(const string &) noexcept = default;
   constexpr string &operator=(const string &) noexcept = default;

@@ -58,13 +58,11 @@ String support is built-in through a lightweight wrapper:
     #include <frozen/unordered_map.h>
     #include <frozen/string.h>
 
-    using namespace frozen::string_literals; // for the ""_s operator
-
     constexpr frozen::unordered_map<frozen::string, int, 2> olaf = {
-        {"19"_s, 19},
-        {"31"_s, 31},
+        {"19", 19},
+        {"31", 31},
     };
-    constexpr auto val = olaf.at("19"_s);
+    constexpr auto val = olaf.at("19");
 
 Extending
 ---------
@@ -112,7 +110,7 @@ in the following:
       constexpr std::size_t operator()(frozen::string const &value, std::size_t seed) const { return seed ^ value[0];}
     };
 
-    constexpr frozen::unordered_set<frozen::string, 2, olaf/*custom hash*/> hans = { "a"_s, "b"_s };
+    constexpr frozen::unordered_set<frozen::string, 2, olaf/*custom hash*/> hans = { "a", "b" };
 
 Credits
 -------

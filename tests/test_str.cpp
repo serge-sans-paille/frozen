@@ -8,6 +8,24 @@
 
 using namespace frozen::string_literals;
 
+TEST_CASE("Various string operation", "[string]") {
+  {
+    frozen::string letItGo = "Let it go !";
+    REQUIRE(letItGo == "Let it go !");
+    REQUIRE(letItGo == "Let it go !"_s);
+
+    letItGo = "Let it go, let it go !";
+    REQUIRE(letItGo == "Let it go, let it go !");
+    REQUIRE(letItGo == "Let it go, let it go !"_s);
+  }
+
+  {
+    constexpr frozen::string letItGo = "Let it go !";
+    static_assert(letItGo == "Let it go !",   "frozen::string constexpr");
+    static_assert(letItGo == "Let it go !"_s, "frozen::string constexpr literal");
+  }
+}
+
 TEST_CASE("str search", "[str-search]") {
 
   {
