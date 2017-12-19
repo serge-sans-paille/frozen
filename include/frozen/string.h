@@ -26,6 +26,7 @@
 #include <functional>
 #include <string>
 #include <utility>
+#include <string.h>
 
 #include "frozen/bits/basic_types.h"
 #include "frozen/bits/elsa.h"
@@ -181,8 +182,7 @@ template <std::size_t size> class string_needle {
 
   constexpr auto build_skip_table(std::array<char, size> const &needle) {
     skip_table_type skip_table{{0}};
-    for (std::size_t i = 0; i < skip_table.size(); ++i)
-      skip_table[i] = size;
+    skip_table.fill(size);
     for (std::size_t i = 0; i < size - 1; ++i)
       skip_table[needle[i]] -= i + 1;
     return skip_table;
@@ -190,52 +190,46 @@ template <std::size_t size> class string_needle {
 
   constexpr bool is_prefix(std::array<char, size> const &needle,
                            std::size_t pos) {
-    std::size_t suffixlen = size - pos;
-    // could also use the strncmp() library function here
-    for (std::size_t i = 0; i < suffixlen; i++) {
-      if (needle[i] != needle[pos + i]) {
-        return false;
-      }
-    }
-    return true;
+    return strncmp(needle.data(), needle.data() + pos, size - pos) == 0;
   }
+
   constexpr std::size_t suffix_length(std::array<char, size> const &needle,
                                       std::size_t pos) {
-    std::size_t i = 0;
-    // increment suffix length i to the first mismatch or beginning
+    // increment suffix length slen to the first mismatch or beginning
     // of the word
-    while ((needle[pos - i] == needle[size - 1 - i]) && (i < pos))
-      i++;
-    return i;
+    for (std::size_t slen = 0; slen < pos ; slen++)
+      if (needle[pos - slen] != needle[size - 1 - slen])
+        return slen;
+
+    return pos;
   }
+
   constexpr auto build_suffix_table(std::array<char, size> const &needle) {
-
     suffix_table_type suffix{{0}};
-
     std::ptrdiff_t last_prefix_index = size - 1;
 
     // first loop
     for (std::ptrdiff_t p = size - 1; p >= 0; p--) {
-      if (is_prefix(needle, p + 1)) {
+      if (is_prefix(needle, p + 1))
         last_prefix_index = p + 1;
-      }
+
       suffix[p] = last_prefix_index + (size - 1 - p);
     }
 
     // second loop
     for (std::size_t p = 0; p < size - 1; p++) {
       auto slen = suffix_length(needle, p);
-      if (needle[p - slen] != needle[size - 1 - slen]) {
+      if (needle[p - slen] != needle[size - 1 - slen])
         suffix[size - 1 - slen] = size - 1 - p + slen;
-      }
+
     }
     return suffix;
   }
 
 public:
-  string_needle(std::array<char, size> data)
-      : skip_table_{build_skip_table(data)}, suffix_table_{build_suffix_table(
-                                                 data)},
+  constexpr string_needle(std::array<char, size> const &data)
+      : skip_table_{build_skip_table(data)},
+        suffix_table_{build_suffix_table(data)},
         data_(data) {}
 
   template <std::size_t... I>
