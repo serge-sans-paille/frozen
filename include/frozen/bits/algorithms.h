@@ -97,7 +97,7 @@ constexpr void cswap(std::pair<T, U> & a, std::pair<T, U> & b) {
   cswap(a.second, b.second);
 }
 
-template <class... Tys, std::size_t... Is> 
+template <class... Tys, std::size_t... Is>
 constexpr void cswap(std::tuple<Tys...> &a, std::tuple<Tys...> &b, std::index_sequence<Is...>) {
   using swallow = int[];
   (void) swallow{(cswap(std::get<Is>(a), std::get<Is>(b)), 0)...};
