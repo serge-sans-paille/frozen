@@ -20,8 +20,8 @@
  * under the License.
  */
 
-#ifndef FROZEN_LETITGO_ALGORITHMS_H
-#define FROZEN_LETITGO_ALGORITHMS_H
+#ifndef FROZEN_LETITGO_BITS_ALGORITHMS_H
+#define FROZEN_LETITGO_BITS_ALGORITHMS_H
 
 #include <array>
 #include <limits>

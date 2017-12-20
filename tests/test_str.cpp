@@ -1,4 +1,5 @@
 #include <frozen/string.h>
+#include <frozen/algorithm.h>
 #include <string>
 #include <chrono>
 #include <iostream>
@@ -26,7 +27,7 @@ TEST_CASE("Various string operation", "[string]") {
   }
 }
 
-TEST_CASE("str search", "[str-search]") {
+TEST_CASE("Knuth-Morris-Pratt str search", "[str-search]") {
 
   {
     std::string haystack = "n";
@@ -55,7 +56,7 @@ TEST_CASE("str search", "[str-search]") {
 
 }
 
-TEST_CASE("Boyer-Moore  str search", "[str-search]") {
+TEST_CASE("Boyer-Moore str search", "[str-search]") {
 
   {
     std::string haystack = "n";
@@ -84,7 +85,7 @@ TEST_CASE("Boyer-Moore  str search", "[str-search]") {
 
 }
 
-TEST_CASE("str str perf", "[str-search-perf]") {
+TEST_CASE("Knuth-Morris-Pratt str perf", "[str-search-perf]") {
   std::string haystack = "ABC ABCDAB ABCDABCDABDE";
   for(int i = 0; i < 10; ++i)
     haystack = "AAAAAAAAAAAAAAAA" + haystack;
