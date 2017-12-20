@@ -31,26 +31,26 @@ TEST_CASE("Knuth-Morris-Pratt str search", "[str-search]") {
 
   {
     std::string haystack = "n";
-    auto index = frozen::search(haystack.begin(), haystack.end(), frozen::kmp::make_needle("n"));
+    auto index = frozen::search(haystack.begin(), haystack.end(), frozen::make_knuth_morris_pratt_searcher("n"));
     REQUIRE(index == haystack.begin());
   }
 
   {
     std::string haystack = "nmnn";
-    auto index = frozen::search(haystack.begin(), haystack.end(), frozen::kmp::make_needle("nn"));
+    auto index = frozen::search(haystack.begin(), haystack.end(), frozen::make_knuth_morris_pratt_searcher("nn"));
     REQUIRE(std::distance(haystack.begin(), index) == 2);
   }
 
   {
     std::string haystack = "nmnn";
-    auto index = frozen::search(haystack.begin(), haystack.end(), frozen::kmp::make_needle("mm"));
+    auto index = frozen::search(haystack.begin(), haystack.end(), frozen::make_knuth_morris_pratt_searcher("mm"));
     REQUIRE(index == haystack.end());
   }
 
 
   {
     std::string haystack = "ABC ABCDAB ABCDABCDABDE";
-    auto index = frozen::search(haystack.begin(), haystack.end(), frozen::kmp::make_needle("ABCDABD"));
+    auto index = frozen::search(haystack.begin(), haystack.end(), frozen::make_knuth_morris_pratt_searcher("ABCDABD"));
     REQUIRE(std::distance(haystack.begin(), index) == 15);
   }
 
@@ -60,26 +60,26 @@ TEST_CASE("Boyer-Moore str search", "[str-search]") {
 
   {
     std::string haystack = "n";
-    auto index = frozen::search(haystack.begin(), haystack.end(), frozen::bm::make_needle("n"));
+    auto index = frozen::search(haystack.begin(), haystack.end(), frozen::make_boyer_moore_searcher("n"));
     REQUIRE(index == haystack.begin());
   }
 
   {
     std::string haystack = "nmnn";
-    auto index = frozen::search(haystack.begin(), haystack.end(), frozen::bm::make_needle("nn"));
+    auto index = frozen::search(haystack.begin(), haystack.end(), frozen::make_boyer_moore_searcher("nn"));
     REQUIRE(std::distance(haystack.begin(), index) == 2);
   }
 
   {
     std::string haystack = "nmnn";
-    auto index = frozen::search(haystack.begin(), haystack.end(), frozen::bm::make_needle("mm"));
+    auto index = frozen::search(haystack.begin(), haystack.end(), frozen::make_boyer_moore_searcher("mm"));
     REQUIRE(index == haystack.end());
   }
 
 
   {
     std::string haystack = "ABC ABCDAB ABCDABCDABDE";
-    auto index = frozen::search(haystack.begin(), haystack.end(), frozen::bm::make_needle("ABCDABD"));
+    auto index = frozen::search(haystack.begin(), haystack.end(), frozen::make_boyer_moore_searcher("ABCDABD"));
     REQUIRE(std::distance(haystack.begin(), index) == 15);
   }
 
@@ -101,7 +101,7 @@ TEST_CASE("Knuth-Morris-Pratt str perf", "[str-search-perf]") {
 
   auto frozen_start = std::chrono::steady_clock::now();
   benchmark::DoNotOptimize(haystack);
-  benchmark::DoNotOptimize(frozen::search(haystack.begin(), haystack.end(), frozen::kmp::make_needle("ABCDABD")));
+  benchmark::DoNotOptimize(frozen::search(haystack.begin(), haystack.end(), frozen::make_knuth_morris_pratt_searcher("ABCDABD")));
   auto frozen_stop = std::chrono::steady_clock::now();
   auto frozen_diff = frozen_stop - frozen_start;
   auto frozen_duration =
@@ -127,7 +127,7 @@ TEST_CASE("str str perf bm", "[str-search-perf]") {
 
   auto frozen_start = std::chrono::steady_clock::now();
   benchmark::DoNotOptimize(haystack);
-  benchmark::DoNotOptimize(frozen::search(haystack.begin(), haystack.end(), frozen::bm::make_needle("ABCDABD")));
+  benchmark::DoNotOptimize(frozen::search(haystack.begin(), haystack.end(), frozen::make_boyer_moore_searcher("ABCDABD")));
   auto frozen_stop = std::chrono::steady_clock::now();
   auto frozen_diff = frozen_stop - frozen_start;
   auto frozen_duration =

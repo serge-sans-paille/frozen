@@ -30,9 +30,7 @@
 
 namespace frozen {
 
-namespace kmp {
-
-template <std::size_t size> class string_needle {
+template <std::size_t size> class knuth_morris_pratt_searcher {
   bits::cvector<std::ptrdiff_t, size> cache_;
   std::array<char, size> data_;
 
@@ -60,14 +58,14 @@ template <std::size_t size> class string_needle {
   }
 
 public:
-  constexpr string_needle(std::array<char, size> data)
+  constexpr knuth_morris_pratt_searcher(std::array<char, size> data)
       : cache_{build_kmp_cache(data)}, data_(data) {}
 
   template <std::size_t... I>
-  constexpr string_needle(char const data[size], std::index_sequence<I...>)
-      : string_needle(std::array<char, size>{{data[I]...}}) {}
-  constexpr string_needle(char const data[size])
-      : string_needle(data, std::make_index_sequence<size>()) {}
+  constexpr knuth_morris_pratt_searcher(char const data[size], std::index_sequence<I...>)
+      : knuth_morris_pratt_searcher(std::array<char, size>{{data[I]...}}) {}
+  constexpr knuth_morris_pratt_searcher(char const data[size])
+      : knuth_morris_pratt_searcher(data, std::make_index_sequence<size>()) {}
 
   constexpr char operator[](std::size_t i) const {
     return (&std::get<0>(data_))[i];
@@ -76,15 +74,13 @@ public:
 };
 
 template <std::size_t N>
-constexpr string_needle<N - 1> make_needle(char const (&data)[N]) {
+constexpr knuth_morris_pratt_searcher<N - 1> make_knuth_morris_pratt_searcher(char const (&data)[N]) {
   return {data};
 }
 
-} // namespace kmp
-
 template <class IteratorTy, std::size_t N>
 IteratorTy search(IteratorTy begin, IteratorTy end,
-                  kmp::string_needle<N> const &needle) {
+                  knuth_morris_pratt_searcher<N> const &needle) {
   std::size_t i = 0;
   IteratorTy iter = begin;
   while (iter != end) {
@@ -105,12 +101,10 @@ IteratorTy search(IteratorTy begin, IteratorTy end,
   return end;
 }
 
-namespace bm {
-
 // text book implementation from
 // https://en.wikipedia.org/wiki/Boyer%E2%80%93Moore%E2%80%93Horspool_algorithm
 
-template <std::size_t size> class string_needle {
+template <std::size_t size> class boyer_moore_searcher {
   using skip_table_type = std::array<char, sizeof(char) << 8>;
   skip_table_type skip_table_;
 
@@ -166,16 +160,16 @@ template <std::size_t size> class string_needle {
   }
 
 public:
-  constexpr string_needle(std::array<char, size> const &data)
+  constexpr boyer_moore_searcher(std::array<char, size> const &data)
       : skip_table_{build_skip_table(data)},
         suffix_table_{build_suffix_table(data)},
         data_(data) {}
 
   template <std::size_t... I>
-  constexpr string_needle(char const data[size], std::index_sequence<I...>)
-      : string_needle(std::array<char, size>{{data[I]...}}) {}
-  constexpr string_needle(char const data[size])
-      : string_needle(data, std::make_index_sequence<size>()) {}
+  constexpr boyer_moore_searcher(char const data[size], std::index_sequence<I...>)
+      : boyer_moore_searcher(std::array<char, size>{{data[I]...}}) {}
+  constexpr boyer_moore_searcher(char const data[size])
+      : boyer_moore_searcher(data, std::make_index_sequence<size>()) {}
 
   constexpr char operator[](std::size_t i) const {
     return (&std::get<0>(data_))[i];
@@ -185,15 +179,13 @@ public:
 };
 
 template <std::size_t N>
-constexpr string_needle<N - 1> make_needle(char const (&data)[N]) {
+constexpr boyer_moore_searcher<N - 1> make_boyer_moore_searcher(char const (&data)[N]) {
   return {data};
 }
 
-} // namespace bm
-
 template <class IteratorTy, std::size_t N>
 IteratorTy search(IteratorTy begin, IteratorTy end,
-                  bm::string_needle<N> const &needle) {
+                  boyer_moore_searcher<N> const &needle) {
   if (N == 0)
     return begin;
 
