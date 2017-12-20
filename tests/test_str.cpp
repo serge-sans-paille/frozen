@@ -85,54 +85,44 @@ TEST_CASE("Boyer-Moore str search", "[str-search]") {
 
 }
 
-TEST_CASE("Knuth-Morris-Pratt str perf", "[str-search-perf]") {
+template<typename Func>
+void testStringSearchPerf(char const *message, Func test) {
   std::string haystack = "ABC ABCDAB ABCDABCDABDE";
   for(int i = 0; i < 10; ++i)
     haystack = "AAAAAAAAAAAAAAAA" + haystack;
 
-  auto std_start = std::chrono::steady_clock::now();
-  benchmark::DoNotOptimize(haystack);
-  benchmark::DoNotOptimize(haystack.find("ABCDABD"));
-  auto std_stop = std::chrono::steady_clock::now();
-  auto std_diff = std_stop - std_start;
-  auto std_duration =
-      std::chrono::duration<double, std::milli>(std_diff).count();
-  std::cout << "str search: " << std_duration << " ms" << std::endl;
-
-  auto frozen_start = std::chrono::steady_clock::now();
-  benchmark::DoNotOptimize(haystack);
-  benchmark::DoNotOptimize(frozen::search(haystack.begin(), haystack.end(), frozen::make_knuth_morris_pratt_searcher("ABCDABD")));
-  auto frozen_stop = std::chrono::steady_clock::now();
-  auto frozen_diff = frozen_stop - frozen_start;
-  auto frozen_duration =
-      std::chrono::duration<double, std::milli>(frozen_diff).count();
-  std::cout << "frozen::search: " << frozen_duration << " ms"
-            << std::endl;
-
+  auto start = std::chrono::steady_clock::now();
+  test(haystack);
+  auto stop = std::chrono::steady_clock::now();
+  auto duration = std::chrono::duration<double, std::milli>(stop - start).count();
+  std::cout << std::setw(20) << std::left << message << duration << " ms" << std::endl;
 }
 
-TEST_CASE("str str perf bm", "[str-search-perf]") {
-  std::string haystack = "ABC ABCDAB ABCDABCDABDE";
-  for(int i = 0; i < 10; ++i)
-    haystack = "AAAAAAAAAAAAAAAA" + haystack;
+TEST_CASE("Standard string find perf", "[str-search-perf]") {
+  testStringSearchPerf("str find:", [](const std::string & haystack) {
+    benchmark::DoNotOptimize(haystack);
+    benchmark::DoNotOptimize(haystack.find("ABCDABD"));
+  });
+}
 
-  auto std_start = std::chrono::steady_clock::now();
-  benchmark::DoNotOptimize(haystack);
-  benchmark::DoNotOptimize(haystack.find("ABCDABD"));
-  auto std_stop = std::chrono::steady_clock::now();
-  auto std_diff = std_stop - std_start;
-  auto std_duration =
-      std::chrono::duration<double, std::milli>(std_diff).count();
-  std::cout << "str search: " << std_duration << " ms" << std::endl;
+TEST_CASE("Standard string search perf", "[str-search-perf]") {
+  const std::string needle = "ABCDABD";
+  testStringSearchPerf("std::search:", [&needle](const std::string & haystack) {
+    benchmark::DoNotOptimize(haystack);
+    benchmark::DoNotOptimize(std::search(haystack.begin(), haystack.end(), needle.begin() , needle.end()));
+  });
+}
 
-  auto frozen_start = std::chrono::steady_clock::now();
-  benchmark::DoNotOptimize(haystack);
-  benchmark::DoNotOptimize(frozen::search(haystack.begin(), haystack.end(), frozen::make_boyer_moore_searcher("ABCDABD")));
-  auto frozen_stop = std::chrono::steady_clock::now();
-  auto frozen_diff = frozen_stop - frozen_start;
-  auto frozen_duration =
-      std::chrono::duration<double, std::milli>(frozen_diff).count();
-  std::cout << "frozen::search: " << frozen_duration << " ms"
-            << std::endl;
+TEST_CASE("Knuth-Morris-Pratt string search perf", "[str-search-perf]") {
+  testStringSearchPerf("KMP frozen::search:", [](const std::string & haystack) {
+    benchmark::DoNotOptimize(haystack);
+    benchmark::DoNotOptimize(frozen::search(haystack.begin(), haystack.end(), frozen::make_knuth_morris_pratt_searcher("ABCDABD")));
+  });
+}
 
+TEST_CASE("Boyer-Moore string search perf", "[str-search-perf]") {
+  testStringSearchPerf("BM frozen::search:", [](const std::string & haystack) {
+    benchmark::DoNotOptimize(haystack);
+    benchmark::DoNotOptimize(frozen::search(haystack.begin(), haystack.end(), frozen::make_boyer_moore_searcher("ABCDABD")));
+  });
 }
