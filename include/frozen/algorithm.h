@@ -23,7 +23,6 @@
 #ifndef FROZEN_LETITGO_ALGORITHM_H
 #define FROZEN_LETITGO_ALGORITHM_H
 
-#include <cstring>
 #include <utility>
 
 #include "frozen/string.h"
@@ -48,7 +47,7 @@ template <std::size_t size> class knuth_morris_pratt_searcher {
 
   static constexpr bits::cvector<std::ptrdiff_t, size>
   build_kmp_cache(std::array<char, size> needle) {
-    char const *needle_view = needle.data();
+    char const *needle_view = &(std::get<0>(needle));
     std::ptrdiff_t cnd = 0;
     bits::cvector<std::ptrdiff_t, size> cache;
     for (std::size_t pos = 0; pos < size; ++pos)
@@ -110,17 +109,17 @@ constexpr knuth_morris_pratt_searcher<N - 1> make_knuth_morris_pratt_searcher(ch
 // https://en.wikipedia.org/wiki/Boyer%E2%80%93Moore%E2%80%93Horspool_algorithm
 
 template <std::size_t size> class boyer_moore_searcher {
-  using skip_table_type = std::array<std::ptrdiff_t, sizeof(char) << 8>;
+  using skip_table_type = bits::cvector<std::ptrdiff_t, sizeof(char) << 8>;
   skip_table_type skip_table_;
 
-  using suffix_table_type = std::array<std::ptrdiff_t, size>;
+  using suffix_table_type = bits::cvector<std::ptrdiff_t, size>;
   suffix_table_type suffix_table_;
 
   std::array<char, size> data_;
 
   constexpr auto build_skip_table(std::array<char, size> const &needle) {
-    skip_table_type skip_table{{0}};
-    skip_table.fill(size);
+    skip_table_type skip_table(size, size);
+
     for (std::size_t i = 0; i < size - 1; ++i)
       skip_table[needle[i]] -= i + 1;
     return skip_table;
@@ -128,7 +127,13 @@ template <std::size_t size> class boyer_moore_searcher {
 
   constexpr bool is_prefix(std::array<char, size> const &needle,
                            std::size_t pos) {
-    return std::strncmp(needle.data(), needle.data() + pos, size - pos) == 0;
+    std::size_t suffixlen = size - pos;
+    
+    for (std::size_t i = 0; i < suffixlen; i++) {
+      if (needle[i] != needle[pos + i])
+        return false;
+    }
+    return true;
   }
 
   constexpr std::size_t suffix_length(std::array<char, size> const &needle,
@@ -143,7 +148,7 @@ template <std::size_t size> class boyer_moore_searcher {
   }
 
   constexpr auto build_suffix_table(std::array<char, size> const &needle) {
-    suffix_table_type suffix{{0}};
+    suffix_table_type suffix;
     std::ptrdiff_t last_prefix_index = size - 1;
 
     // first loop

@@ -46,6 +46,13 @@ public:
   using size_type = std::size_t;
   using difference_type = std::ptrdiff_t;
 
+  // Constructors
+  constexpr cvector(void) = default;
+  constexpr cvector(size_type count, const T& value) : dsize(count) {
+    for (std::size_t i = 0; i < N; ++i)
+      data[i] = value;
+  }
+
   // Iterators
   constexpr iterator begin() noexcept { return data; }
   constexpr iterator end() noexcept { return data + dsize; }
