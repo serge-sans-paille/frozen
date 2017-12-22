@@ -42,7 +42,7 @@ ForwardIterator search(ForwardIterator first, ForwardIterator last, const Search
 // https://en.wikipedia.org/wiki/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm
 
 template <std::size_t size> class knuth_morris_pratt_searcher {
-  bits::cvector<std::ptrdiff_t, size> cache_;
+  bits::cvector<std::ptrdiff_t, size> step_;
   std::array<char, size> data_;
 
   static constexpr bits::cvector<std::ptrdiff_t, size>
@@ -68,9 +68,13 @@ template <std::size_t size> class knuth_morris_pratt_searcher {
     return cache;
   }
 
+  constexpr char operator[](std::size_t i) const {
+    return (&std::get<0>(data_))[i];
+  }
+
 public:
   constexpr knuth_morris_pratt_searcher(std::array<char, size> data)
-      : cache_{build_kmp_cache(data)}, data_(data) {}
+      : step_{build_kmp_cache(data)}, data_(data) {}
   template <std::size_t... I>
   constexpr knuth_morris_pratt_searcher(char const data[size], std::index_sequence<I...>)
       : knuth_morris_pratt_searcher(std::array<char, size>{{data[I]...}}) {}
@@ -82,14 +86,14 @@ public:
     std::size_t i = 0;
     ForwardIterator iter = first;
     while (iter != last) {
-      if ((&std::get<0>(data_))[i] == *iter) {
+      if (data_[i] == *iter) {
         if (i == (size - 1))
           return { iter - i, iter - i + size };
         ++i;
         ++iter;
       } else {
-        if (cache_[i] > -1) {
-          i = cache_[i];
+        if (step_[i] > -1) {
+          i = step_[i];
         } else {
           ++iter;
           i = 0;
