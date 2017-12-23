@@ -42,17 +42,16 @@ ForwardIterator search(ForwardIterator first, ForwardIterator last, const Search
 // https://en.wikipedia.org/wiki/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm
 
 template <std::size_t size> class knuth_morris_pratt_searcher {
-  bits::cvector<std::ptrdiff_t, size> step_;
+  bits::carray<std::ptrdiff_t, size> step_;
   std::array<char, size> data_;
 
-  static constexpr bits::cvector<std::ptrdiff_t, size>
+  static constexpr bits::carray<std::ptrdiff_t, size>
   build_kmp_cache(std::array<char, size> needle) {
     char const *needle_view = &(std::get<0>(needle));
     std::ptrdiff_t cnd = 0;
-    bits::cvector<std::ptrdiff_t, size> cache;
-    for (std::size_t pos = 0; pos < size; ++pos)
-      cache[pos] = -1;
+    bits::carray<std::ptrdiff_t, size> cache;
 
+    cache.fill(-1);
     for (std::size_t pos = 1; pos < size; ++pos) {
       if (needle_view[pos] == needle_view[cnd]) {
         cache[pos] = cache[cnd];
@@ -113,17 +112,18 @@ constexpr knuth_morris_pratt_searcher<N - 1> make_knuth_morris_pratt_searcher(ch
 // https://en.wikipedia.org/wiki/Boyer%E2%80%93Moore%E2%80%93Horspool_algorithm
 
 template <std::size_t size> class boyer_moore_searcher {
-  using skip_table_type = bits::cvector<std::ptrdiff_t, sizeof(char) << 8>;
+  using skip_table_type = bits::carray<std::ptrdiff_t, sizeof(char) << 8>;
   skip_table_type skip_table_;
 
-  using suffix_table_type = bits::cvector<std::ptrdiff_t, size>;
+  using suffix_table_type = bits::carray<std::ptrdiff_t, size>;
   suffix_table_type suffix_table_;
 
   std::array<char, size> data_;
 
   constexpr auto build_skip_table(std::array<char, size> const &needle) {
-    skip_table_type skip_table(size, size);
+    skip_table_type skip_table;
 
+    skip_table.fill(size);
     for (std::size_t i = 0; i < size - 1; ++i)
       skip_table[needle[i]] -= i + 1;
     return skip_table;
