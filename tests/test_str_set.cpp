@@ -3,6 +3,7 @@
 #include <frozen/set.h>
 #include <iostream>
 #include <set>
+#include <array>
 
 #include "bench.hpp"
 #include "catch.hpp"

@@ -26,6 +26,7 @@
 #include <utility>
 #include <iterator>
 #include <stdexcept>
+#include <string>
 
 namespace frozen {
 
