@@ -23,12 +23,9 @@
 #ifndef FROZEN_LETITGO_BITS_ALGORITHMS_H
 #define FROZEN_LETITGO_BITS_ALGORITHMS_H
 
-#include <array>
+#include <frozen/bits/basic_types.h>
 #include <limits>
 #include <tuple>
-#include <type_traits>
-#include <utility>
-
 namespace frozen {
 
 namespace bits {
@@ -41,34 +38,6 @@ auto constexpr next_highest_power_of_two(std::size_t v) {
     v |= v >> i;
   v++;
   return v;
-}
-
-template <class T, std::size_t N, class Iter, std::size_t... I>
-constexpr std::array<T, N> make_unordered_array(Iter &iter,
-                                                std::index_sequence<I...>) {
-  return {{((void)I, *iter++)...}};
-}
-
-template <class T, std::size_t N>
-constexpr std::array<T, N>
-make_unordered_array(std::initializer_list<T> const values) {
-  auto iter = values.begin();
-  return make_unordered_array<T, N>(iter, std::make_index_sequence<N>{});
-}
-
-// This is std::experimental::to_array
-// http://en.cppreference.com/w/cpp/experimental/to_array
-template <class T, std::size_t N, std::size_t... I>
-constexpr std::array<std::remove_cv_t<T>, N>
-    to_array_impl(T (&a)[N], std::index_sequence<I...>)
-{
-  return { {a[I]...} };
-}
-
-template <class T, std::size_t N>
-constexpr auto to_array(T (&a)[N]) -> std::array<std::remove_cv_t<T>, N>
-{
-  return to_array_impl(a, std::make_index_sequence<N>{});
 }
 
 template <typename Iter, typename Compare>
@@ -133,10 +102,10 @@ constexpr void quicksort(Iterator left, Iterator right, Compare const &compare) 
 }
 
 template <typename T, std::size_t N, class Compare>
-constexpr std::array<T, N> quicksort(std::array<T, N> const &array,
+constexpr bits::carray<T, N> quicksort(bits::carray<T, N> const &array,
                                      Compare const &compare) {
-  std::array<T, N> res = array;
-  quicksort(&std::get<0>(res), &std::get<N - 1>(res), compare);
+  bits::carray<T, N> res = array;
+  quicksort(res.begin(), res.end() - 1, compare);
   return res;
 }
 

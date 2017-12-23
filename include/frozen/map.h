@@ -23,11 +23,11 @@
 #ifndef FROZEN_LETITGO_MAP_H
 #define FROZEN_LETITGO_MAP_H
 
-#include <array>
 #include <stdexcept>
 #include <utility>
 
-#include "bits/algorithms.h"
+#include <frozen/bits/algorithms.h>
+#include <frozen/bits/basic_types.h>
 
 namespace frozen {
 
@@ -68,9 +68,9 @@ public:
 
 template <class Key, class Value, std::size_t N, class Compare = std::less<Key>>
 class map {
-  using container_type = std::array<std::pair<Key, Value>, N>;
+  using container_type = bits::carray<std::pair<Key, Value>, N>;
   impl::CompareKey<Compare> compare_;
-  container_type keys_;
+  container_type items_;
 
 public:
   using key_type = Key;
@@ -93,12 +93,12 @@ public:
   /* constructors */
   constexpr map(container_type items, Compare const &compare)
       : compare_{compare}
-      , keys_{bits::quicksort(items, compare_)} {}
+      , items_{bits::quicksort(items, compare_)} {}
   explicit constexpr map(container_type items)
       : map{items, Compare{}} {}
 
   constexpr map(std::initializer_list<value_type> items, Compare const &compare)
-      : map(bits::make_unordered_array<value_type, N>(items), compare) {}
+      : map{container_type {items}, compare} {}
   constexpr map(std::initializer_list<value_type> items)
       : map{items, Compare{}} {}
 
@@ -112,15 +112,15 @@ public:
   }
 
   /* iterators */
-  const_iterator begin() const { return keys_.begin(); }
-  const_iterator cbegin() const { return keys_.cbegin(); }
-  const_iterator end() const { return keys_.end(); }
-  const_iterator cend() const { return keys_.cend(); }
+  const_iterator begin() const { return items_.begin(); }
+  const_iterator cbegin() const { return items_.cbegin(); }
+  const_iterator end() const { return items_.end(); }
+  const_iterator cend() const { return items_.cend(); }
 
-  const_reverse_iterator rbegin() const { return keys_.rbegin(); }
-  const_reverse_iterator crbegin() const { return keys_.crbegin(); }
-  const_reverse_iterator rend() const { return keys_.rend(); }
-  const_reverse_iterator crend() const { return keys_.crend(); }
+  const_reverse_iterator rbegin() const { return items_.rbegin(); }
+  const_reverse_iterator crbegin() const { return items_.crbegin(); }
+  const_reverse_iterator rend() const { return items_.rend(); }
+  const_reverse_iterator crend() const { return items_.crend(); }
 
   /* capacity */
   constexpr bool empty() const { return !N; }
@@ -130,7 +130,7 @@ public:
   /* lookup */
 
   constexpr std::size_t count(Key const &key) const {
-    return bits::binary_search<N>(&std::get<0>(keys_), key, compare_);
+    return bits::binary_search<N>(items_.begin(), key, compare_);
   }
 
   const_iterator find(Key const &key) const {
@@ -150,7 +150,7 @@ public:
   }
 
   const_iterator lower_bound(Key const &key) const {
-    auto const where = bits::lower_bound<N>(&std::get<0>(keys_), key, compare_);
+    auto const where = bits::lower_bound<N>(items_.begin(), key, compare_);
     if ((where != end()) && !compare_(key, *where))
       return where;
     else
@@ -158,7 +158,7 @@ public:
   }
 
   const_iterator upper_bound(Key const &key) const {
-    auto const where = bits::lower_bound<N>(&std::get<0>(keys_), key, compare_);
+    auto const where = bits::lower_bound<N>(items_.begin(), key, compare_);
     if ((where != end()) && !compare_(key, *where))
       return where + 1;
     else
@@ -173,7 +173,7 @@ public:
 template <class Key, class Value, class Compare>
 class map<Key, Value, 0, Compare> {
   using container_type =
-      std::array<std::pair<Key, Value>, 1>; // just for the type definitions
+      bits::carray<std::pair<Key, Value>, 1>; // just for the type definitions
   impl::CompareKey<Compare> compare_;
 
 public:
@@ -243,7 +243,7 @@ public:
 
 template <typename T, typename U, std::size_t N>
 constexpr auto make_map(std::pair<T, U> const (&items)[N]) {
-  return map<T, U, N>{bits::to_array(items)};
+  return map<T, U, N>{items};
 }
 
 } // namespace frozen
