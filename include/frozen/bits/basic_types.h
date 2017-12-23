@@ -23,7 +23,6 @@
 #ifndef FROZEN_LETITGO_BASIC_TYPES_H
 #define FROZEN_LETITGO_BASIC_TYPES_H
 
-#include <array>
 #include <stdexcept>
 
 namespace frozen {
@@ -74,17 +73,6 @@ public:
   constexpr void pop_back() { --dsize; }
 
   constexpr void clear() { dsize = 0; }
-
-  // Convert to std::array
-  constexpr std::array<T, N> to_array() {
-    std::array<T, N> a{};
-    auto * ta = &std::get<0>(a);
-
-    for(std::size_t i = 0; i < N; i++)
-        ta[i] = data[i];
-
-    return a;
-  }
 };
 
 template <class T, std::size_t N>

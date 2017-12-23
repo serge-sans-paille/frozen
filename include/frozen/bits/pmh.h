@@ -28,7 +28,6 @@
 #include <frozen/bits/basic_types.h>
 
 #include <array>
-#include <tuple>
 
 namespace frozen {
 
@@ -57,11 +56,11 @@ constexpr bool all_different_from(cvector<T, N> & data, T & a) {
 // Represents the two hash tables created by pmh algorithm
 template <std::size_t M, class Hasher>
 struct pmh_tables {
-  std::array<int64_t, M> first_table_;
-  std::array<uint64_t, M> second_table_;
+  carray<int64_t, M> first_table_;
+  carray<uint64_t, M> second_table_;
   Hasher hash_;
 
-  // Looks up a given key, to find its expected index in std::array<Item, N>
+  // Looks up a given key, to find its expected index in carray<Item, N>
   // Always returns a valid index, must use KeyEqual test after to confirm.
   template <typename KeyType>
   constexpr uint64_t lookup(const KeyType & key) const {
@@ -77,9 +76,9 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const std::array<Item, N> &
                                                            Hash const &hash,
                                                            Key const &key) {
   // Step 1: Place all of the keys into buckets
-  cvector<bucket<M>, M> buckets;
-  cvector<uint64_t, M> values;
-  cvector<int64_t, M> G;
+  carray<bucket<M>, M> buckets;
+  carray<uint64_t, M> values;
+  carray<int64_t, M> G;
 
   auto *it = &std::get<0>(items);
 
@@ -87,7 +86,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const std::array<Item, N> &
     buckets[hash(key(it[i])) % M].push_back(1 + i);
 
   // Step 2: Sort the buckets and process the ones with the most items first.
-  bits::quicksort(buckets.begin(), buckets.begin() + M - 1, bucket_size_compare{});
+  bits::quicksort(buckets.begin(), buckets.end() - 1, bucket_size_compare{});
 
   std::size_t b = 0;
   for (; b < M; ++b) {
@@ -142,7 +141,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const std::array<Item, N> &
     if (values[i])
       values[i]--;
 
-  return {G.to_array(), values.to_array(), hash};
+  return {G, values, hash};
 }
 
 } // namespace bits
