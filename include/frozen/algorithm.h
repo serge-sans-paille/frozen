@@ -41,7 +41,7 @@ ForwardIterator search(ForwardIterator first, ForwardIterator last, const Search
 
 template <std::size_t size> class knuth_morris_pratt_searcher {
   bits::carray<std::ptrdiff_t, size> step_;
-  bits::carray<char, size> data_;
+  bits::carray<char, size> needle_;
 
   static constexpr bits::carray<std::ptrdiff_t, size>
   build_kmp_cache(char const (&needle)[size + 1]) {
@@ -65,15 +65,15 @@ template <std::size_t size> class knuth_morris_pratt_searcher {
   }
 
 public:
-  constexpr knuth_morris_pratt_searcher(char const (&data)[size + 1])
-    : step_{build_kmp_cache(data)}, data_(data) {}
+  constexpr knuth_morris_pratt_searcher(char const (&needle)[size + 1])
+    : step_{build_kmp_cache(needle)}, needle_(needle) {}
 
   template <class ForwardIterator>
   constexpr std::pair<ForwardIterator, ForwardIterator> operator()(ForwardIterator first, ForwardIterator last) const {
     std::size_t i = 0;
     ForwardIterator iter = first;
     while (iter != last) {
-      if (data_[i] == *iter) {
+      if (needle_[i] == *iter) {
         if (i == (size - 1))
           return { iter - i, iter - i + size };
         ++i;
@@ -92,8 +92,8 @@ public:
 };
 
 template <std::size_t N>
-constexpr knuth_morris_pratt_searcher<N - 1> make_knuth_morris_pratt_searcher(char const (&data)[N]) {
-  return {data};
+constexpr knuth_morris_pratt_searcher<N - 1> make_knuth_morris_pratt_searcher(char const (&needle)[N]) {
+  return {needle};
 }
 
 // text book implementation from
@@ -105,7 +105,7 @@ template <std::size_t size> class boyer_moore_searcher {
 
   skip_table_type skip_table_;
   suffix_table_type suffix_table_;
-  bits::carray<char, size> data_;
+  bits::carray<char, size> needle_;
 
   constexpr auto build_skip_table(char const (&needle)[size + 1]) {
     skip_table_type skip_table;
@@ -160,10 +160,10 @@ template <std::size_t size> class boyer_moore_searcher {
   }
 
 public:
-  constexpr boyer_moore_searcher(char const (&data)[size + 1])
-    : skip_table_{build_skip_table(data)},
-      suffix_table_{build_suffix_table(data)},
-      data_(data) {}
+  constexpr boyer_moore_searcher(char const (&needle)[size + 1])
+    : skip_table_{build_skip_table(needle)},
+      suffix_table_{build_suffix_table(needle)},
+      needle_(needle) {}
 
   template <class ForwardIterator>
   constexpr std::pair<ForwardIterator, ForwardIterator> operator()(ForwardIterator first, ForwardIterator last) const {
@@ -173,11 +173,11 @@ public:
     ForwardIterator iter = first + size - 1;
     while (iter < last) {
       std::ptrdiff_t j = size - 1;
-      while (j > 0 && (*iter == data_[j])) {
+      while (j > 0 && (*iter == needle_[j])) {
         --iter;
         --j;
       }
-      if (*iter == data_[0])
+      if (*iter == needle_[0])
         return { iter, iter + size};
 
       iter += std::max(skip_table_[*iter], suffix_table_[j]);
@@ -187,8 +187,8 @@ public:
 };
 
 template <std::size_t N>
-constexpr boyer_moore_searcher<N - 1> make_boyer_moore_searcher(char const (&data)[N]) {
-  return {data};
+constexpr boyer_moore_searcher<N - 1> make_boyer_moore_searcher(char const (&needle)[N]) {
+  return {needle};
 }
 
 } // namespace frozen
