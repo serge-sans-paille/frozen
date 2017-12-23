@@ -53,5 +53,5 @@ test_str_set.o: test_str_set.cpp \
   catch.hpp
 test_str.o: test_str.cpp \
   ../include/frozen/bits/basic_types.h ../include/frozen/bits/elsa.h \
-  ../include/frozen/string.h \
+  ../include/frozen/string.h ../include/frozen/algorithm.h \
   catch.hpp
