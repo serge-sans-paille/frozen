@@ -91,6 +91,10 @@ template <class T, std::size_t N>
 class carray {
   T data_ [N] = {}; // zero-initialization for scalar type T, default-initialized otherwise
 
+  template <std::size_t M, std::size_t... I>
+  constexpr carray(T const (&init)[M], std::index_sequence<I...>)
+      : data_{init[I]...} {}
+
 public:
   // Container typdefs
   using value_type = T;
@@ -104,11 +108,13 @@ public:
   using difference_type = std::ptrdiff_t;
 
   // Constructors
-  // constexpr carray(void) = default;
-  // constexpr carray(size_type count, const T& value) : dsize(count) {
-  //   for (std::size_t i = 0; i < N; ++i)
-  //     data_[i] = value;
-  // }
+  constexpr carray(void) = default;
+  template <std::size_t M>
+  constexpr carray(T const (&init)[M])
+    : carray(init, std::make_index_sequence<N>())
+  {
+    static_assert(M >= N, "Cannot initialize a carray with an smaller array");
+  }
 
   // Iterators
   constexpr iterator begin() noexcept { return data_; }
