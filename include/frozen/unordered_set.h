@@ -22,12 +22,10 @@
 
 #ifndef FROZEN_LETITGO_UNORDERED_SET_H
 #define FROZEN_LETITGO_UNORDERED_SET_H
-#include <array>
+#include <frozen/bits/basic_types.h>
 #include <frozen/bits/elsa.h>
 #include <frozen/bits/pmh.h>
 
-#include <functional>
-#include <tuple>
 #include <utility>
 
 namespace frozen {
@@ -47,11 +45,11 @@ template <class Key, std::size_t N, typename Hash = elsa<Key>,
 class unordered_set {
   static constexpr std::size_t storage_size =
       bits::next_highest_power_of_two(N) * (N < 32 ? 2 : 1); // size adjustment to prevent high collision rate for small sets
-  using container_type = std::array<Key, N>;
+  using container_type = bits::carray<Key, N>;
   using tables_type = bits::pmh_tables<storage_size, Hash>;
 
   KeyEqual const equal_;
-  container_type items_;
+  container_type keys_;
   tables_type tables_;
 
 public:
@@ -75,23 +73,23 @@ public:
   constexpr unordered_set(container_type keys, Hash const &hash,
                           KeyEqual const &equal)
       : equal_{equal}
-      , items_(keys)
+      , keys_{keys}
       , tables_{bits::make_pmh_tables<storage_size>(
-            items_, hash, bits::Get{})} {}
+            keys_, hash, bits::Get{})} {}
   explicit constexpr unordered_set(container_type keys)
       : unordered_set{keys, Hash{}, KeyEqual{}} {}
 
-  constexpr unordered_set(std::initializer_list<Key> list)
-      : unordered_set(bits::make_unordered_array<Key, N>(list)) {}
+  constexpr unordered_set(std::initializer_list<Key> keys)
+      : unordered_set{keys, Hash{}, KeyEqual{}} {}
 
-  constexpr unordered_set(std::initializer_list<Key> list, Hash const & hash, KeyEqual const & equal)
-      : unordered_set(bits::make_unordered_array<Key, N>(list), hash, equal) {}
+  constexpr unordered_set(std::initializer_list<Key> keys, Hash const & hash, KeyEqual const & equal)
+      : unordered_set{container_type{keys}, hash, equal} {}
 
   /* iterators */
-  const_iterator begin() const { return items_.begin(); }
-  const_iterator end() const { return items_.end(); }
-  const_iterator cbegin() const { return items_.cbegin(); }
-  const_iterator cend() const { return items_.cend(); }
+  const_iterator begin() const { return keys_.begin(); }
+  const_iterator end() const { return keys_.end(); }
+  const_iterator cbegin() const { return keys_.cbegin(); }
+  const_iterator cend() const { return keys_.cend(); }
 
   /* capacity */
   constexpr bool empty() const { return !N; }
@@ -108,7 +106,7 @@ public:
     if (equal_(k, key))
       return &k;
     else
-      return items_.end();
+      return keys_.end();
   }
 
   std::pair<const_iterator, const_iterator> equal_range(Key const &key) const {
@@ -116,7 +114,7 @@ public:
     if (equal_(k, key))
       return {&k, &k + 1};
     else
-      return {items_.end(), items_.end()};
+      return {keys_.end(), keys_.end()};
   }
 
   /* bucket interface */
@@ -129,13 +127,13 @@ public:
 
 private:
   constexpr auto const &lookup(Key const &key) const {
-    return items_[tables_.lookup(key)];
+    return keys_[tables_.lookup(key)];
   }
 };
 
 template <typename T, std::size_t N>
 constexpr auto make_unordered_set(T const (&keys)[N]) {
-  return unordered_set<T, N>{bits::to_array(keys)};
+  return unordered_set<T, N>{keys};
 }
 
 } // namespace frozen

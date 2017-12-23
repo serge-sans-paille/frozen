@@ -28,7 +28,6 @@
 #include <frozen/bits/basic_types.h>
 
 #include <array>
-#include <tuple>
 
 namespace frozen {
 
@@ -57,11 +56,11 @@ constexpr bool all_different_from(cvector<T, N> & data, T & a) {
 // Represents the two hash tables created by pmh algorithm
 template <std::size_t M, class Hasher>
 struct pmh_tables {
-  std::array<int64_t, M> first_table_;
-  std::array<uint64_t, M> second_table_;
+  carray<int64_t, M> first_table_;
+  carray<uint64_t, M> second_table_;
   Hasher hash_;
 
-  // Looks up a given key, to find its expected index in std::array<Item, N>
+  // Looks up a given key, to find its expected index in carray<Item, N>
   // Always returns a valid index, must use KeyEqual test after to confirm.
   template <typename KeyType>
   constexpr uint64_t lookup(const KeyType & key) const {
@@ -72,22 +71,20 @@ struct pmh_tables {
 };
 
 template <std::size_t M, class Item, std::size_t N, class Hash, class Key>
-pmh_tables<M, Hash> constexpr make_pmh_tables(const std::array<Item, N> &
+pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
                                                                items,
                                                            Hash const &hash,
                                                            Key const &key) {
   // Step 1: Place all of the keys into buckets
-  cvector<bucket<M>, M> buckets;
-  cvector<uint64_t, M> values;
-  cvector<int64_t, M> G;
-
-  auto *it = &std::get<0>(items);
+  carray<bucket<M>, M> buckets;
+  carray<uint64_t, M> values;
+  carray<int64_t, M> G;
 
   for (std::size_t i = 0; i < N; ++i)
-    buckets[hash(key(it[i])) % M].push_back(1 + i);
+    buckets[hash(key(items[i])) % M].push_back(1 + i);
 
   // Step 2: Sort the buckets and process the ones with the most items first.
-  bits::quicksort(buckets.begin(), buckets.begin() + M - 1, bucket_size_compare{});
+  bits::quicksort(buckets.begin(), buckets.end() - 1, bucket_size_compare{});
 
   std::size_t b = 0;
   for (; b < M; ++b) {
@@ -102,7 +99,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const std::array<Item, N> &
     cvector<std::size_t, M> slots;
 
     while (slots.size() < bsize) {
-      auto slot = hash(key(it[bucket[slots.size()] - 1]), d) % M;
+      auto slot = hash(key(items[bucket[slots.size()] - 1]), d) % M;
 
       if (values[slot] != 0 || !all_different_from(slots, slot)) {
         slots.clear();
@@ -113,7 +110,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const std::array<Item, N> &
       slots.push_back(slot);
     }
 
-    G[hash(key(it[bucket[0] - 1])) % M] = d;
+    G[hash(key(items[bucket[0] - 1])) % M] = d;
     for (std::size_t i = 0; i < bsize; ++i)
       values[slots[i]] = bucket[i];
   }
@@ -135,14 +132,14 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const std::array<Item, N> &
     freelist.pop_back();
     // We subtract one to ensure it's negative even if the zeroeth slot was
     // used.
-    G[hash(key(it[bucket[0] - 1])) % M] = -slot - 1;
+    G[hash(key(items[bucket[0] - 1])) % M] = -slot - 1;
     values[slot] = bucket[0];
   }
   for (std::size_t i = 0; i < M; ++i)
     if (values[i])
       values[i]--;
 
-  return {G.to_array(), values.to_array(), hash};
+  return {G, values, hash};
 }
 
 } // namespace bits

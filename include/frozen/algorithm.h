@@ -23,8 +23,6 @@
 #ifndef FROZEN_LETITGO_ALGORITHM_H
 #define FROZEN_LETITGO_ALGORITHM_H
 
-#include <utility>
-
 #include "frozen/string.h"
 #include "frozen/bits/basic_types.h"
 
@@ -42,25 +40,23 @@ ForwardIterator search(ForwardIterator first, ForwardIterator last, const Search
 // https://en.wikipedia.org/wiki/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm
 
 template <std::size_t size> class knuth_morris_pratt_searcher {
-  bits::cvector<std::ptrdiff_t, size> step_;
-  std::array<char, size> data_;
+  bits::carray<std::ptrdiff_t, size> step_;
+  bits::carray<char, size> needle_;
 
-  static constexpr bits::cvector<std::ptrdiff_t, size>
-  build_kmp_cache(std::array<char, size> needle) {
-    char const *needle_view = &(std::get<0>(needle));
+  static constexpr bits::carray<std::ptrdiff_t, size>
+  build_kmp_cache(char const (&needle)[size + 1]) {
     std::ptrdiff_t cnd = 0;
-    bits::cvector<std::ptrdiff_t, size> cache;
-    for (std::size_t pos = 0; pos < size; ++pos)
-      cache[pos] = -1;
+    bits::carray<std::ptrdiff_t, size> cache;
 
+    cache.fill(-1);
     for (std::size_t pos = 1; pos < size; ++pos) {
-      if (needle_view[pos] == needle_view[cnd]) {
+      if (needle[pos] == needle[cnd]) {
         cache[pos] = cache[cnd];
         cnd += 1;
       } else {
         cache[pos] = cnd;
         cnd = cache[cnd];
-        while (cnd >= 0 && needle_view[pos] != needle_view[cnd])
+        while (cnd >= 0 && needle[pos] != needle[cnd])
           cnd = cache[cnd];
         cnd += 1;
       }
@@ -68,25 +64,16 @@ template <std::size_t size> class knuth_morris_pratt_searcher {
     return cache;
   }
 
-  constexpr char operator[](std::size_t i) const {
-    return (&std::get<0>(data_))[i];
-  }
-
 public:
-  constexpr knuth_morris_pratt_searcher(std::array<char, size> data)
-      : step_{build_kmp_cache(data)}, data_(data) {}
-  template <std::size_t... I>
-  constexpr knuth_morris_pratt_searcher(char const data[size], std::index_sequence<I...>)
-      : knuth_morris_pratt_searcher(std::array<char, size>{{data[I]...}}) {}
-  constexpr knuth_morris_pratt_searcher(char const data[size])
-      : knuth_morris_pratt_searcher(data, std::make_index_sequence<size>()) {}
+  constexpr knuth_morris_pratt_searcher(char const (&needle)[size + 1])
+    : step_{build_kmp_cache(needle)}, needle_(needle) {}
 
   template <class ForwardIterator>
   constexpr std::pair<ForwardIterator, ForwardIterator> operator()(ForwardIterator first, ForwardIterator last) const {
     std::size_t i = 0;
     ForwardIterator iter = first;
     while (iter != last) {
-      if (data_[i] == *iter) {
+      if (needle_[i] == *iter) {
         if (i == (size - 1))
           return { iter - i, iter - i + size };
         ++i;
@@ -105,32 +92,31 @@ public:
 };
 
 template <std::size_t N>
-constexpr knuth_morris_pratt_searcher<N - 1> make_knuth_morris_pratt_searcher(char const (&data)[N]) {
-  return {data};
+constexpr knuth_morris_pratt_searcher<N - 1> make_knuth_morris_pratt_searcher(char const (&needle)[N]) {
+  return {needle};
 }
 
 // text book implementation from
 // https://en.wikipedia.org/wiki/Boyer%E2%80%93Moore%E2%80%93Horspool_algorithm
 
 template <std::size_t size> class boyer_moore_searcher {
-  using skip_table_type = bits::cvector<std::ptrdiff_t, sizeof(char) << 8>;
+  using skip_table_type = bits::carray<std::ptrdiff_t, sizeof(char) << 8>;
+  using suffix_table_type = bits::carray<std::ptrdiff_t, size>;
+
   skip_table_type skip_table_;
-
-  using suffix_table_type = bits::cvector<std::ptrdiff_t, size>;
   suffix_table_type suffix_table_;
+  bits::carray<char, size> needle_;
 
-  std::array<char, size> data_;
+  constexpr auto build_skip_table(char const (&needle)[size + 1]) {
+    skip_table_type skip_table;
 
-  constexpr auto build_skip_table(std::array<char, size> const &needle) {
-    skip_table_type skip_table(size, size);
-
+    skip_table.fill(size);
     for (std::size_t i = 0; i < size - 1; ++i)
       skip_table[needle[i]] -= i + 1;
     return skip_table;
   }
 
-  constexpr bool is_prefix(std::array<char, size> const &needle,
-                           std::size_t pos) {
+  constexpr bool is_prefix(char const (&needle)[size + 1], std::size_t pos) {
     std::size_t suffixlen = size - pos;
     
     for (std::size_t i = 0; i < suffixlen; i++) {
@@ -140,7 +126,7 @@ template <std::size_t size> class boyer_moore_searcher {
     return true;
   }
 
-  constexpr std::size_t suffix_length(std::array<char, size> const &needle,
+  constexpr std::size_t suffix_length(char const (&needle)[size + 1],
                                       std::size_t pos) {
     // increment suffix length slen to the first mismatch or beginning
     // of the word
@@ -151,7 +137,7 @@ template <std::size_t size> class boyer_moore_searcher {
     return pos;
   }
 
-  constexpr auto build_suffix_table(std::array<char, size> const &needle) {
+  constexpr auto build_suffix_table(char const (&needle)[size + 1]) {
     suffix_table_type suffix;
     std::ptrdiff_t last_prefix_index = size - 1;
 
@@ -174,15 +160,10 @@ template <std::size_t size> class boyer_moore_searcher {
   }
 
 public:
-  constexpr boyer_moore_searcher(std::array<char, size> const &data)
-      : skip_table_{build_skip_table(data)},
-        suffix_table_{build_suffix_table(data)},
-        data_(data) {}
-  template <std::size_t... I>
-  constexpr boyer_moore_searcher(char const data[size], std::index_sequence<I...>)
-      : boyer_moore_searcher(std::array<char, size>{{data[I]...}}) {}
-  constexpr boyer_moore_searcher(char const data[size])
-      : boyer_moore_searcher(data, std::make_index_sequence<size>()) {}
+  constexpr boyer_moore_searcher(char const (&needle)[size + 1])
+    : skip_table_{build_skip_table(needle)},
+      suffix_table_{build_suffix_table(needle)},
+      needle_(needle) {}
 
   template <class ForwardIterator>
   constexpr std::pair<ForwardIterator, ForwardIterator> operator()(ForwardIterator first, ForwardIterator last) const {
@@ -192,11 +173,11 @@ public:
     ForwardIterator iter = first + size - 1;
     while (iter < last) {
       std::ptrdiff_t j = size - 1;
-      while (j > 0 && (*iter == (&std::get<0>(data_))[j])) {
+      while (j > 0 && (*iter == needle_[j])) {
         --iter;
         --j;
       }
-      if (*iter == (&std::get<0>(data_))[0])
+      if (*iter == needle_[0])
         return { iter, iter + size};
 
       iter += std::max(skip_table_[*iter], suffix_table_[j]);
@@ -206,8 +187,8 @@ public:
 };
 
 template <std::size_t N>
-constexpr boyer_moore_searcher<N - 1> make_boyer_moore_searcher(char const (&data)[N]) {
-  return {data};
+constexpr boyer_moore_searcher<N - 1> make_boyer_moore_searcher(char const (&needle)[N]) {
+  return {needle};
 }
 
 } // namespace frozen

@@ -23,14 +23,14 @@
 #ifndef FROZEN_SET_H
 #define FROZEN_SET_H
 
-#include "bits/algorithms.h"
-#include <array>
+#include <frozen/bits/algorithms.h>
+#include <frozen/bits/basic_types.h>
 #include <utility>
 
 namespace frozen {
 
 template <class Key, std::size_t N, class Compare = std::less<Key>> class set {
-  using container_type = std::array<Key, N>;
+  using container_type = bits::carray<Key, N>;
   Compare const compare_;
   container_type const keys_;
 
@@ -57,16 +57,16 @@ public:
 
   constexpr set(container_type keys, Compare const & comp)
       : compare_{comp}
-      , keys_(bits::quicksort(container_type{keys}, compare_)) {}
+      , keys_(bits::quicksort(keys, compare_)) {}
 
   explicit constexpr set(container_type keys)
       : set{keys, Compare{}} {}
 
-  constexpr set(std::initializer_list<Key> list, Compare const & comp)
-      : set(bits::make_unordered_array<Key, N>(list), comp) {}
+  constexpr set(std::initializer_list<Key> keys, Compare const & comp)
+      : set{container_type{keys}, comp} {}
 
-  constexpr set(std::initializer_list<Key> list)
-      : set(bits::make_unordered_array<Key, N>(list)) {}
+  constexpr set(std::initializer_list<Key> keys)
+      : set{keys, Compare{}} {}
 
   /* capacity */
   constexpr bool empty() const { return !N; }
@@ -75,7 +75,7 @@ public:
 
   /* lookup */
   constexpr std::size_t count(Key const &key) const {
-    return bits::binary_search<N>(&std::get<0>(keys_), key, compare_);
+    return bits::binary_search<N>(keys_.begin(), key, compare_);
   }
 
   const_iterator find(Key const &key) const {
@@ -95,7 +95,7 @@ public:
   }
 
   const_iterator lower_bound(Key const &key) const {
-    auto const where = bits::lower_bound<N>(&std::get<0>(keys_), key, compare_);
+    auto const where = bits::lower_bound<N>(keys_.begin(), key, compare_);
     if ((where != end()) && !compare_(key, *where))
       return where;
     else
@@ -103,7 +103,7 @@ public:
   }
 
   const_iterator upper_bound(Key const &key) const {
-    auto const where = bits::lower_bound<N>(&std::get<0>(keys_), key, compare_);
+    auto const where = bits::lower_bound<N>(keys_.begin(), key, compare_);
     if ((where != end()) && !compare_(key, *where))
       return where + 1;
     else
@@ -127,7 +127,7 @@ public:
 };
 
 template <class Key, class Compare> class set<Key, 0, Compare> {
-  using container_type = std::array<Key, 1>; // just for the type definitions
+  using container_type = bits::carray<Key, 1>; // just for the type definitions
   Compare const compare_;
 
 public:
@@ -150,8 +150,8 @@ public:
 public:
   /* constructors */
   constexpr set(const set &other) = default;
-  constexpr set(std::array<Key, 0>, Compare const &) {}
-  explicit constexpr set(std::array<Key, 0>) {}
+  constexpr set(bits::carray<Key, 0>, Compare const &) {}
+  explicit constexpr set(bits::carray<Key, 0>) {}
 
   constexpr set(std::initializer_list<Key>, Compare const &comp)
       : compare_{comp} {}
@@ -192,7 +192,7 @@ public:
 
 template <typename T, std::size_t N>
 constexpr auto make_set(const T (&args)[N]) {
-  return set<T, N>(bits::to_array(args));
+  return set<T, N>(args);
 }
 
 } // namespace frozen

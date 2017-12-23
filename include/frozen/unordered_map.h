@@ -22,7 +22,7 @@
 
 #ifndef FROZEN_LETITGO_UNORDERED_MAP_H
 #define FROZEN_LETITGO_UNORDERED_MAP_H
-#include <array>
+#include <frozen/bits/basic_types.h>
 #include <frozen/bits/elsa.h>
 #include <frozen/bits/pmh.h>
 #include <tuple>
@@ -45,7 +45,7 @@ template <class Key, class Value, std::size_t N, typename Hash = anna<Key>,
 class unordered_map {
   static constexpr std::size_t storage_size =
       bits::next_highest_power_of_two(N) * (N < 32 ? 2 : 1); // size adjustment to prevent high collision rate for small sets
-  using container_type = std::array<std::pair<Key, Value>, N>;
+  using container_type = bits::carray<std::pair<Key, Value>, N>;
   using tables_type = bits::pmh_tables<storage_size, Hash>;
 
   KeyEqual const equal_;
@@ -83,7 +83,7 @@ public:
 
   constexpr unordered_map(std::initializer_list<value_type> items,
                           Hash const & hash, KeyEqual const & equal)
-      : unordered_map{bits::make_unordered_array<value_type, N>(items), hash, equal} {}
+      : unordered_map{container_type{items}, hash, equal} {}
 
   constexpr unordered_map(std::initializer_list<value_type> items)
       : unordered_map{items, Hash{}, KeyEqual{}} {}
@@ -145,7 +145,7 @@ private:
 
 template <typename T, typename U, std::size_t N>
 constexpr auto make_unordered_map(std::pair<T, U> const (&items)[N]) {
-  return unordered_map<T, U, N>{bits::to_array(items)};
+  return unordered_map<T, U, N>{items};
 }
 
 } // namespace frozen
