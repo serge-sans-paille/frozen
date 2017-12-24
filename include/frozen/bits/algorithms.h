@@ -40,6 +40,36 @@ auto constexpr next_highest_power_of_two(std::size_t v) {
   return v;
 }
 
+template<class T>
+auto constexpr log(T v) {
+  std::size_t n = 0;
+  while(v) {
+    n += 1;
+    v >>= 1;
+  }
+  return n;
+}
+
+constexpr std::size_t bit_weight(std::size_t n) {
+  return (n <= 8*sizeof(unsigned int))
+    + (n <= 8*sizeof(unsigned long))
+    + (n <= 8*sizeof(unsigned long long))
+    + (n <= 128);
+}
+
+unsigned int select_uint_least(std::integral_constant<std::size_t, 4>);
+unsigned long select_uint_least(std::integral_constant<std::size_t, 3>);
+unsigned long long select_uint_least(std::integral_constant<std::size_t, 2>);
+template<std::size_t N>
+unsigned long long select_uint_least(std::integral_constant<std::size_t, N>) {
+  static_assert(N < 2, "unsupported type size");
+  return {};
+}
+
+
+template<std::size_t N>
+using select_uint_least_t = decltype(select_uint_least(std::integral_constant<std::size_t, bit_weight(N)>()));
+
 template <typename Iter, typename Compare>
 constexpr auto min_element(Iter begin, const Iter end,
                            Compare const &compare) {
