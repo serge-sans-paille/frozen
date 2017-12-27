@@ -88,7 +88,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
   for (std::size_t i = 0; i < N; ++i)
     buckets[hash(key(items[i])) % M].push_back(i);
 
-  // Step 2: Sort the buckets and process the ones with the most items first.
+  // Step 2: Sort the buckets to process the ones with the most items first.
   bits::quicksort(buckets.begin(), buckets.end() - 1, bucket_size_compare{});
 
   // G becomes the first hash table in the resulting pmh function
@@ -99,6 +99,10 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
   carray<uint64_t, M> values;
   for (auto & x : values) { x = UNUSED; }
 
+  // Step 3: Map the items in buckets into hash tables.
+  // - If bucket is singleton, store index of item in G
+  // - Otherwise, find a seed that hashes all items in bucket to unused slots.
+  //   Store that seed in G, and store indices of those items in their slots.
   for (const auto & bucket : buckets) {
     auto const bsize = bucket.size();
 
