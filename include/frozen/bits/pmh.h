@@ -94,9 +94,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
   carray<uint64_t, M> values;
   carray<seed_or_index, M> G;
 
-  std::size_t b = 0;
-  for (; b < M; ++b) {
-    auto &bucket = buckets[b];
+  for (const auto & bucket : buckets) {
     auto const bsize = bucket.size();
 
     if (bsize == 1) {
