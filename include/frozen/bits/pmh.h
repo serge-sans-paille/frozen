@@ -129,10 +129,10 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
   // G becomes the first hash table in the resulting pmh function
   carray<seed_or_index, M> G; // Default constructed to "index 0"
 
-  // values becomes the second hash table in the resulting pmh function
+  // H becomes the second hash table in the resulting pmh function
   constexpr uint64_t UNUSED = -1;
-  carray<uint64_t, M> values;
-  for (auto & x : values) { x = UNUSED; }
+  carray<uint64_t, M> H;
+  for (auto & h : H) { h = UNUSED; }
 
   // Step 3: Map the items in buckets into hash tables.
   for (const auto & bucket : buckets) {
@@ -143,7 +143,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
       G[hash(key(items[bucket[0]]), first_seed) % M] = {false, bucket[0]};
     } else if (bsize > 1) {
 
-      // Repeatedly try different values of d until we find a hash function
+      // Repeatedly try different H of d until we find a hash function
       // that places all items in the bucket into free slots
       seed_or_index d{true, prg()};
       cvector<std::size_t, bucket_max> slots;
@@ -151,7 +151,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
       while (slots.size() < bsize) {
         auto slot = hash(key(items[bucket[slots.size()]]), d.value()) % M;
 
-        if (values[slot] != UNUSED || !all_different_from(slots, slot)) {
+        if (H[slot] != UNUSED || !all_different_from(slots, slot)) {
           slots.clear();
           d = {true, prg()};
           continue;
@@ -163,19 +163,19 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
       // Put successful seed in G, and put indices to items in their slots
       G[hash(key(items[bucket[0]]), first_seed) % M] = d;
       for (std::size_t i = 0; i < bsize; ++i)
-        values[slots[i]] = bucket[i];
+        H[slots[i]] = bucket[i];
     }
   }
 
-  // Any unused entries in the values table have to get changed to zero.
+  // Any unused entries in the H table have to get changed to zero.
   // This is because hashing should not fail or return an out-of-bounds entry.
   // A lookup fails after we apply user-supplied KeyEqual to the query and the
   // key found by hashing.
   for (std::size_t i = 0; i < M; ++i)
-    if (values[i] == UNUSED)
-      values[i] = 0;
+    if (H[i] == UNUSED)
+      H[i] = 0;
 
-  return {first_seed, G, values, hash};
+  return {first_seed, G, H, hash};
 }
 
 } // namespace bits
