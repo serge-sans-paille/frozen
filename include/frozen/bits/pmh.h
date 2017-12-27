@@ -143,15 +143,15 @@ template <std::size_t M, class Hasher>
 struct pmh_tables {
   uint64_t first_seed_;
   carray<seed_or_index, M> first_table_;
-  carray<uint64_t, M> second_table_;
+  carray<std::size_t, M> second_table_;
   Hasher hash_;
 
   // Looks up a given key, to find its expected index in carray<Item, N>
   // Always returns a valid index, must use KeyEqual test after to confirm.
   template <typename KeyType>
-  constexpr uint64_t lookup(const KeyType & key) const {
+  constexpr std::size_t lookup(const KeyType & key) const {
     auto const d = first_table_[hash_(key, first_seed_) % M];
-    if (!d.is_seed()) { return d.value(); }
+    if (!d.is_seed()) { return d.value(); } // this is narrowing uint64 -> size_t but should be fine
     else { return second_table_[hash_(key, d.value()) % M]; }
   }
 };
@@ -173,8 +173,8 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
   carray<seed_or_index, M> G; // Default constructed to "index 0"
 
   // H becomes the second hash table in the resulting pmh function
-  constexpr uint64_t UNUSED = -1;
-  carray<uint64_t, M> H;
+  constexpr std::size_t UNUSED = -1;
+  carray<std::size_t, M> H;
   H.fill(UNUSED);
 
   // Step 3: Map the items in buckets into hash tables.
