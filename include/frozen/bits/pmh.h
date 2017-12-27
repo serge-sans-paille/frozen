@@ -33,6 +33,34 @@ namespace frozen {
 
 namespace bits {
 
+template <size_t M>
+struct pmh_buckets {
+  // TODO: Come up with justification for this, should it not be O(log M)?
+  static constexpr auto bucket_max = 2 * (1u << (log(M) / 2));
+
+  using bucket_t = cvector<std::size_t, bucket_max>;
+  carray<bucket_t, M> buckets;
+  uint64_t seed;
+};
+
+template <size_t M, class Item, size_t N, class Hash, class Key, class PRG>
+pmh_buckets<M> constexpr make_pmh_buckets(const carray<Item, N> & items,
+                                Hash const & hash,
+                                Key const & key,
+                                PRG & prg) {
+  using result_t = pmh_buckets<M>;
+  // Continue until all items are placed without exceeding bucket_max
+  while (1) {
+    result_t result{{}, prg()};
+    for (std::size_t i = 0; i < N; ++i) {
+      auto & bucket = result.buckets[hash(key(items[i]), result.seed) % M];
+      if (bucket.size() >= result_t::bucket_max) { continue; }
+      bucket.push_back(i);
+    }
+    return result;
+  }
+}
+
 // Function object for sorting buckets in decreasing order of size
 struct bucket_size_compare {
   template <typename B>
@@ -101,31 +129,12 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
                                                            Key const &key,
                                                            PRG prg) {
   // Step 0: Bucket max is 2 * sqrt M
-  // TODO: Come up with justification for this, should it not be O(log M)?
-  constexpr auto bucket_max = 2 * (1u << (log(M) / 2));
 
   // Step 1: Place all of the keys into buckets
-  using bucket_t = cvector<std::size_t, bucket_max>;
-  carray<bucket_t, M> buckets;
-
-  uint64_t first_seed = prg();
-
-  // Continue until all items are placed without exceeding bucket_max
-  while (1) {
-    for (std::size_t i = 0; i < N; ++i) {
-      auto & bucket = buckets[hash(key(items[i]), first_seed) % M];
-      if (bucket.size() == bucket_max) {
-        first_seed = prg();
-        buckets = {};
-        continue;
-      }
-      bucket.push_back(i);
-    }
-    break;
-  }
+  auto step_one = make_pmh_buckets<M>(items, hash, key, prg);
 
   // Step 2: Sort the buckets to process the ones with the most items first.
-  bits::quicksort(buckets.begin(), buckets.end() - 1, bucket_size_compare{});
+  bits::quicksort(step_one.buckets.begin(), step_one.buckets.end() - 1, bucket_size_compare{});
 
   // G becomes the first hash table in the resulting pmh function
   carray<seed_or_index, M> G; // Default constructed to "index 0"
@@ -136,18 +145,18 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
   for (auto & h : H) { h = UNUSED; }
 
   // Step 3: Map the items in buckets into hash tables.
-  for (const auto & bucket : buckets) {
+  for (const auto & bucket : step_one.buckets) {
     auto const bsize = bucket.size();
 
     if (bsize == 1) {
       // Store index to the (single) item in G
-      G[hash(key(items[bucket[0]]), first_seed) % M] = {false, bucket[0]};
+      G[hash(key(items[bucket[0]]), step_one.seed) % M] = {false, bucket[0]};
     } else if (bsize > 1) {
 
       // Repeatedly try different H of d until we find a hash function
       // that places all items in the bucket into free slots
       seed_or_index d{true, prg()};
-      cvector<std::size_t, bucket_max> slots;
+      cvector<std::size_t, decltype(step_one)::bucket_max> slots;
 
       while (slots.size() < bsize) {
         auto slot = hash(key(items[bucket[slots.size()]]), d.value()) % M;
@@ -162,7 +171,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
       }
 
       // Put successful seed in G, and put indices to items in their slots
-      G[hash(key(items[bucket[0]]), first_seed) % M] = d;
+      G[hash(key(items[bucket[0]]), step_one.seed) % M] = d;
       for (std::size_t i = 0; i < bsize; ++i)
         H[slots[i]] = bucket[i];
     }
@@ -176,7 +185,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
     if (H[i] == UNUSED)
       H[i] = 0;
 
-  return {first_seed, G, H, hash};
+  return {step_one.seed, G, H, hash};
 }
 
 } // namespace bits
