@@ -95,7 +95,7 @@ Troubleshooting
 
 If you hit a message like this:
 
-.. code::
+.. code:: none
 
     [...]
     note: constexpr evaluation hit maximum step limit; possible infinite loop?
