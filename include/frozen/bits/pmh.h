@@ -91,8 +91,13 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
   // Step 2: Sort the buckets and process the ones with the most items first.
   bits::quicksort(buckets.begin(), buckets.end() - 1, bucket_size_compare{});
 
-  carray<uint64_t, M> values;
+  // G becomes the first hash table in the resulting pmh function
   carray<seed_or_index, M> G;
+
+  // values becomes the second hash table in the resulting pmh function
+  constexpr uint64_t UNUSED = -1;
+  carray<uint64_t, M> values;
+  for (auto & x : values) { x = UNUSED; }
 
   for (const auto & bucket : buckets) {
     auto const bsize = bucket.size();
@@ -109,7 +114,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
       while (slots.size() < bsize) {
         auto slot = hash(key(items[bucket[slots.size()]]), d) % M;
 
-        if (values[slot] != 0 || !all_different_from(slots, slot)) {
+        if (values[slot] != UNUSED || !all_different_from(slots, slot)) {
           slots.clear();
           d++;
           continue;
@@ -120,13 +125,17 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
 
       G[hash(key(items[bucket[0]])) % M] = { true, d };
       for (std::size_t i = 0; i < bsize; ++i)
-        values[slots[i]] = bucket[i] + 1;
+        values[slots[i]] = bucket[i];
     }
   }
 
+  // Any unused entries in the values table have to get changed to zero.
+  // This is because hashing should not fail or return an out-of-bounds entry.
+  // A lookup fails after we apply user-supplied KeyEqual to the query and the
+  // key found by hashing.
   for (std::size_t i = 0; i < M; ++i)
-    if (values[i])
-      values[i]--;
+    if (values[i] == UNUSED)
+      values[i] = 0;
 
   return {G, values, hash};
 }
