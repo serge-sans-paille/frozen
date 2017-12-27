@@ -53,7 +53,7 @@ constexpr bool all_different_from(cvector<T, N> & data, T & a) {
 }
 
 // Represents either an index to a data item array, or a seed to be used with
-// a hasher.
+// a hasher. Seed must have high bit of 1, value has high bit of zero.
 struct seed_or_index {
   using value_type = uint64_t;
 
@@ -75,7 +75,7 @@ public:
   constexpr seed_or_index & operator =(const seed_or_index &) = default;
 };
 
-// Represents the two hash tables created by pmh algorithm
+// Represents the perfect hash function created by pmh algorithm
 template <std::size_t M, class Hasher>
 struct pmh_tables {
   uint64_t first_seed_;
@@ -93,6 +93,7 @@ struct pmh_tables {
   }
 };
 
+// Make pmh tables for given items, hash function, prg, etc.
 template <std::size_t M, class Item, std::size_t N, class Hash, class Key, class PRG>
 pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
                                                                items,
