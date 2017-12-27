@@ -78,6 +78,7 @@ public:
 // Represents the two hash tables created by pmh algorithm
 template <std::size_t M, class Hasher>
 struct pmh_tables {
+  uint64_t first_seed_;
   carray<seed_or_index, M> first_table_;
   carray<uint64_t, M> second_table_;
   Hasher hash_;
@@ -86,7 +87,7 @@ struct pmh_tables {
   // Always returns a valid index, must use KeyEqual test after to confirm.
   template <typename KeyType>
   constexpr uint64_t lookup(const KeyType & key) const {
-    auto const d = first_table_[hash_(key) % M];
+    auto const d = first_table_[hash_(key, first_seed_) % M];
     if (!d.is_seed()) { return d.value(); }
     else { return second_table_[hash_(key, d.value()) % M]; }
   }
@@ -98,12 +99,29 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
                                                            Hash const &hash,
                                                            Key const &key,
                                                            PRG prg) {
+  // Step 0: Bucket max is 2 * sqrt M
+  // TODO: Come up with justification for this, should it not be O(log M)?
+  constexpr auto bucket_max = 2 * (1u << (log(M) / 2));
+
   // Step 1: Place all of the keys into buckets
-  using bucket_t = cvector<std::size_t, M>;
+  using bucket_t = cvector<std::size_t, bucket_max>;
   carray<bucket_t, M> buckets;
 
-  for (std::size_t i = 0; i < N; ++i)
-    buckets[hash(key(items[i])) % M].push_back(i);
+  uint64_t first_seed = prg();
+
+  // Continue until all items are placed without exceeding bucket_max
+  while (1) {
+    for (std::size_t i = 0; i < N; ++i) {
+      auto & bucket = buckets[hash(key(items[i]), first_seed) % M];
+      if (bucket.size() == bucket_max) {
+        first_seed = prg();
+        buckets = {};
+        continue;
+      }
+      bucket.push_back(i);
+    }
+    break;
+  }
 
   // Step 2: Sort the buckets to process the ones with the most items first.
   bits::quicksort(buckets.begin(), buckets.end() - 1, bucket_size_compare{});
@@ -122,13 +140,13 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
 
     if (bsize == 1) {
       // Store index to the (single) item in G
-      G[hash(key(items[bucket[0]])) % M] = {false, bucket[0]};
+      G[hash(key(items[bucket[0]]), first_seed) % M] = {false, bucket[0]};
     } else if (bsize > 1) {
 
       // Repeatedly try different values of d until we find a hash function
       // that places all items in the bucket into free slots
       seed_or_index d{true, prg()};
-      cvector<std::size_t, M> slots;
+      cvector<std::size_t, bucket_max> slots;
 
       while (slots.size() < bsize) {
         auto slot = hash(key(items[bucket[slots.size()]]), d.value()) % M;
@@ -143,7 +161,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
       }
 
       // Put successful seed in G, and put indices to items in their slots
-      G[hash(key(items[bucket[0]])) % M] = d;
+      G[hash(key(items[bucket[0]]), first_seed) % M] = d;
       for (std::size_t i = 0; i < bsize; ++i)
         values[slots[i]] = bucket[i];
     }
@@ -157,7 +175,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
     if (values[i] == UNUSED)
       values[i] = 0;
 
-  return {G, values, hash};
+  return {first_seed, G, values, hash};
 }
 
 } // namespace bits
