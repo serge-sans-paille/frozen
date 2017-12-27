@@ -68,6 +68,16 @@ String support is built-in through a lightweight wrapper:
     };
     constexpr auto val = olaf.at("19");
 
+You may also prefer a slightly more DRY initialization syntax:
+
+.. code:: C++
+
+    #include <frozen/set.h>
+
+    constexpr auto some_ints = frozen::make_set<int>({1,2,3,5});
+
+There are similar ``make_X`` functions for all frozen containers.
+
 Extending
 ---------
 
@@ -76,19 +86,24 @@ the key equality comparator for ``unordered_*`` containers, and the comparison
 functions for the ordered version.
 
 It's also possible to specialize the ``frozen::elsa`` structure used for
-hashing. Note that two hashing algorithm are used: one for initial hashing and
-one to resolve conflicts.
+hashing. Note that unlike `std::hash`, the hasher also takes a seed in addition
+to the value being hashed.
 
 .. code:: C++
 
     template <class T> struct elsa {
-
-      // used for first hash try
-      constexpr std::size_t operator()(T const &value) const;
-
-      // incase of conflict, this one is used to resolve conflicts, iterating over the seed
+      // in case of collisions, different seeds are tried
       constexpr std::size_t operator()(T const &value, std::size_t seed) const;
     };
+
+Ideally, the hash function should have nice statistical properties like *pairwise-independence*:
+
+If ``x`` and ``y`` are different values, the chance that `elsa<T>{}(x, seed) == elsa<T>{}(y, seed)`
+should be very low for a random value of ``seed``.
+
+Note that frozen always ultimately produces a perfect hash function, and you will always have ``O(1)``
+lookup with frozen. It's just that if the input hasher performs poorly, the search will take longer and
+your project will take longer to compile.
 
 Troubleshooting
 ---------------
@@ -108,9 +123,6 @@ in the following:
 .. code:: c++
 
     struct olaf {
-
-      constexpr std::size_t operator()(frozen::string const &value) const { return value.size; }
-
       constexpr std::size_t operator()(frozen::string const &value, std::size_t seed) const { return seed ^ value[0];}
     };
 
