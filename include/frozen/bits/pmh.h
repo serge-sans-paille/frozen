@@ -33,17 +33,16 @@ namespace frozen {
 
 namespace bits {
 
-template <size_t N>
-using bucket = cvector<std::size_t, N>;
-
+// Function object for sorting buckets in decreasing order of size
 struct bucket_size_compare {
-  template <size_t N>
-  auto constexpr operator()(bucket<N> const &b0,
-                            bucket<N> const &b1) const {
+  template <typename B>
+  bool constexpr operator()(B const &b0,
+                            B const &b1) const {
     return b0.size() > b1.size();
   }
 };
 
+// Check if an item appears in a cvector
 template<class T, size_t N>
 constexpr bool all_different_from(cvector<T, N> & data, T & a) {
   for (std::size_t i = 0; i < data.size(); ++i)
@@ -100,7 +99,8 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
                                                            Key const &key,
                                                            PRG prg) {
   // Step 1: Place all of the keys into buckets
-  carray<bucket<M>, M> buckets;
+  using bucket_t = cvector<std::size_t, M>;
+  carray<bucket_t, M> buckets;
 
   for (std::size_t i = 0; i < N; ++i)
     buckets[hash(key(items[i])) % M].push_back(i);
