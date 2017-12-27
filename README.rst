@@ -98,7 +98,7 @@ to the value being hashed.
 
 Ideally, the hash function should have nice statistical properties like *pairwise-independence*:
 
-If ``x`` and ``y`` are different values, the chance that `elsa<T>{}(x, seed) == elsa<T>{}(y, seed)`
+If ``x`` and ``y`` are different values, the chance that ``elsa<T>{}(x, seed) == elsa<T>{}(y, seed)``
 should be very low for a random value of ``seed``.
 
 Note that frozen always ultimately produces a perfect hash function, and you will always have ``O(1)``
