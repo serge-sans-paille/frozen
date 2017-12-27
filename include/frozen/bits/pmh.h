@@ -84,14 +84,15 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
                                                            Key const &key) {
   // Step 1: Place all of the keys into buckets
   carray<bucket<M>, M> buckets;
-  carray<uint64_t, M> values;
-  carray<seed_or_index, M> G;
 
   for (std::size_t i = 0; i < N; ++i)
     buckets[hash(key(items[i])) % M].push_back(1 + i);
 
   // Step 2: Sort the buckets and process the ones with the most items first.
   bits::quicksort(buckets.begin(), buckets.end() - 1, bucket_size_compare{});
+
+  carray<uint64_t, M> values;
+  carray<seed_or_index, M> G;
 
   std::size_t b = 0;
   for (; b < M; ++b) {
