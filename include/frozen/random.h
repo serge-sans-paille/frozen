@@ -46,7 +46,7 @@ public:
 
   void seed(result_type s = default_seed) { state_ = s; }
   constexpr result_type operator()() {
-	  using uint_least_t = bits::select_uint_least_t<bits::log(a) + bits::log(m) + 2>;
+	  using uint_least_t = bits::select_uint_least_t<bits::log(a) + bits::log(m) + 4>;
     uint_least_t tmp = static_cast<uint_least_t>(multiplier) * state_ + increment;
     if(modulus)
       state_ = tmp % modulus;

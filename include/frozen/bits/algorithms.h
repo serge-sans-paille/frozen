@@ -43,7 +43,7 @@ auto constexpr next_highest_power_of_two(std::size_t v) {
 template<class T>
 auto constexpr log(T v) {
   std::size_t n = 0;
-  while(v) {
+  while (v > 1) {
     n += 1;
     v >>= 1;
   }
