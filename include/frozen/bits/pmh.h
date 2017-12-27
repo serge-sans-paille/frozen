@@ -56,8 +56,24 @@ constexpr bool all_different_from(cvector<T, N> & data, T & a) {
 // Represents either an index to a data item array, or a seed to be used with
 // a hasher.
 struct seed_or_index {
-  bool is_seed;
-  uint64_t value;
+  using value_type = uint64_t;
+
+private:
+  static constexpr value_type MINUS_ONE = -1;
+  static constexpr value_type HIGH_BIT = ~(MINUS_ONE >> 1);
+
+  value_type value_ = 0;
+
+public:
+  constexpr value_type value() const { return value_; }
+  constexpr bool is_seed() const { return value_ & HIGH_BIT; }
+
+  constexpr seed_or_index(bool is_seed, value_type value)
+    : value_(is_seed ? (value | HIGH_BIT) : (value & ~HIGH_BIT)) {}
+
+  constexpr seed_or_index() = default;
+  constexpr seed_or_index(const seed_or_index &) = default;
+  constexpr seed_or_index & operator =(const seed_or_index &) = default;
 };
 
 // Represents the two hash tables created by pmh algorithm
@@ -72,8 +88,8 @@ struct pmh_tables {
   template <typename KeyType>
   constexpr uint64_t lookup(const KeyType & key) const {
     auto const d = first_table_[hash_(key) % M];
-    if (!d.is_seed) { return d.value; }
-    else { return second_table_[hash_(key, d.value) % M]; }
+    if (!d.is_seed()) { return d.value(); }
+    else { return second_table_[hash_(key, d.value()) % M]; }
   }
 };
 
@@ -93,7 +109,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
   bits::quicksort(buckets.begin(), buckets.end() - 1, bucket_size_compare{});
 
   // G becomes the first hash table in the resulting pmh function
-  carray<seed_or_index, M> G;
+  carray<seed_or_index, M> G; // Default constructed to "index 0"
 
   // values becomes the second hash table in the resulting pmh function
   constexpr uint64_t UNUSED = -1;
@@ -115,7 +131,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
       cvector<std::size_t, M> slots;
 
       while (slots.size() < bsize) {
-        auto slot = hash(key(items[bucket[slots.size()]]), d.value) % M;
+        auto slot = hash(key(items[bucket[slots.size()]]), d.value()) % M;
 
         if (values[slot] != UNUSED || !all_different_from(slots, slot)) {
           slots.clear();
