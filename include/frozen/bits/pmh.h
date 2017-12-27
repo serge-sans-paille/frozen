@@ -33,6 +33,15 @@ namespace frozen {
 
 namespace bits {
 
+// Function object for sorting buckets in decreasing order of size
+struct bucket_size_compare {
+  template <typename B>
+  bool constexpr operator()(B const &b0,
+                            B const &b1) const {
+    return b0.size() > b1.size();
+  }
+};
+
 // Step One in pmh routine is to take all items and hash them into buckets,
 // with some collisions. Then process those buckets further to build a perfect
 // hash function.
@@ -47,6 +56,35 @@ struct pmh_buckets {
   using bucket_t = cvector<std::size_t, bucket_max>;
   carray<bucket_t, M> buckets;
   uint64_t seed;
+
+  // Represents a reference to a bucket. This is used because the buckets
+  // have to be sorted, but buckets are big, making it slower than sorting refs
+  struct bucket_ref {
+    unsigned hash;
+    const bucket_t * ptr;
+
+    // Forward some interface of bucket
+    using value_type = typename bucket_t::value_type;
+    using const_iterator = typename bucket_t::const_iterator;
+
+    constexpr auto size() const { return ptr->size(); }
+    constexpr const auto & operator[](std::size_t idx) const { return (*ptr)[idx]; }
+    constexpr auto begin() const { return ptr->begin(); }
+    constexpr auto end() const { return ptr->end(); }
+  };
+
+  // Make a bucket_ref for each bucket
+  template <std::size_t... Is>
+  carray<bucket_ref, M> constexpr make_bucket_refs(std::index_sequence<Is...>) const {
+    return {{ bucket_ref{Is, &buckets[Is]}... }};
+  }
+
+  // Makes a bucket_ref for each bucket and sorts them by size
+  carray<bucket_ref, M> constexpr get_sorted_buckets() const {
+    carray<bucket_ref, M> result{this->make_bucket_refs(std::make_index_sequence<M>())};
+    bits::quicksort(result.begin(), result.end() - 1, bucket_size_compare{});
+    return result;
+  }
 };
 
 template <size_t M, class Item, size_t N, class Hash, class Key, class PRG>
@@ -66,15 +104,6 @@ pmh_buckets<M> constexpr make_pmh_buckets(const carray<Item, N> & items,
     return result;
   }
 }
-
-// Function object for sorting buckets in decreasing order of size
-struct bucket_size_compare {
-  template <typename B>
-  bool constexpr operator()(B const &b0,
-                            B const &b1) const {
-    return b0.size() > b1.size();
-  }
-};
 
 // Check if an item appears in a cvector
 template<class T, size_t N>
@@ -138,7 +167,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
   auto step_one = make_pmh_buckets<M>(items, hash, key, prg);
 
   // Step 2: Sort the buckets to process the ones with the most items first.
-  bits::quicksort(step_one.buckets.begin(), step_one.buckets.end() - 1, bucket_size_compare{});
+  auto buckets = step_one.get_sorted_buckets();
 
   // G becomes the first hash table in the resulting pmh function
   carray<seed_or_index, M> G; // Default constructed to "index 0"
@@ -149,12 +178,13 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
   H.fill(UNUSED);
 
   // Step 3: Map the items in buckets into hash tables.
-  for (const auto & bucket : step_one.buckets) {
+  for (const auto & bucket : buckets) {
     auto const bsize = bucket.size();
 
     if (bsize == 1) {
       // Store index to the (single) item in G
-      G[hash(key(items[bucket[0]]), step_one.seed) % M] = {false, bucket[0]};
+      // assert(bucket.hash == hash(key(items[bucket[0]]), step_one.seed) % M);
+      G[bucket.hash] = {false, bucket[0]};
     } else if (bsize > 1) {
 
       // Repeatedly try different H of d until we find a hash function
@@ -175,7 +205,8 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
       }
 
       // Put successful seed in G, and put indices to items in their slots
-      G[hash(key(items[bucket[0]]), step_one.seed) % M] = d;
+      // assert(bucket.hash == hash(key(items[bucket[0]]), step_one.seed) % M);
+      G[bucket.hash] = d;
       for (std::size_t i = 0; i < bsize; ++i)
         H[slots[i]] = bucket[i];
     }
