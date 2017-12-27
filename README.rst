@@ -25,7 +25,9 @@ Requirements
 A C++ compiler that supports C++14. Clang version 5 is a good pick, GCC version
 6 lags behind in terms of ``constexpr`` compilation time. At least on my setup.
 
-Note that gcc 5 isn't supported. (Here's an `old compat branch<https://github.com/cbeck88/frozen/tree/gcc5-support>`_ where a small amount of stuff was ported.)
+Note that gcc 5 isn't supported. (Here's an `old compat branch`_ where a small amount of stuff was ported.)
+
+.. _old compat branch: https://github.com/cbeck88/frozen/tree/gcc5-support
 
 Usage
 -----
