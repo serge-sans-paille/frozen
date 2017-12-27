@@ -86,7 +86,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
   carray<bucket<M>, M> buckets;
 
   for (std::size_t i = 0; i < N; ++i)
-    buckets[hash(key(items[i])) % M].push_back(1 + i);
+    buckets[hash(key(items[i])) % M].push_back(i);
 
   // Step 2: Sort the buckets and process the ones with the most items first.
   bits::quicksort(buckets.begin(), buckets.end() - 1, bucket_size_compare{});
@@ -98,7 +98,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
     auto const bsize = bucket.size();
 
     if (bsize == 1) {
-      G[hash(key(items[bucket[0] - 1])) % M] = { false, bucket[0] - 1 };
+      G[hash(key(items[bucket[0]])) % M] = { false, bucket[0]};
     } else if (bsize > 1) {
 
       // Repeatedly try different values of d until we find a hash function
@@ -107,7 +107,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
       cvector<std::size_t, M> slots;
 
       while (slots.size() < bsize) {
-        auto slot = hash(key(items[bucket[slots.size()] - 1]), d) % M;
+        auto slot = hash(key(items[bucket[slots.size()]]), d) % M;
 
         if (values[slot] != 0 || !all_different_from(slots, slot)) {
           slots.clear();
@@ -118,9 +118,9 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
         slots.push_back(slot);
       }
 
-      G[hash(key(items[bucket[0] - 1])) % M] = { true, d };
+      G[hash(key(items[bucket[0]])) % M] = { true, d };
       for (std::size_t i = 0; i < bsize; ++i)
-        values[slots[i]] = bucket[i];
+        values[slots[i]] = bucket[i] + 1;
     }
   }
 
