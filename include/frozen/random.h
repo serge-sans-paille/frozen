@@ -78,6 +78,9 @@ using minstd_rand0 =
 using minstd_rand =
     linear_congruential_engine<std::uint_fast32_t, 48271, 0, 2147483647>;
 
+// This generator is used by default in unordered frozen containers
+using default_prg_t = minstd_rand;
+
 } // namespace frozen
 
 #endif

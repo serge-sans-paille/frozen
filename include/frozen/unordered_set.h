@@ -25,6 +25,7 @@
 #include <frozen/bits/basic_types.h>
 #include <frozen/bits/elsa.h>
 #include <frozen/bits/pmh.h>
+#include <frozen/random.h>
 
 #include <utility>
 
@@ -75,7 +76,7 @@ public:
       : equal_{equal}
       , keys_{keys}
       , tables_{bits::make_pmh_tables<storage_size>(
-            keys_, hash, bits::Get{})} {}
+            keys_, hash, bits::Get{}, default_prg_t{})} {}
   explicit constexpr unordered_set(container_type keys)
       : unordered_set{keys, Hash{}, KeyEqual{}} {}
 

@@ -77,11 +77,12 @@ struct pmh_tables {
   }
 };
 
-template <std::size_t M, class Item, std::size_t N, class Hash, class Key>
+template <std::size_t M, class Item, std::size_t N, class Hash, class Key, class PRG>
 pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
                                                                items,
                                                            Hash const &hash,
-                                                           Key const &key) {
+                                                           Key const &key,
+                                                           PRG prg) {
   // Step 1: Place all of the keys into buckets
   carray<bucket<M>, M> buckets;
 
@@ -107,27 +108,27 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
     auto const bsize = bucket.size();
 
     if (bsize == 1) {
-      G[hash(key(items[bucket[0]])) % M] = { false, bucket[0]};
+      G[hash(key(items[bucket[0]])) % M] = {false, bucket[0]};
     } else if (bsize > 1) {
 
       // Repeatedly try different values of d until we find a hash function
       // that places all items in the bucket into free slots
-      std::size_t d = 1;
+      seed_or_index d{true, prg()};
       cvector<std::size_t, M> slots;
 
       while (slots.size() < bsize) {
-        auto slot = hash(key(items[bucket[slots.size()]]), d) % M;
+        auto slot = hash(key(items[bucket[slots.size()]]), d.value) % M;
 
         if (values[slot] != UNUSED || !all_different_from(slots, slot)) {
           slots.clear();
-          d++;
+          d = {true, prg()};
           continue;
         }
 
         slots.push_back(slot);
       }
 
-      G[hash(key(items[bucket[0]])) % M] = { true, d };
+      G[hash(key(items[bucket[0]])) % M] = d;
       for (std::size_t i = 0; i < bsize; ++i)
         values[slots[i]] = bucket[i];
     }

@@ -25,6 +25,7 @@
 #include <frozen/bits/basic_types.h>
 #include <frozen/bits/elsa.h>
 #include <frozen/bits/pmh.h>
+#include <frozen/random.h>
 #include <tuple>
 #include <functional>
 
@@ -77,7 +78,7 @@ public:
       , items_{items}
       , tables_{
             bits::make_pmh_tables<storage_size>(
-                items_, hash, bits::GetKey{})} {}
+                items_, hash, bits::GetKey{}, default_prg_t{})} {}
   explicit constexpr unordered_map(container_type items)
       : unordered_map{items, Hash{}, KeyEqual{}} {}
 
