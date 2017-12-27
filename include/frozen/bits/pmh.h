@@ -33,8 +33,14 @@ namespace frozen {
 
 namespace bits {
 
+// Step One in pmh routine is to take all items and hash them into buckets,
+// with some collisions. Then process those buckets further to build a perfect
+// hash function.
+// pmh_buckets represents the initial placement into buckets.
+
 template <size_t M>
 struct pmh_buckets {
+  // Step 0: Bucket max is 2 * sqrt M
   // TODO: Come up with justification for this, should it not be O(log M)?
   static constexpr auto bucket_max = 2 * (1u << (log(M) / 2));
 
@@ -128,8 +134,6 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
                                                            Hash const &hash,
                                                            Key const &key,
                                                            PRG prg) {
-  // Step 0: Bucket max is 2 * sqrt M
-
   // Step 1: Place all of the keys into buckets
   auto step_one = make_pmh_buckets<M>(items, hash, key, prg);
 
@@ -142,7 +146,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
   // H becomes the second hash table in the resulting pmh function
   constexpr uint64_t UNUSED = -1;
   carray<uint64_t, M> H;
-  for (auto & h : H) { h = UNUSED; }
+  H.fill(UNUSED);
 
   // Step 3: Map the items in buckets into hash tables.
   for (const auto & bucket : step_one.buckets) {
@@ -180,7 +184,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
   // Any unused entries in the H table have to get changed to zero.
   // This is because hashing should not fail or return an out-of-bounds entry.
   // A lookup fails after we apply user-supplied KeyEqual to the query and the
-  // key found by hashing.
+  // key found by hashing. Sending such queries to zero cannot hurt.
   for (std::size_t i = 0; i < M; ++i)
     if (H[i] == UNUSED)
       H[i] = 0;
