@@ -53,10 +53,17 @@ constexpr bool all_different_from(cvector<T, N> & data, T & a) {
   return true;
 }
 
+// Represents either an index to a data item array, or a seed to be used with
+// a hasher.
+struct seed_or_index {
+  bool is_seed;
+  uint64_t value;
+};
+
 // Represents the two hash tables created by pmh algorithm
 template <std::size_t M, class Hasher>
 struct pmh_tables {
-  carray<int64_t, M> first_table_;
+  carray<seed_or_index, M> first_table_;
   carray<uint64_t, M> second_table_;
   Hasher hash_;
 
@@ -65,8 +72,8 @@ struct pmh_tables {
   template <typename KeyType>
   constexpr uint64_t lookup(const KeyType & key) const {
     auto const d = first_table_[hash_(key) % M];
-    if (d < 0) { return ((-d) - 1); }
-    else { return second_table_[hash_(key, d) % M]; }
+    if (!d.is_seed) { return d.value; }
+    else { return second_table_[hash_(key, d.value) % M]; }
   }
 };
 
@@ -78,7 +85,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
   // Step 1: Place all of the keys into buckets
   carray<bucket<M>, M> buckets;
   carray<uint64_t, M> values;
-  carray<int64_t, M> G;
+  carray<seed_or_index, M> G;
 
   for (std::size_t i = 0; i < N; ++i)
     buckets[hash(key(items[i])) % M].push_back(1 + i);
@@ -92,7 +99,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
     auto const bsize = bucket.size();
 
     if (bsize == 1) {
-      G[hash(key(items[bucket[0] - 1])) % M] = (- static_cast<int64_t>(bucket[0]));
+      G[hash(key(items[bucket[0] - 1])) % M] = { false, bucket[0] - 1 };
     } else if (bsize > 1) {
 
       // Repeatedly try different values of d until we find a hash function
@@ -112,7 +119,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
         slots.push_back(slot);
       }
 
-      G[hash(key(items[bucket[0] - 1])) % M] = d;
+      G[hash(key(items[bucket[0] - 1])) % M] = { true, d };
       for (std::size_t i = 0; i < bsize; ++i)
         values[slots[i]] = bucket[i];
     }
