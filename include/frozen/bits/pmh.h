@@ -65,8 +65,8 @@ struct pmh_tables {
   template <typename KeyType>
   constexpr uint64_t lookup(const KeyType & key) const {
     auto const d = first_table_[hash_(key) % M];
-    auto const index = (d < 0) ? (-d - 1) : (hash_(key, d) % M);
-    return second_table_[index];
+    if (d < 0) { return ((-d) - 1); }
+    else { return second_table_[hash_(key, d) % M]; }
   }
 };
 
@@ -90,51 +90,34 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
   for (; b < M; ++b) {
     auto &bucket = buckets[b];
     auto const bsize = bucket.size();
-    if (bsize <= 1)
-      break;
 
-    // Repeatedly try different values of d until we find a hash function
-    // that places all items in the bucket into free slots
-    std::size_t d = 1;
-    cvector<std::size_t, M> slots;
+    if (bsize == 1) {
+      G[hash(key(items[bucket[0] - 1])) % M] = (- static_cast<int64_t>(bucket[0]));
+    } else if (bsize > 1) {
 
-    while (slots.size() < bsize) {
-      auto slot = hash(key(items[bucket[slots.size()] - 1]), d) % M;
+      // Repeatedly try different values of d until we find a hash function
+      // that places all items in the bucket into free slots
+      std::size_t d = 1;
+      cvector<std::size_t, M> slots;
 
-      if (values[slot] != 0 || !all_different_from(slots, slot)) {
-        slots.clear();
-        d++;
-        continue;
+      while (slots.size() < bsize) {
+        auto slot = hash(key(items[bucket[slots.size()] - 1]), d) % M;
+
+        if (values[slot] != 0 || !all_different_from(slots, slot)) {
+          slots.clear();
+          d++;
+          continue;
+        }
+
+        slots.push_back(slot);
       }
 
-      slots.push_back(slot);
+      G[hash(key(items[bucket[0] - 1])) % M] = d;
+      for (std::size_t i = 0; i < bsize; ++i)
+        values[slots[i]] = bucket[i];
     }
-
-    G[hash(key(items[bucket[0] - 1])) % M] = d;
-    for (std::size_t i = 0; i < bsize; ++i)
-      values[slots[i]] = bucket[i];
   }
 
-  // Only buckets with 1 item remain. Process them more quickly by directly
-  // placing them into a free slot. Use a negative value of d to indicate
-  // this.
-  cvector<int64_t, M> freelist;
-
-  for (std::size_t i = 0; i < M; ++i)
-    if (values[i] == 0)
-      freelist.push_back(i);
-
-  for (std::size_t i = b; i < M; ++i) {
-    auto &bucket = buckets[i];
-    if (bucket.size() == 0)
-      break;
-    auto slot = freelist.back();
-    freelist.pop_back();
-    // We subtract one to ensure it's negative even if the zeroeth slot was
-    // used.
-    G[hash(key(items[bucket[0] - 1])) % M] = -slot - 1;
-    values[slot] = bucket[0];
-  }
   for (std::size_t i = 0; i < M; ++i)
     if (values[i])
       values[i]--;
