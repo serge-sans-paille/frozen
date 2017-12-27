@@ -101,13 +101,11 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
   for (auto & x : values) { x = UNUSED; }
 
   // Step 3: Map the items in buckets into hash tables.
-  // - If bucket is singleton, store index of item in G
-  // - Otherwise, find a seed that hashes all items in bucket to unused slots.
-  //   Store that seed in G, and store indices of those items in their slots.
   for (const auto & bucket : buckets) {
     auto const bsize = bucket.size();
 
     if (bsize == 1) {
+      // Store index to the (single) item in G
       G[hash(key(items[bucket[0]])) % M] = {false, bucket[0]};
     } else if (bsize > 1) {
 
@@ -128,6 +126,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
         slots.push_back(slot);
       }
 
+      // Put successful seed in G, and put indices to items in their slots
       G[hash(key(items[bucket[0]])) % M] = d;
       for (std::size_t i = 0; i < bsize; ++i)
         values[slots[i]] = bucket[i];
