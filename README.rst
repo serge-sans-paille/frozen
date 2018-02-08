@@ -4,8 +4,16 @@ Frozen
 .. image:: https://travis-ci.org/serge-sans-paille/frozen.svg?branch=master
    :target: https://travis-ci.org/serge-sans-paille/frozen
 
-Header-only, immutable (a.ka. frozen), ``constexpr``-compatible versions of
-``std::set``, ``std::unordered_set``, ``std::map`` and ``std::unordered_map``.
+Header-only library that provides 0 cost initialization for immutable containers and various algorithms.
+
+Frozen provides:
+
+- immutable (a.k.a. frozen), ``constexpr``-compatible versions of ``std::set``,
+  ``std::unordered_set``, ``std::map`` and ``std::unordered_map``.
+
+- 0-cost initialization version of ``std::search`` for frozen needles using
+  Boyer-Moore or Knuth-Morris-Pratt algorithms.
+
 
 The ``unordered_*`` containers are guaranteed *perfect* (a.k.a. no hash
 collision) and the extra storage is linear with respect to the number of keys.
@@ -23,7 +31,8 @@ Requirements
 ------------
 
 A C++ compiler that supports C++14. Clang version 5 is a good pick, GCC version
-6 lags behind in terms of ``constexpr`` compilation time. At least on my setup.
+6 lags behind in terms of ``constexpr`` compilation time (At least on my
+setup), but compiles correctly. Visual Studio 2017 also works correctly!
 
 Note that gcc 5 isn't supported. (Here's an `old compat branch`_ where a small amount of stuff was ported.)
 
@@ -55,7 +64,7 @@ As the constructor and some methods are ``constexpr``, it's also possible to wri
     template<std::size_t N>
     std::enable_if_t< frozen::set<int, 3>{{1,11,111}}.count(N), int> foo();
 
-String support is built-in through a lightweight wrapper:
+String support is built-in:
 
 .. code:: C++
 
@@ -128,16 +137,29 @@ in the following:
 
     constexpr frozen::unordered_set<frozen::string, 2, olaf/*custom hash*/> hans = { "a", "b" };
 
+Tests and Benchmarks
+--------------------
+
+Using hand-written Makefiles crafted with love and care:
+
+.. code:: sh
+
+    > # running tests
+    > make -C tests check
+    > # running benchmarks
+    > make -C benchmarks GOOGLE_BENCHMARK_PREFIX=<GOOGLE-BENCHMARK_INSTALL_DIR>
+
 Credits
 -------
 
 The perfect hashing is strongly inspired by the blog post `Throw away the keys:
 Easy, Minimal Perfect Hashing <http://stevehanov.ca/blog/index.php?id=119>`_.
 
-Thanks a lot to Jérôme Dumesnil for his high-quality reviews!
+Thanks a lot to Jérôme Dumesnil for his high-quality reviews, and to Chris Beck
+for his contributions on perfect hashing.
 
 Contact
 -------
 
-Serge sans Paille ``<sguelton@quarkslab.com>``
+Serge sans Paille ``<serge.guelton@telecom-bretagne.eu>``
 
