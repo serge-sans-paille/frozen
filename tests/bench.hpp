@@ -50,7 +50,7 @@ ClobberMemory() {
 template <class Tp>
 inline BENCHMARK_ALWAYS_INLINE void
 DoNotOptimize(Tp const & value) {
-    static_cast<volatile void>(&reinterpret_cast<char const volatile&>(value)));
+    static_cast<volatile void>(&reinterpret_cast<char const volatile&>(value));
 }
 
 // TODO
