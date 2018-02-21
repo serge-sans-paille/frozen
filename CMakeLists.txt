@@ -6,15 +6,12 @@ include(CTest)
 include(CMakePackageConfigHelpers)
 include(CMakeDependentOption)
 
-option(frozen.cpp17
-  "Use the C++ 17 standard or greater for projects linking to frozen")
-
 CMAKE_DEPENDENT_OPTION(frozen.tests
-  "Build the ndatk tests and integrate with ctest"
+  "Build the frozen tests and integrate with ctest"
   "${BUILD_TESTING}" "${is_subproject}" OFF)
 
 CMAKE_DEPENDENT_OPTION(frozen.benchmark
-  "Build the ndatk tests and integrate with ctest"
+  "Build the frozen benchmark"
   OFF "${is_subproject}" OFF)
 
 add_library(frozen INTERFACE)
