@@ -6,5 +6,6 @@ function(sed input_file output_file)
                      COMMAND CMAKE -Dinput_file="${input_file}"
                                    -Doutput_file="${output_file}"
                                    -Dreplacement_pairs="${ARGN}"
-                                   -P ${SED_SCRIPT})
+                                   -P ${SED_SCRIPT}
+                     DEPENDS "${input_file}")
 endfunction()
