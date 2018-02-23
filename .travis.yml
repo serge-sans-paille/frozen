@@ -19,5 +19,9 @@ matrix:
           env: CXX_COMPILER=clang++
 
 script:
-  - make -C tests check CXX=${CXX_COMPILER}
+  - mkdir build
+  - cd build
+  - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${CXX_COMPILER} ..
+  - cmake --build .
+  - cmake --build . --target test
 
