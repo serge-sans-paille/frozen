@@ -119,7 +119,13 @@ TEST_CASE("Knuth-Morris-Pratt string search perf", "[str-search-perf]") {
 
 TEST_CASE("Knuth-Morris-Pratt string search perf (compile-time)", "[str-search-perf]") {
   testStringSearchPerf("KMP frozen::search constexpr:", [](const std::string & haystack) {
-    constexpr auto needle = frozen::make_knuth_morris_pratt_searcher("ABCDABD");
+    constexpr
+#ifdef _WIN32
+    frozen::knuth_morris_pratt_searcher<7> // unsupported auto + constexpr config with mvsc
+#else
+    auto
+#endif
+    needle = frozen::make_knuth_morris_pratt_searcher("ABCDABD");
     benchmark::DoNotOptimize(frozen::search(haystack.begin(), haystack.end(), needle));
   });
 }
@@ -132,7 +138,11 @@ TEST_CASE("Boyer-Moore string search perf", "[str-search-perf]") {
 
 TEST_CASE("Boyer-Moore string search perf (compile-time)", "[str-search-perf]") {
   testStringSearchPerf("BM frozen::search constexpr:", [](const std::string & haystack) {
-    constexpr auto needle = frozen::make_boyer_moore_searcher("ABCDABD");
+#ifndef _WIN32
+    constexpr
+#endif
+    auto
+    needle = frozen::make_boyer_moore_searcher("ABCDABD");
     benchmark::DoNotOptimize(frozen::search(haystack.begin(), haystack.end(), needle));
   });
 }
