@@ -3,9 +3,10 @@ set(SED_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/sed.script.cmake"
 
 function(sed input_file output_file)
   add_custom_command(OUTPUT "${output_file}"
-                     COMMAND CMAKE -Dinput_file="${input_file}"
-                                   -Doutput_file="${output_file}"
-                                   -Dreplacement_pairs="${ARGN}"
-                                   -P ${SED_SCRIPT}
+                     COMMAND ${CMAKE_COMMAND}
+                       -Dinput_file="${input_file}"
+                       -Doutput_file="${output_file}"
+                       -Dreplacement_pairs="${ARGN}"
+                       -P ${SED_SCRIPT}
                      DEPENDS "${input_file}")
 endfunction()
