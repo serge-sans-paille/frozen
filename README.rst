@@ -28,11 +28,13 @@ Installation
 Just copy the ``include/frozen`` directory somewhere and points to it using the ``-I`` flag. Alternatively, using CMake:
 
 .. code:: sh
+
     > mkdir build
     > cd build
     > cmake -D CMAKE_BUILD_TYPE=Release .. 
     > make install
 
+    
 This installation includes configuration files into the ``/usr/local/share``
 directory which can be consumed by CMake's ``find_package`` instrinsic function.
 
@@ -184,6 +186,7 @@ Using CMake to generate a static configuration build system:
 Using CMake to generate an IDE build system with test and benchmark targets
 
 .. code:: sh
+	  
     > mkdir build
     > cd build
     > cmake -D frozen.benchmark=ON -G <"Xcode" or "Visual Studio 15 2017"> ..
@@ -192,6 +195,7 @@ Using CMake to generate an IDE build system with test and benchmark targets
     > cmake --build . --target test
     > cmake --build . --target benchmark
 
+    
 Credits
 -------
 
