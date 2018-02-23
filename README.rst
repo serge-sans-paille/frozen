@@ -25,7 +25,18 @@ are faster. And initialization is free when ``constexpr`` is used :-).
 Installation
 ------------
 
-Just copy the ``include/frozen`` directory somewhere and points to it using the ``-I`` flag.
+Just copy the ``include/frozen`` directory somewhere and points to it using the ``-I`` flag. Alternatively, using CMake:
+
+.. code:: sh
+
+    > mkdir build
+    > cd build
+    > cmake -D CMAKE_BUILD_TYPE=Release .. 
+    > make install
+
+    
+Installation via CMake populates configuration files into the ``/usr/local/share``
+directory which can be consumed by CMake's ``find_package`` instrinsic function.
 
 Requirements
 ------------
@@ -149,6 +160,42 @@ Using hand-written Makefiles crafted with love and care:
     > # running benchmarks
     > make -C benchmarks GOOGLE_BENCHMARK_PREFIX=<GOOGLE-BENCHMARK_INSTALL_DIR>
 
+Using CMake to generate a static configuration build system:
+
+.. code:: sh
+
+    > mkdir build
+    > cd build
+    > cmake -D CMAKE_BUILD_TYPE=Release \
+            -D frozen.benchmark=ON \
+	    -G <"Unix Makefiles" or "Ninja"> ..
+    > # building the tests and benchmarks...
+    > make                               # ... with make
+    > ninja                              # ... with ninja
+    > cmake --build .                    # ... with cmake
+    > # running the tests...
+    > make test                          # ... with make
+    > ninja test                         # ... with ninja
+    > cmake --build . --target test      # ... with cmake
+    > ctest                              # ... with ctest
+    > # running the benchmarks...
+    > make benchmark                     # ... with make
+    > ninja benchmark                    # ... with ninja
+    > cmake --build . --target benchmark # ... with cmake
+
+Using CMake to generate an IDE build system with test and benchmark targets
+
+.. code:: sh
+	  
+    > mkdir build
+    > cd build
+    > cmake -D frozen.benchmark=ON -G <"Xcode" or "Visual Studio 15 2017"> ..
+    > # using cmake to drive the IDE build, test, and benchmark
+    > cmake --build . --config Release
+    > cmake --build . --target test
+    > cmake --build . --target benchmark
+
+    
 Credits
 -------
 
