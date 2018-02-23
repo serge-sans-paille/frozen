@@ -35,7 +35,7 @@ Just copy the ``include/frozen`` directory somewhere and points to it using the 
     > make install
 
     
-This installation includes configuration files into the ``/usr/local/share``
+Installation via CMake populates configuration files into the ``/usr/local/share``
 directory which can be consumed by CMake's ``find_package`` instrinsic function.
 
 Requirements
