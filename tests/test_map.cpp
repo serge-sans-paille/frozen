@@ -241,8 +241,10 @@ TEST_CASE("frozen::map <> std::map", "[map]") {
   constexpr frozen::map<int, int, 128> frozen_map = { INIT_SEQ };
   SECTION("checking size and content") {
     REQUIRE(std_map.size() == frozen_map.size());
-    for (auto v : std_map)
+    for (auto v : std_map) {
       REQUIRE(frozen_map.count(std::get<0>(v)));
+      REQUIRE(frozen_map.find(std::get<0>(v))->second == v.second);
+    }
     for (auto v : frozen_map)
       REQUIRE(std_map.count(std::get<0>(v)));
   }
