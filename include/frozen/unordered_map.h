@@ -25,6 +25,7 @@
 #include <frozen/bits/basic_types.h>
 #include <frozen/bits/elsa.h>
 #include <frozen/bits/pmh.h>
+#include <frozen/bits/constexpr_assert.h>
 #include <frozen/random.h>
 #include <tuple>
 #include <functional>
@@ -84,7 +85,9 @@ public:
 
   constexpr unordered_map(std::initializer_list<value_type> items,
                           Hash const & hash, KeyEqual const & equal)
-      : unordered_map{container_type{items}, hash, equal} {}
+      : unordered_map{container_type{items}, hash, equal} {
+        constexpr_assert(items.size() == N, "Inconsistent initializer_list size and type size argument");
+      }
 
   constexpr unordered_map(std::initializer_list<value_type> items)
       : unordered_map{items, Hash{}, KeyEqual{}} {}

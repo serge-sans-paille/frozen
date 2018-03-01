@@ -28,6 +28,7 @@
 
 #include <frozen/bits/algorithms.h>
 #include <frozen/bits/basic_types.h>
+#include <frozen/bits/constexpr_assert.h>
 
 namespace frozen {
 
@@ -94,11 +95,15 @@ public:
   constexpr map(container_type items, Compare const &compare)
       : compare_{compare}
       , items_{bits::quicksort(items, compare_)} {}
+
   explicit constexpr map(container_type items)
       : map{items, Compare{}} {}
 
   constexpr map(std::initializer_list<value_type> items, Compare const &compare)
-      : map{container_type {items}, compare} {}
+      : map{container_type {items}, compare} {
+        constexpr_assert(items.size() == N, "Inconsistent initializer_list size and type size argument");
+      }
+
   constexpr map(std::initializer_list<value_type> items)
       : map{items, Compare{}} {}
 

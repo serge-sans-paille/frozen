@@ -25,6 +25,7 @@
 #include <frozen/bits/basic_types.h>
 #include <frozen/bits/elsa.h>
 #include <frozen/bits/pmh.h>
+#include <frozen/bits/constexpr_assert.h>
 #include <frozen/random.h>
 
 #include <utility>
@@ -84,7 +85,9 @@ public:
       : unordered_set{keys, Hash{}, KeyEqual{}} {}
 
   constexpr unordered_set(std::initializer_list<Key> keys, Hash const & hash, KeyEqual const & equal)
-      : unordered_set{container_type{keys}, hash, equal} {}
+      : unordered_set{container_type{keys}, hash, equal} {
+        constexpr_assert(keys.size() == N, "Inconsistent initializer_list size and type size argument");
+      }
 
   /* iterators */
   const_iterator begin() const { return keys_.begin(); }
