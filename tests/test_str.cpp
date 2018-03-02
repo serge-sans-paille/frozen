@@ -1,7 +1,6 @@
 #include <frozen/string.h>
 #include <frozen/algorithm.h>
 #include <string>
-#include <chrono>
 #include <iostream>
 
 #include "bench.hpp"
@@ -85,64 +84,3 @@ TEST_CASE("Boyer-Moore str search", "[str-search]") {
 
 }
 
-template<typename Func>
-void testStringSearchPerf(char const *message, Func test) {
-  std::string haystack(100'000'000, 'A');
-  haystack += "ABC ABCDAB ABCDABCDABDE";
-
-  auto start = std::chrono::steady_clock::now();
-  benchmark::DoNotOptimize(haystack);
-  test(haystack);
-  auto stop = std::chrono::steady_clock::now();
-  auto duration = std::chrono::duration<double, std::milli>(stop - start).count();
-  std::cout << std::setw(30) << std::left << message << std::right << std::setw(11) << std::fixed << duration << " ms" << std::endl;
-}
-
-TEST_CASE("Standard string find perf", "[str-search-perf]") {
-  testStringSearchPerf("std:string::find:", [](const std::string & haystack) {
-    benchmark::DoNotOptimize(haystack.find("ABCDABD"));
-  });
-}
-
-TEST_CASE("Standard string search perf", "[str-search-perf]") {
-  testStringSearchPerf("std::search:", [](const std::string & haystack) {
-    const std::string needle = "ABCDABD";
-    benchmark::DoNotOptimize(std::search(haystack.begin(), haystack.end(), needle.begin() , needle.end()));
-  });
-}
-
-TEST_CASE("Knuth-Morris-Pratt string search perf", "[str-search-perf]") {
-  testStringSearchPerf("KMP frozen::search:", [](const std::string & haystack) {
-    benchmark::DoNotOptimize(frozen::search(haystack.begin(), haystack.end(), frozen::make_knuth_morris_pratt_searcher("ABCDABD")));
-  });
-}
-
-TEST_CASE("Knuth-Morris-Pratt string search perf (compile-time)", "[str-search-perf]") {
-  testStringSearchPerf("KMP frozen::search constexpr:", [](const std::string & haystack) {
-    constexpr
-#ifdef _WIN32
-    frozen::knuth_morris_pratt_searcher<7> // unsupported auto + constexpr config with mvsc
-#else
-    auto
-#endif
-    needle = frozen::make_knuth_morris_pratt_searcher("ABCDABD");
-    benchmark::DoNotOptimize(frozen::search(haystack.begin(), haystack.end(), needle));
-  });
-}
-
-TEST_CASE("Boyer-Moore string search perf", "[str-search-perf]") {
-  testStringSearchPerf("BM frozen::search:", [](const std::string & haystack) {
-    benchmark::DoNotOptimize(frozen::search(haystack.begin(), haystack.end(), frozen::make_boyer_moore_searcher("ABCDABD")));
-  });
-}
-
-TEST_CASE("Boyer-Moore string search perf (compile-time)", "[str-search-perf]") {
-  testStringSearchPerf("BM frozen::search constexpr:", [](const std::string & haystack) {
-#ifndef _WIN32
-    constexpr
-#endif
-    auto
-    needle = frozen::make_boyer_moore_searcher("ABCDABD");
-    benchmark::DoNotOptimize(frozen::search(haystack.begin(), haystack.end(), needle));
-  });
-}

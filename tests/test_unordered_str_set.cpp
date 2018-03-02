@@ -1,4 +1,3 @@
-#include <chrono>
 #include <frozen/string.h>
 #include <frozen/unordered_set.h>
 #include <iostream>
@@ -88,35 +87,4 @@ TEST_CASE("frozen::unordered_set<str> <> std::unordered_set",
       REQUIRE(std_set.count(v));
   }
 
-  SECTION("checking minimal performance requirements") {
-    std::array<frozen::string, 128> data{{INIT_SEQ}};
-
-    auto std_start = std::chrono::steady_clock::now();
-    for (int i = 0; i < 10000; ++i)
-      for (auto val : data) {
-        benchmark::DoNotOptimize(val);
-        benchmark::DoNotOptimize(std_set.count(val));
-      }
-    auto std_stop = std::chrono::steady_clock::now();
-    auto std_diff = std_stop - std_start;
-    auto std_duration =
-        std::chrono::duration<double, std::milli>(std_diff).count();
-    std::cout << "std::unordered_set<str>: " << std_duration << " ms"
-              << std::endl;
-
-    auto frozen_start = std::chrono::steady_clock::now();
-    for (int i = 0; i < 10000; ++i)
-      for (auto val : data) {
-        benchmark::DoNotOptimize(val);
-        benchmark::DoNotOptimize(frozen_set.count(val));
-      }
-    auto frozen_stop = std::chrono::steady_clock::now();
-    auto frozen_diff = frozen_stop - frozen_start;
-    auto frozen_duration =
-        std::chrono::duration<double, std::milli>(frozen_diff).count();
-    std::cout << "frozen::unordered_set<str>: " << frozen_duration << " ms"
-              << std::endl;
-
-    REQUIRE(std_duration > frozen_duration);
-  }
 }

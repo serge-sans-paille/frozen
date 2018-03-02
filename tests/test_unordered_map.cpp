@@ -1,4 +1,3 @@
-#include <chrono>
 #include <frozen/unordered_map.h>
 #include <iostream>
 #include <unordered_map>
@@ -127,37 +126,6 @@ TEST_CASE("frozen::unordered_map <> std::unordered_map", "[unordered_map]") {
       REQUIRE(frozen_map.count(std::get<0>(v)));
     for (auto v : frozen_map)
       REQUIRE(std_map.count(std::get<0>(v)));
-  }
-
-  SECTION("checking minimal performance requirements") {
-    auto std_start = std::chrono::steady_clock::now();
-    for (int i = 0; i < 10000; ++i)
-      for (int j = 0; j < 10000; ++j) {
-        benchmark::DoNotOptimize(i);
-        benchmark::DoNotOptimize(j);
-        benchmark::DoNotOptimize(std_map.count(i + j));
-      }
-    auto std_stop = std::chrono::steady_clock::now();
-    auto std_diff = std_stop - std_start;
-    auto std_duration =
-        std::chrono::duration<double, std::milli>(std_diff).count();
-    std::cout << "std::unordered_map<int, int>: " << std_duration << " ms" << std::endl;
-
-
-    auto frozen_start = std::chrono::steady_clock::now();
-    for (int i = 0; i < 10000; ++i)
-      for (int j = 0; j < 10000; ++j) {
-        benchmark::DoNotOptimize(i);
-        benchmark::DoNotOptimize(j);
-        benchmark::DoNotOptimize(frozen_map.count(i + j));
-      }
-    auto frozen_stop = std::chrono::steady_clock::now();
-    auto frozen_diff = frozen_stop - frozen_start;
-    auto frozen_duration =
-        std::chrono::duration<double, std::milli>(frozen_diff).count();
-    std::cout << "frozen::unordered_map<int, int>: " << frozen_duration << " ms" << std::endl;
-
-    // REQUIRE(std_duration > frozen_duration);
   }
 
   static_assert(std::is_same<typename decltype(std_map)::key_type,

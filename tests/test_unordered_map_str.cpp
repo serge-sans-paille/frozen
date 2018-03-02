@@ -1,4 +1,3 @@
-#include <chrono>
 #include <frozen/string.h>
 #include <frozen/unordered_map.h>
 #include <iostream>
@@ -69,36 +68,6 @@ TEST_CASE("frozen::unordered_map<str, int> <> std::unordered_map",
       REQUIRE(std_map.count(v.first));
   }
 
-  SECTION("checking minimal performance requirements") {
-    std::initializer_list<std::pair<frozen::string, int>> data = {INIT_SEQ};
-    auto std_start = std::chrono::steady_clock::now();
-    for (int i = 0; i < 10000; ++i)
-      for (auto val : data) {
-        benchmark::DoNotOptimize(val);
-        benchmark::DoNotOptimize(std_map.count(val.first));
-      }
-    auto std_stop = std::chrono::steady_clock::now();
-    auto std_diff = std_stop - std_start;
-    auto std_duration =
-        std::chrono::duration<double, std::milli>(std_diff).count();
-    std::cout << "std::unordered_map<str, int>: " << std_duration << " ms"
-              << std::endl;
-
-    auto frozen_start = std::chrono::steady_clock::now();
-    for (int i = 0; i < 10000; ++i)
-      for (auto val : data) {
-        benchmark::DoNotOptimize(val);
-        benchmark::DoNotOptimize(frozen_map.count(val.first));
-      }
-    auto frozen_stop = std::chrono::steady_clock::now();
-    auto frozen_diff = frozen_stop - frozen_start;
-    auto frozen_duration =
-        std::chrono::duration<double, std::milli>(frozen_diff).count();
-    std::cout << "frozen::unordered_map<str, int>: " << frozen_duration << " ms"
-              << std::endl;
-
-    REQUIRE(std_duration > frozen_duration);
-  }
 }
 
 TEST_CASE("various frozen::unordered_map config", "[unordered_map]") {
