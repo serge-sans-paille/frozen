@@ -23,5 +23,5 @@ script:
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${CXX_COMPILER} ..
   - cmake --build .
-  - cmake --build . --target test
+  - ctest -V
 
