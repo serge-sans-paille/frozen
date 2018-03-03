@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <chrono>
 #include <frozen/random.h>
 #include <iostream>
 #include <random>

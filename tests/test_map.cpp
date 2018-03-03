@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <chrono>
 #include <frozen/map.h>
 #include <iostream>
 #include <map>
@@ -241,40 +240,12 @@ TEST_CASE("frozen::map <> std::map", "[map]") {
   constexpr frozen::map<int, int, 128> frozen_map = { INIT_SEQ };
   SECTION("checking size and content") {
     REQUIRE(std_map.size() == frozen_map.size());
-    for (auto v : std_map)
+    for (auto v : std_map) {
       REQUIRE(frozen_map.count(std::get<0>(v)));
+      REQUIRE(frozen_map.find(std::get<0>(v))->second == v.second);
+    }
     for (auto v : frozen_map)
       REQUIRE(std_map.count(std::get<0>(v)));
-  }
-
-  SECTION("printing minimal performance requirements") {
-    auto std_start = std::chrono::steady_clock::now();
-    for (int i = 0; i < 10000; ++i)
-      for (int j = 0; j < 10000; ++j) {
-        benchmark::DoNotOptimize(i);
-        benchmark::DoNotOptimize(j);
-        benchmark::DoNotOptimize(std_map.count(i + j));
-      }
-    auto std_stop = std::chrono::steady_clock::now();
-    auto std_diff = std_stop - std_start;
-    auto std_duration =
-        std::chrono::duration<double, std::milli>(std_diff).count();
-    std::cout << "std::map<int,int>: " << std_duration << " ms" << std::endl;
-
-    auto frozen_start = std::chrono::steady_clock::now();
-    for (int i = 0; i < 10000; ++i)
-      for (int j = 0; j < 10000; ++j) {
-        benchmark::DoNotOptimize(i);
-        benchmark::DoNotOptimize(j);
-        benchmark::DoNotOptimize(frozen_map.count(i + j));
-      }
-    auto frozen_stop = std::chrono::steady_clock::now();
-    auto frozen_diff = frozen_stop - frozen_start;
-    auto frozen_duration =
-        std::chrono::duration<double, std::milli>(frozen_diff).count();
-    std::cout << "frozen::map<int, int>: " << frozen_duration << " ms"
-              << std::endl;
-    //REQUIRE(std_duration > frozen_duration);
   }
 
   static_assert(std::is_same<typename decltype(std_map)::key_type,

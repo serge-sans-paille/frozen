@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <chrono>
 #include <frozen/set.h>
 #include <iostream>
 #include <set>
@@ -223,35 +222,6 @@ TEST_CASE("frozen::set <> std::set", "[set]") {
       REQUIRE(std_set.count(v));
   }
 
-  SECTION("printing minimal performance requirements") {
-    auto std_start = std::chrono::steady_clock::now();
-    for (int i = 0; i < 10000; ++i)
-      for (int j = 0; j < 10000; ++j) {
-        benchmark::DoNotOptimize(i);
-        benchmark::DoNotOptimize(j);
-        benchmark::DoNotOptimize(std_set.count(i+j));
-      }
-    auto std_stop = std::chrono::steady_clock::now();
-    auto std_diff = std_stop - std_start;
-    auto std_duration =
-        std::chrono::duration<double, std::milli>(std_diff).count();
-    std::cout << "std::set<int>: " << std_duration << " ms" << std::endl;
-
-    auto frozen_start = std::chrono::steady_clock::now();
-    for (int i = 0; i < 10000; ++i)
-      for (int j = 0; j < 10000; ++j) {
-        benchmark::DoNotOptimize(i);
-        benchmark::DoNotOptimize(j);
-        benchmark::DoNotOptimize(frozen_set.count(i + j));
-      }
-    auto frozen_stop = std::chrono::steady_clock::now();
-    auto frozen_diff = frozen_stop - frozen_start;
-    auto frozen_duration =
-        std::chrono::duration<double, std::milli>(frozen_diff).count();
-    std::cout << "frozen::set<int>: " << frozen_duration << " ms" << std::endl;
-
-    REQUIRE(std_duration > frozen_duration);
-  }
 }
 
 TEST_CASE("frozen::set <> frozen::make_set", "[set]") {
