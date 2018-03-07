@@ -4,7 +4,9 @@
 #include <frozen/string.h>
 
 #include <set>
+#include <array>
 #include <string>
+#include <algorithm>
 
 static constexpr frozen::set<frozen::string, 32> Keywords{
     "auto",     "break",  "case",    "char",   "const",    "continue",
@@ -35,6 +37,22 @@ static void BM_StrInStdSet(benchmark::State& state) {
 
 BENCHMARK(BM_StrInStdSet);
 
+static const std::array<frozen::string, 32> Keywords__{
+    "auto",     "break",  "case",    "char",   "const",    "continue",
+    "default",  "do",     "double",  "else",   "enum",     "extern",
+    "float",    "for",    "goto",    "if",     "int",      "long",
+    "register", "return", "short",   "signed", "sizeof",   "static",
+    "struct",   "switch", "typedef", "union",  "unsigned", "void",
+    "volatile", "while"};
+
+static void BM_StrInStdArray(benchmark::State& state) {
+  for (auto _ : state) {
+    for(auto kw : *Some)
+    volatile bool status = std::find(Keywords__.begin(), Keywords__.end(), kw) != Keywords__.end();
+  }
+}
+
+BENCHMARK(BM_StrInStdArray);
 
 
 static const frozen::string SomeStrings[32] = {
@@ -61,3 +79,12 @@ static void BM_StrNotInStdSet(benchmark::State& state) {
   }
 }
 BENCHMARK(BM_StrNotInStdSet);
+
+static void BM_StrNotInStdArray(benchmark::State& state) {
+  for (auto _ : state) {
+    for(auto kw : *SomeStringsPtr)
+    volatile bool status = std::find(Keywords__.begin(), Keywords__.end(), kw) != Keywords__.end();
+  }
+}
+
+BENCHMARK(BM_StrNotInStdArray);
