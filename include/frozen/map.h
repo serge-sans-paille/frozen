@@ -23,12 +23,12 @@
 #ifndef FROZEN_LETITGO_MAP_H
 #define FROZEN_LETITGO_MAP_H
 
-#include <stdexcept>
 #include <utility>
 
 #include <frozen/bits/algorithms.h>
 #include <frozen/bits/basic_types.h>
 #include <frozen/bits/constexpr_assert.h>
+#include <frozen/bits/exceptions.h>
 
 namespace frozen {
 
@@ -113,7 +113,7 @@ public:
     if (where != end())
       return *where;
     else
-      throw std::out_of_range("invalid key");
+      FROZEN_THROW_OR_ABORT(std::out_of_range("invalid key"));
   }
 
   /* iterators */
@@ -207,7 +207,7 @@ public:
 
   /* element access */
   constexpr const_reference at(Key const &) const {
-    throw std::out_of_range("invalid key");
+    FROZEN_THROW_OR_ABORT(std::out_of_range("invalid key"));
   }
 
   /* iterators */

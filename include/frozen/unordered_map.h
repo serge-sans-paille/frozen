@@ -26,7 +26,9 @@
 #include <frozen/bits/elsa.h>
 #include <frozen/bits/pmh.h>
 #include <frozen/bits/constexpr_assert.h>
+#include <frozen/bits/exceptions.h>
 #include <frozen/random.h>
+
 #include <tuple>
 #include <functional>
 
@@ -114,7 +116,7 @@ public:
     if (equal_(kv.first, key))
       return kv.second;
     else
-      throw std::out_of_range("unknown key");
+      FROZEN_THROW_OR_ABORT(std::out_of_range("unknown key"));
   }
 
   const_iterator find(Key const &key) const {
