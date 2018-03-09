@@ -146,29 +146,48 @@ template <class T, class Compare> struct LowerBound {
       : value_(value), compare_(compare) {}
 
   template <class ForwardIt>
-  inline constexpr ForwardIt doit(ForwardIt first,
+  inline constexpr ForwardIt doit_fast(ForwardIt first,
                                   std::integral_constant<std::size_t, 0>) {
     return first;
   }
 
   template <class ForwardIt, std::size_t N>
-  inline constexpr ForwardIt doit(ForwardIt first,
+  inline constexpr ForwardIt doit_fast(ForwardIt first,
                                   std::integral_constant<std::size_t, N>) {
     auto constexpr step = N / 2;
+    static_assert(N/2 == N - N / 2 - 1, "power of two minus 1");
     auto it = first + step;
+    auto next_it = compare_(*it, value_) ? it + 1 : first;
+    return doit_fast(next_it, std::integral_constant<std::size_t, N / 2>{});
+  }
+
+  template <class ForwardIt, std::size_t N>
+  inline constexpr ForwardIt doitfirst(ForwardIt first, std::integral_constant<std::size_t, N>, std::integral_constant<bool, true>) {
+    return doit_fast(first, std::integral_constant<std::size_t, N>{});
+  }
+
+  template <class ForwardIt, std::size_t N>
+  inline constexpr ForwardIt doitfirst(ForwardIt first, std::integral_constant<std::size_t, N>, std::integral_constant<bool, false>) {
+    auto constexpr next_power = next_highest_power_of_two(N);
+    auto constexpr next_start = next_power / 2 - 1;
+    auto it = first + next_start;
     if (compare_(*it, value_)) {
-      return doit(it + 1, std::integral_constant<std::size_t, N - N / 2 - 1>{});
-    } else {
-      return doit(first, std::integral_constant<std::size_t, N / 2>{});
+      auto constexpr next = N - next_start - 1;
+      return doitfirst(it + 1, std::integral_constant<std::size_t, next>{}, std::integral_constant<bool, next_highest_power_of_two(next) - 1 == next>{});
     }
+    else
+      return doit_fast(first, std::integral_constant<std::size_t, next_start>{});
+  }
+
+  template <class ForwardIt>
+  inline constexpr ForwardIt doitfirst(ForwardIt first, std::integral_constant<std::size_t, 1>, std::integral_constant<bool, false>) {
+    return doit_fast(first, std::integral_constant<std::size_t, 1>{});
   }
 };
 
 template <std::size_t N, class ForwardIt, class T, class Compare>
-constexpr ForwardIt lower_bound(ForwardIt first, const T &value,
-                                Compare const &compare) {
-  return LowerBound<T, Compare>{value, compare}.doit(
-      first, std::integral_constant<std::size_t, N>{});
+constexpr ForwardIt lower_bound(ForwardIt first, const T &value, Compare const &compare) {
+  return LowerBound<T, Compare>{value, compare}.doitfirst(first, std::integral_constant<std::size_t, N>{}, std::integral_constant<bool, next_highest_power_of_two(N) - 1 == N>{});
 }
 
 template <std::size_t N, class Compare, class ForwardIt, class T>
