@@ -31,10 +31,10 @@ Just copy the ``include/frozen`` directory somewhere and points to it using the 
 
     > mkdir build
     > cd build
-    > cmake -D CMAKE_BUILD_TYPE=Release .. 
+    > cmake -D CMAKE_BUILD_TYPE=Release ..
     > make install
 
-    
+
 Installation via CMake populates configuration files into the ``/usr/local/share``
 directory which can be consumed by CMake's ``find_package`` instrinsic function.
 
@@ -97,6 +97,14 @@ You may also prefer a slightly more DRY initialization syntax:
     constexpr auto some_ints = frozen::make_set<int>({1,2,3,5});
 
 There are similar ``make_X`` functions for all frozen containers.
+
+Exception Handling
+------------------
+
+For compatibility with STL's API, Frozen may eventually throw exceptions, as in
+``frozen::map::at``. If you build your code without exception support, or
+define the ``FROZEN_NO_EXCEPTIONS`` macro variable, they will be turned into an
+``std::abort``.
 
 Extending
 ---------
@@ -186,7 +194,7 @@ Using CMake to generate a static configuration build system:
 Using CMake to generate an IDE build system with test and benchmark targets
 
 .. code:: sh
-	  
+
     > mkdir build
     > cd build
     > cmake -D frozen.benchmark=ON -G <"Xcode" or "Visual Studio 15 2017"> ..
@@ -195,7 +203,7 @@ Using CMake to generate an IDE build system with test and benchmark targets
     > cmake --build . --target test
     > cmake --build . --target benchmark
 
-    
+
 Credits
 -------
 

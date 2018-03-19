@@ -23,9 +23,10 @@
 #ifndef FROZEN_LETITGO_BASIC_TYPES_H
 #define FROZEN_LETITGO_BASIC_TYPES_H
 
+#include <frozen/bits/exceptions.h>
+
 #include <utility>
 #include <iterator>
-#include <stdexcept>
 #include <string>
 
 namespace frozen {
@@ -143,12 +144,12 @@ public:
 
   constexpr       reference at(std::size_t index) {
     if (index > N)
-      throw std::out_of_range("Index (" + std::to_string(index) + ") out of bound (" + std::to_string(N) + ')');
+      FROZEN_THROW_OR_ABORT(std::out_of_range("Index (" + std::to_string(index) + ") out of bound (" + std::to_string(N) + ')'));
     return data_[index];
   }
   constexpr const_reference at(std::size_t index) const {
     if (index > N)
-      throw std::out_of_range("Index (" + std::to_string(index) + ") out of bound (" + std::to_string(N) + ')');
+      FROZEN_THROW_OR_ABORT(std::out_of_range("Index (" + std::to_string(index) + ") out of bound (" + std::to_string(N) + ')'));
     return data_[index];
   }
 
