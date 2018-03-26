@@ -266,3 +266,13 @@ TEST_CASE("frozen::map <> frozen::make_map", "[map]") {
       REQUIRE(frozen_map2.count(std::get<0>(v)));
   }
 }
+
+TEST_CASE("frozen::map constexpr", "[map]") {
+  constexpr frozen::map<unsigned, unsigned, 2> ce = {{3,4}, {11,12}};
+  static_assert(*ce.begin() == std::pair<unsigned, unsigned>{3,4}, "");
+  static_assert(*(ce.begin() + 1) == std::pair<unsigned, unsigned>{11,12}, "");
+  static_assert(ce.size() == 2, "");
+  static_assert(ce.count(3), "");
+  static_assert(!ce.count(0), "");
+  static_assert(ce.find(0) == ce.end(), "");
+}

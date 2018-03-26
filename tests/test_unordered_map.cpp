@@ -146,3 +146,12 @@ TEST_CASE("frozen::unordered_map <> frozen::make_unordered_map", "[unordered_map
       REQUIRE(frozen_map2.count(std::get<0>(v)));
   }
 }
+
+TEST_CASE("frozen::unordered_map constexpr", "[unordered_map]") {
+  constexpr frozen::unordered_map<unsigned, unsigned, 2> ce = {{3,4}, {11,12}};
+  static_assert(ce.begin() +2 == ce.end(), "");
+  static_assert(ce.size() == 2, "");
+  static_assert(ce.count(3), "");
+  static_assert(!ce.count(0), "");
+  static_assert(ce.find(0) == ce.end(), "");
+}

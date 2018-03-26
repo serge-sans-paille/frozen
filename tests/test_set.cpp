@@ -236,3 +236,13 @@ TEST_CASE("frozen::set <> frozen::make_set", "[set]") {
       REQUIRE(frozen_set2.count(v));
   }
 }
+
+TEST_CASE("frozen::set constexpr", "[set]") {
+  constexpr frozen::set<unsigned, 2> ce = {3, 11};
+  static_assert(*ce.begin() == 3, "");
+  static_assert(*(ce.begin() + 1) == 11, "");
+  static_assert(ce.size() == 2, "");
+  static_assert(ce.count(3), "");
+  static_assert(!ce.count(0), "");
+  static_assert(ce.find(0) == ce.end(), "");
+}
