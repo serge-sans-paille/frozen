@@ -95,10 +95,10 @@ public:
       : unordered_map{items, Hash{}, KeyEqual{}} {}
 
   /* iterators */
-  const_iterator begin() const { return items_.begin(); }
-  const_iterator end() const { return items_.end(); }
-  const_iterator cbegin() const { return items_.cbegin(); }
-  const_iterator cend() const { return items_.cend(); }
+  constexpr const_iterator begin() const { return items_.begin(); }
+  constexpr const_iterator end() const { return items_.end(); }
+  constexpr const_iterator cbegin() const { return items_.cbegin(); }
+  constexpr const_iterator cend() const { return items_.cend(); }
 
   /* capacity */
   constexpr bool empty() const { return !N; }
@@ -119,7 +119,7 @@ public:
       FROZEN_THROW_OR_ABORT(std::out_of_range("unknown key"));
   }
 
-  const_iterator find(Key const &key) const {
+  constexpr const_iterator find(Key const &key) const {
     auto const &kv = lookup(key);
     if (equal_(kv.first, key))
       return &kv;
@@ -127,7 +127,7 @@ public:
       return items_.end();
   }
 
-  std::pair<const_iterator, const_iterator> equal_range(Key const &key) const {
+  constexpr std::pair<const_iterator, const_iterator> equal_range(Key const &key) const {
     auto const &kv = lookup(key);
     if (equal_(kv.first, key))
       return {&kv, &kv + 1};

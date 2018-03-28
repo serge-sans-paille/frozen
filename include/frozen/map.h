@@ -117,15 +117,15 @@ public:
   }
 
   /* iterators */
-  const_iterator begin() const { return items_.begin(); }
-  const_iterator cbegin() const { return items_.cbegin(); }
-  const_iterator end() const { return items_.end(); }
-  const_iterator cend() const { return items_.cend(); }
+  constexpr const_iterator begin() const { return items_.begin(); }
+  constexpr const_iterator cbegin() const { return items_.cbegin(); }
+  constexpr const_iterator end() const { return items_.end(); }
+  constexpr const_iterator cend() const { return items_.cend(); }
 
-  const_reverse_iterator rbegin() const { return items_.rbegin(); }
-  const_reverse_iterator crbegin() const { return items_.crbegin(); }
-  const_reverse_iterator rend() const { return items_.rend(); }
-  const_reverse_iterator crend() const { return items_.crend(); }
+  constexpr const_reverse_iterator rbegin() const { return items_.rbegin(); }
+  constexpr const_reverse_iterator crbegin() const { return items_.crbegin(); }
+  constexpr const_reverse_iterator rend() const { return items_.rend(); }
+  constexpr const_reverse_iterator crend() const { return items_.crend(); }
 
   /* capacity */
   constexpr bool empty() const { return !N; }
@@ -138,7 +138,7 @@ public:
     return bits::binary_search<N>(items_.begin(), key, compare_);
   }
 
-  const_iterator find(Key const &key) const {
+  constexpr const_iterator find(Key const &key) const {
     const_iterator where = lower_bound(key);
     if ((where != end()) && !compare_(key, *where))
       return where;
@@ -146,7 +146,7 @@ public:
       return end();
   }
 
-  std::pair<const_iterator, const_iterator> equal_range(Key const &key) const {
+  constexpr std::pair<const_iterator, const_iterator> equal_range(Key const &key) const {
     auto const lower = lower_bound(key);
     if (lower == end())
       return {lower, lower};
@@ -154,7 +154,7 @@ public:
       return {lower, lower + 1};
   }
 
-  const_iterator lower_bound(Key const &key) const {
+  constexpr const_iterator lower_bound(Key const &key) const {
     auto const where = bits::lower_bound<N>(items_.begin(), key, compare_);
     if ((where != end()) && !compare_(key, *where))
       return where;
@@ -162,7 +162,7 @@ public:
       return end();
   }
 
-  const_iterator upper_bound(Key const &key) const {
+  constexpr const_iterator upper_bound(Key const &key) const {
     auto const where = bits::lower_bound<N>(items_.begin(), key, compare_);
     if ((where != end()) && !compare_(key, *where))
       return where + 1;

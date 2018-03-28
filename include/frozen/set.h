@@ -82,7 +82,7 @@ public:
     return bits::binary_search<N>(keys_.begin(), key, compare_);
   }
 
-  const_iterator find(Key const &key) const {
+  constexpr const_iterator find(Key const &key) const {
     const_iterator where = lower_bound(key);
     if ((where != end()) && !compare_(key, *where))
       return where;
@@ -90,7 +90,7 @@ public:
       return end();
   }
 
-  std::pair<const_iterator, const_iterator> equal_range(Key const &key) const {
+  constexpr std::pair<const_iterator, const_iterator> equal_range(Key const &key) const {
     auto const lower = lower_bound(key);
     if (lower == end())
       return {lower, lower};
@@ -98,7 +98,7 @@ public:
       return {lower, lower + 1};
   }
 
-  const_iterator lower_bound(Key const &key) const {
+  constexpr const_iterator lower_bound(Key const &key) const {
     auto const where = bits::lower_bound<N>(keys_.begin(), key, compare_);
     if ((where != end()) && !compare_(key, *where))
       return where;
@@ -106,7 +106,7 @@ public:
       return end();
   }
 
-  const_iterator upper_bound(Key const &key) const {
+  constexpr const_iterator upper_bound(Key const &key) const {
     auto const where = bits::lower_bound<N>(keys_.begin(), key, compare_);
     if ((where != end()) && !compare_(key, *where))
       return where + 1;
@@ -119,15 +119,15 @@ public:
   constexpr key_compare value_comp() const { return compare_; }
 
   /* iterators */
-  const_iterator begin() const { return keys_.begin(); }
-  const_iterator cbegin() const { return keys_.cbegin(); }
-  const_iterator end() const { return keys_.end(); }
-  const_iterator cend() const { return keys_.cend(); }
+  constexpr const_iterator begin() const { return keys_.begin(); }
+  constexpr const_iterator cbegin() const { return keys_.cbegin(); }
+  constexpr const_iterator end() const { return keys_.end(); }
+  constexpr const_iterator cend() const { return keys_.cend(); }
 
-  const_reverse_iterator rbegin() const { return keys_.rbegin(); }
-  const_reverse_iterator crbegin() const { return keys_.crbegin(); }
-  const_reverse_iterator rend() const { return keys_.rend(); }
-  const_reverse_iterator crend() const { return keys_.crend(); }
+  constexpr const_reverse_iterator rbegin() const { return keys_.rbegin(); }
+  constexpr const_reverse_iterator crbegin() const { return keys_.crbegin(); }
+  constexpr const_reverse_iterator rend() const { return keys_.rend(); }
+  constexpr const_reverse_iterator crend() const { return keys_.crend(); }
 };
 
 template <class Key, class Compare> class set<Key, 0, Compare> {

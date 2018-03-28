@@ -90,10 +90,10 @@ public:
       }
 
   /* iterators */
-  const_iterator begin() const { return keys_.begin(); }
-  const_iterator end() const { return keys_.end(); }
-  const_iterator cbegin() const { return keys_.cbegin(); }
-  const_iterator cend() const { return keys_.cend(); }
+  constexpr const_iterator begin() const { return keys_.begin(); }
+  constexpr const_iterator end() const { return keys_.end(); }
+  constexpr const_iterator cbegin() const { return keys_.cbegin(); }
+  constexpr const_iterator cend() const { return keys_.cend(); }
 
   /* capacity */
   constexpr bool empty() const { return !N; }
@@ -105,7 +105,7 @@ public:
     auto const k = lookup(key);
     return equal_(k, key);
   }
-  const_iterator find(Key const &key) const {
+  constexpr const_iterator find(Key const &key) const {
     auto const &k = lookup(key);
     if (equal_(k, key))
       return &k;
@@ -113,7 +113,7 @@ public:
       return keys_.end();
   }
 
-  std::pair<const_iterator, const_iterator> equal_range(Key const &key) const {
+  constexpr std::pair<const_iterator, const_iterator> equal_range(Key const &key) const {
     auto const &k = lookup(key);
     if (equal_(k, key))
       return {&k, &k + 1};
