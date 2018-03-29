@@ -108,10 +108,10 @@ public:
       : map{items, Compare{}} {}
 
   /* element access */
-  constexpr const_reference at(Key const &key) const {
+  constexpr mapped_type at(Key const &key) const {
     auto const where = lower_bound(key);
     if (where != end())
-      return *where;
+      return where->second;
     else
       FROZEN_THROW_OR_ABORT(std::out_of_range("invalid key"));
   }
@@ -206,7 +206,7 @@ public:
       : map{items, Compare{}} {}
 
   /* element access */
-  constexpr const_reference at(Key const &) const {
+  constexpr mapped_type at(Key const &) const {
     FROZEN_THROW_OR_ABORT(std::out_of_range("invalid key"));
   }
 
