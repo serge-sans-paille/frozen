@@ -21,7 +21,7 @@ matrix:
 script:
   - mkdir build
   - cd build
-  - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${CXX_COMPILER} ..
+  - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCMAKE_VERBOSE_MAKEFILE=ON ..
   - cmake --build .
   - ctest -V
 
