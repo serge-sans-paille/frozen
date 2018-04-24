@@ -27,6 +27,7 @@ add_subdirectory(include/frozen)
 
 if(frozen.tests)
   add_subdirectory(tests)
+  add_subdirectory(examples)
 endif()
 
 if(frozen.benchmark)

@@ -124,10 +124,10 @@ constexpr Iterator partition(Iterator left, Iterator right, Compare const &compa
 
 template <typename Iterator, class Compare>
 constexpr void quicksort(Iterator left, Iterator right, Compare const &compare) {
-  if (left < right) {
+  while (left < right) {
     auto new_pivot = bits::partition(left, right, compare);
     quicksort(left, new_pivot, compare);
-    quicksort(new_pivot + 1, right, compare);
+    left = new_pivot + 1;
   }
 }
 
