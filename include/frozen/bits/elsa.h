@@ -26,11 +26,11 @@
 namespace frozen {
 
 template <class T> struct elsa {
-  static_assert(std::is_integral<T>::value,
+  static_assert(std::is_integral<T>::value || std::is_enum<T>::value,
                 "only supports integral types, specialize for other types");
 
   constexpr std::size_t operator()(T const &value, std::size_t seed) const {
-    std::size_t key = seed ^ value;
+    std::size_t key = seed ^ static_cast<std::size_t>(value);
     key = (~key) + (key << 21); // key = (key << 21) - key - 1;
     key = key ^ (key >> 24);
     key = (key + (key << 3)) + (key << 8); // key * 265
