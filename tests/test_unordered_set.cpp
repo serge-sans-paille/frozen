@@ -125,6 +125,15 @@ TEST_CASE("frozen::unordered_set<int> <> std::unordered_set",
 
 }
 
+TEST_CASE("frozen::unordered_set with enum keys", "[unordered_set]") {
+  enum class some_enum {
+    A,B,C
+  };
+  constexpr frozen::unordered_set<some_enum, 2> frozen_set = { some_enum::A, some_enum::B };
+  REQUIRE(frozen_set.count(some_enum::A) == 1);
+  REQUIRE(frozen_set.count(some_enum::C) == 0);
+}
+
 TEST_CASE("frozen::unordered_set <> frozen::make_unordered_set", "[unordered_set]") {
   constexpr frozen::unordered_set<int, 129> frozen_set = { INIT_SEQ };
   constexpr auto frozen_set2 = frozen::make_unordered_set<int>({INIT_SEQ});
