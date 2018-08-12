@@ -72,28 +72,51 @@ if(frozen.benchmark)
   add_subdirectory(benchmarks)
 endif()
 
-include(CMakePackageConfigHelpers)
+include(CMakePackageConfigHelpers) # provides `write_basic_package_version_file`
 
+#
+# As a header-only library, there are no target components to be installed
+# directly (the PUBLIC_HEADER property is not white listed for INTERFACE
+# targets for some reason).
+#
+# However, it is worthwhile export our target description in order to later
+# generate a CMake configuration file for consumption by CMake's `find_package`
+# intrinsic
+#
 install(TARGETS frozen EXPORT frozenConfig)
 
+#
+# Non-testing header files (preserving relative paths) are installed to the
+# `include` subdirectory of the `$INSTALL_DIR/${CMAKE_INSTALL_PREFIX}`
+# directory. Source file permissions preserved.
+#
 install(DIRECTORY include/
   DESTINATION include
   USE_SOURCE_PERMISSIONS
   FILES_MATCHING PATTERN "*.h")
 
-install(EXPORT frozenConfig
-  FILE frozenConfig.cmake
-  NAMESPACE frozen
-  DESTINATION share
-  PERMISSIONS OWNER_READ GROUP_READ)
-
+#
+# As a header-only library, there are no target components to be installed
+# directly (the PUBLIC_HEADER property is not white listed for INTERFACE
+# targets for some reason).
+#
+# However, it is worthwhile export our target description in order to later
+# generate a CMake configuration file for consumption by CMake's `find_package`
+# intrinsic
+#
 write_basic_package_version_file("frozenConfigVersion.cmake"
   VERSION ${frozen_VERSION}
   COMPATIBILITY SameMajorVersion)
 
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/frozenConfigVersion.cmake"
-  DESTINATION share
+  DESTINATION share/cmake/frozen
   PERMISSIONS OWNER_READ GROUP_READ)
+
+install(EXPORT frozenConfig
+  FILE frozenConfig.cmake
+  NAMESPACE frozen
+  DESTINATION share/cmake/frozen
+  PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
 
 #
 # Rudimentary CPack support.
