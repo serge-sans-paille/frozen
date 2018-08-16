@@ -1,9 +1,8 @@
 cmake_minimum_required(VERSION 3.8)
-
 #
-# Here we check whether stlab is being configured in isolation or as a component
+# Here we check whether frozen is being configured in isolation or as a component
 # of a larger proeject. To do so, we query whether the `PROJECT_NAME` CMake
-# variable has been defined. In the case it has, we can conclude stlab is a
+# variable has been defined. In the case it has, we can conclude frozen is a
 # subproject.
 #
 # This convention has been borrowed from the Catch C++ unit testing library.
@@ -26,15 +25,15 @@ include(CMakeDependentOption)
 #
 CMAKE_DEPENDENT_OPTION(frozen.tests
   "Build the frozen tests and integrate with ctest"
-  ${BUILD_TESTING} "NOT ${is_subproject}" OFF)
+  ${BUILD_TESTING} "NOT subproject" OFF)
 
 CMAKE_DEPENDENT_OPTION(frozen.benchmark
   "Build the frozen benchmark"
-  OFF "NOT ${is_subproject}" OFF)
+  OFF "NOT subproject" OFF)
 
 CMAKE_DEPENDENT_OPTION(frozen.coverage
   "Enable test coverage collection of frozen tests"
-  OFF "NOT ${is_subproject}" OFF)
+  OFF "NOT subproject" OFF)
 
 #
 # frozen has no compiled components. As such, we declare it as an `INTERFACE`
