@@ -33,6 +33,9 @@ namespace frozen {
 
 namespace bits {
 
+// used as a fake argument for frozen::make_set and frozen::make_map in the case of N=0
+struct ignored_arg {};
+
 template <class T, std::size_t N>
 class cvector {
   T data [N] = {}; // zero-initialization for scalar type T, default-initialized otherwise

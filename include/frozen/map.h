@@ -66,8 +66,6 @@ public:
   }
 };
 
-struct ignored_arg {};
-
 } // namespace impl
 
 template <class Key, class Value, std::size_t N, class Compare = std::less<Key>>
@@ -249,7 +247,7 @@ public:
 };
 
 template <typename T, typename U>
-constexpr auto make_map(impl::ignored_arg = {}/* for consistency with the initializer below for N = 0*/) {
+constexpr auto make_map(bits::ignored_arg = {}/* for consistency with the initializer below for N = 0*/) {
   return map<T, U, 0>{};
 }
 

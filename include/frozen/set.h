@@ -131,7 +131,7 @@ public:
 };
 
 template <class Key, class Compare> class set<Key, 0, Compare> {
-  using container_type = bits::carray<Key, 1>; // just for the type definitions
+  using container_type = bits::carray<Key, 0>; // just for the type definitions
   Compare const compare_;
 
 public:
@@ -194,10 +194,16 @@ public:
   constexpr const_reverse_iterator crend() const { return nullptr; }
 };
 
+template <typename T>
+constexpr auto make_set(bits::ignored_arg = {}/* for consistency with the initializer below for N = 0*/) {
+  return set<T, 0>{};
+}
+
 template <typename T, std::size_t N>
 constexpr auto make_set(const T (&args)[N]) {
   return set<T, N>(args);
 }
+
 
 } // namespace frozen
 
