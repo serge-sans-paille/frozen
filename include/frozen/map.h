@@ -65,6 +65,7 @@ public:
     return comparator_(self_key, other_key);
   }
 };
+
 } // namespace impl
 
 template <class Key, class Value, std::size_t N, class Compare = std::less<Key>>
@@ -177,8 +178,7 @@ public:
 
 template <class Key, class Value, class Compare>
 class map<Key, Value, 0, Compare> {
-  using container_type =
-      bits::carray<std::pair<Key, Value>, 1>; // just for the type definitions
+  using container_type = bits::carray<std::pair<Key, Value>, 0>;
   impl::CompareKey<Compare> compare_;
 
 public:
@@ -245,6 +245,11 @@ public:
   constexpr key_compare key_comp() const { return compare_; }
   constexpr key_compare value_comp() const { return compare_; }
 };
+
+template <typename T, typename U>
+constexpr auto make_map(bits::ignored_arg = {}/* for consistency with the initializer below for N = 0*/) {
+  return map<T, U, 0>{};
+}
 
 template <typename T, typename U, std::size_t N>
 constexpr auto make_map(std::pair<T, U> const (&items)[N]) {

@@ -265,7 +265,26 @@ TEST_CASE("frozen::map <> frozen::make_map", "[map]") {
     for (auto v : frozen_map)
       REQUIRE(frozen_map2.count(std::get<0>(v)));
   }
+
+  constexpr frozen::map<int, short, 0> frozen_empty_map = {};
+  constexpr auto frozen_empty_map2 = frozen::make_map<int, short>();
+  constexpr auto frozen_empty_map3 = frozen::make_map<int, short>({});
+
+  SECTION("checking empty map") {
+    REQUIRE(frozen_empty_map.empty());
+    REQUIRE(frozen_empty_map.size() == 0);
+    REQUIRE(frozen_empty_map.begin() == frozen_empty_map.end());
+
+    REQUIRE(frozen_empty_map2.empty());
+    REQUIRE(frozen_empty_map2.size() == 0);
+    REQUIRE(frozen_empty_map2.begin() == frozen_empty_map2.end());
+
+    REQUIRE(frozen_empty_map3.empty());
+    REQUIRE(frozen_empty_map3.size() == 0);
+    REQUIRE(frozen_empty_map3.begin() == frozen_empty_map3.end());
+  }
 }
+
 
 TEST_CASE("frozen::map constexpr", "[map]") {
   constexpr frozen::map<unsigned, unsigned, 2> ce = {{3,4}, {11,12}};

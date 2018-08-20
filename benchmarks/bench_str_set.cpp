@@ -20,8 +20,10 @@ static auto const* volatile Some = &Keywords;
 
 static void BM_StrInFzSet(benchmark::State& state) {
   for (auto _ : state) {
-    for(auto kw : *Some)
-    volatile bool status = Keywords.count(kw);
+    for(auto kw : *Some) {
+      volatile bool status = Keywords.count(kw);
+      (void)status;
+    }
   }
 }
 BENCHMARK(BM_StrInFzSet);
@@ -30,8 +32,10 @@ static const std::set<frozen::string> Keywords_(Keywords.begin(), Keywords.end()
 
 static void BM_StrInStdSet(benchmark::State& state) {
   for (auto _ : state) {
-    for(auto kw : *Some)
-    volatile bool status = Keywords_.count(kw);
+    for(auto kw : *Some) {
+      volatile bool status = Keywords_.count(kw);
+      (void)status;
+    }
   }
 }
 
@@ -47,8 +51,10 @@ static const std::array<frozen::string, 32> Keywords__{
 
 static void BM_StrInStdArray(benchmark::State& state) {
   for (auto _ : state) {
-    for(auto kw : *Some)
-    volatile bool status = std::find(Keywords__.begin(), Keywords__.end(), kw) != Keywords__.end();
+    for(auto kw : *Some) {
+      volatile bool status = std::find(Keywords__.begin(), Keywords__.end(), kw) != Keywords__.end();
+      (void)status;
+    }
   }
 }
 
@@ -66,24 +72,30 @@ static auto const * volatile SomeStringsPtr = &SomeStrings;
 
 static void BM_StrNotInFzSet(benchmark::State& state) {
   for (auto _ : state) {
-    for(auto kw : *SomeStringsPtr)
-    volatile bool status = Keywords.count(kw);
+    for(auto kw : *SomeStringsPtr) {
+      volatile bool status = Keywords.count(kw);
+      (void)status;
+    }
   }
 }
 BENCHMARK(BM_StrNotInFzSet);
 
 static void BM_StrNotInStdSet(benchmark::State& state) {
   for (auto _ : state) {
-    for(auto kw : *SomeStringsPtr)
-    volatile bool status = Keywords_.count(kw);
+    for(auto kw : *SomeStringsPtr) {
+      volatile bool status = Keywords_.count(kw);
+      (void)status;
+    }
   }
 }
 BENCHMARK(BM_StrNotInStdSet);
 
 static void BM_StrNotInStdArray(benchmark::State& state) {
   for (auto _ : state) {
-    for(auto kw : *SomeStringsPtr)
-    volatile bool status = std::find(Keywords__.begin(), Keywords__.end(), kw) != Keywords__.end();
+    for(auto kw : *SomeStringsPtr) {
+      volatile bool status = std::find(Keywords__.begin(), Keywords__.end(), kw) != Keywords__.end();
+      (void)status;
+    }
   }
 }
 
