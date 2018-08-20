@@ -20,12 +20,12 @@ string( CONCAT generator
   "$<$<OR:$<CXX_COMPILER_ID:GNU>"
         ",$<CXX_COMPILER_ID:Clang>"
         ",$<CXX_COMPILER_ID:AppleClang>>"
-   ":-Wall-Wextra;-Wpedantic;-Werror;-Wshadow;"
+   ":-Wall;-Wextra;-Wpedantic;-Werror;-Wshadow;"
     "$<$<BOOL:${frozen.coverage}>:--coverage>>"
   "$<$<CXX_COMPILER_ID:Intel>:"
     "$<$<PLATFORM_ID:Windows>:/W3;/WX;>"
     "$<$<NOT:$<PLATFORM_ID:Windows>>:-Wall;-Werror>>")
 
-add_compile_options(frozen.tests PUBLIC ${generator})
+target_compile_options(frozen.tests PUBLIC ${generator})
 add_test(NAME frozen.tests COMMAND frozen.tests)
  
