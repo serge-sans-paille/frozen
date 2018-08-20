@@ -9,7 +9,7 @@ foreach(src IN LISTS frozen.examples.srcs)
     target_link_libraries(frozen.example.${src} PUBLIC frozen::frozen)
 endforeach()
 
-if (TARGET frozen.examples.html_entities_map)
+if (TARGET frozen.example.html_entities_map)
     target_compile_options(frozen.example.html_entities_map PUBLIC
         $<$<CXX_COMPILER_ID:Clang>:-fconstexpr-steps=123456789>
         $<$<CXX_COMPILER_ID:AppleClang>:-fconstexpr-steps=123456789>)
