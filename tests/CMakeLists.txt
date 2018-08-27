@@ -15,12 +15,17 @@ target_sources(frozen.tests PRIVATE
   ${CMAKE_CURRENT_LIST_DIR}/test_unordered_set.cpp
   ${CMAKE_CURRENT_LIST_DIR}/test_unordered_str_set.cpp)
 
-add_compile_options(frozen.tests PUBLIC
-  $<$<CXX_COMPILER_ID:MSVC>:/w4>
-  $<$<OR:$<CXX_COMPILER_ID:GNU>,
-         $<CXX_COMPILER_ID:GNU>>:-Wextra -W -Werror -Wshadow>
-  $<$<CXX_COMPILER_ID:Intel>:
-    $<$<PLATFORM_ID:Windows>:/Wall>
-    $<$<NOT:$<PLATFORM_ID:Windows>>:-Wall>>
-  )
+string( CONCAT generator
+  "$<$<CXX_COMPILER_ID:MSVC>:/W3;/WX;>"
+  "$<$<OR:$<CXX_COMPILER_ID:GNU>"
+        ",$<CXX_COMPILER_ID:Clang>"
+        ",$<CXX_COMPILER_ID:AppleClang>>"
+   ":-Wall;-Wextra;-Wpedantic;-Werror;-Wshadow;"
+    "$<$<BOOL:${frozen.coverage}>:--coverage>>"
+  "$<$<CXX_COMPILER_ID:Intel>:"
+    "$<$<PLATFORM_ID:Windows>:/W3;/WX;>"
+    "$<$<NOT:$<PLATFORM_ID:Windows>>:-Wall;-Werror>>")
+
+target_compile_options(frozen.tests PUBLIC ${generator})
 add_test(NAME frozen.tests COMMAND frozen.tests)
+ 
