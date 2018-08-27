@@ -235,6 +235,24 @@ TEST_CASE("frozen::set <> frozen::make_set", "[set]") {
     for (auto v : frozen_set)
       REQUIRE(frozen_set2.count(v));
   }
+
+  constexpr frozen::set<short, 0> frozen_empty_set = {};
+  constexpr auto frozen_empty_set2 = frozen::make_set<short>();
+  constexpr auto frozen_empty_set3 = frozen::make_set<short>({});
+
+  SECTION("checking empty set") {
+    REQUIRE(frozen_empty_set.empty());
+    REQUIRE(frozen_empty_set.size() == 0);
+    REQUIRE(frozen_empty_set.begin() == frozen_empty_set.end());
+
+    REQUIRE(frozen_empty_set2.empty());
+    REQUIRE(frozen_empty_set2.size() == 0);
+    REQUIRE(frozen_empty_set2.begin() == frozen_empty_set2.end());
+
+    REQUIRE(frozen_empty_set3.empty());
+    REQUIRE(frozen_empty_set3.size() == 0);
+    REQUIRE(frozen_empty_set3.begin() == frozen_empty_set3.end());
+  }
 }
 
 TEST_CASE("frozen::set constexpr", "[set]") {
