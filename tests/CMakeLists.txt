@@ -16,7 +16,8 @@ target_sources(frozen.tests PRIVATE
   ${CMAKE_CURRENT_LIST_DIR}/test_unordered_str_set.cpp)
 
 string( CONCAT generator
-  "$<$<CXX_COMPILER_ID:MSVC>:/W3;/WX;>"
+  # msvc gives invalid integral overflow warning for unsigned type
+  "$<$<CXX_COMPILER_ID:MSVC>:/W3;/WX;/wd4307>"
   "$<$<OR:$<CXX_COMPILER_ID:GNU>"
         ",$<CXX_COMPILER_ID:Clang>"
         ",$<CXX_COMPILER_ID:AppleClang>>"
