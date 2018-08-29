@@ -101,7 +101,7 @@ pmh_buckets<M> constexpr make_pmh_buckets(const carray<Item, N> & items,
     }
     result.seed = prg();
     for (std::size_t i = 0; i < N; ++i) {
-      auto & bucket = result.buckets[hash(key(items[i]), result.seed) % M];
+      auto & bucket = result.buckets[hash(key(items[i]), static_cast<size_t>(result.seed)) % M];
       if (bucket.size() >= result_t::bucket_max) { continue; }
       bucket.push_back(i);
     }
@@ -154,9 +154,9 @@ struct pmh_tables {
   // Always returns a valid index, must use KeyEqual test after to confirm.
   template <typename KeyType>
   constexpr std::size_t lookup(const KeyType & key) const {
-    auto const d = first_table_[hash_(key, first_seed_) % M];
-    if (!d.is_seed()) { return d.value(); } // this is narrowing uint64 -> size_t but should be fine
-    else { return second_table_[hash_(key, d.value()) % M]; }
+    auto const d = first_table_[hash_(key, static_cast<size_t>(first_seed_)) % M];
+    if (!d.is_seed()) { return static_cast<std::size_t>(d.value()); } // this is narrowing uint64 -> size_t but should be fine
+    else { return second_table_[hash_(key, static_cast<std::size_t>(d.value())) % M]; }
   }
 };
 
@@ -188,7 +188,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
     if (bsize == 1) {
       // Store index to the (single) item in G
       // assert(bucket.hash == hash(key(items[bucket[0]]), step_one.seed) % M);
-      G[bucket.hash] = {false, bucket[0]};
+      G[bucket.hash] = {false, static_cast<uint64_t>(bucket[0])};
     } else if (bsize > 1) {
 
       // Repeatedly try different H of d until we find a hash function
@@ -197,7 +197,7 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
       cvector<std::size_t, decltype(step_one)::bucket_max> slots;
 
       while (slots.size() < bsize) {
-        auto slot = hash(key(items[bucket[slots.size()]]), d.value()) % M;
+        auto slot = hash(key(items[bucket[slots.size()]]), static_cast<size_t>(d.value())) % M;
 
         if (H[slot] != UNUSED || !all_different_from(slots, slot)) {
           slots.clear();
