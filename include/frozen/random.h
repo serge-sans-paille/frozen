@@ -48,10 +48,12 @@ public:
   constexpr result_type operator()() {
 	  using uint_least_t = bits::select_uint_least_t<bits::log(a) + bits::log(m) + 4>;
     uint_least_t tmp = static_cast<uint_least_t>(multiplier) * state_ + increment;
-    if(modulus)
-      state_ = tmp % modulus;
+
+    // the static cast below may end up doing a truncation
+    if(modulus != 0)
+      state_ = static_cast<result_type>(tmp % modulus);
     else
-      state_ = tmp;
+      state_ = static_cast<result_type>(tmp);
     return state_;
   }
   constexpr void discard(unsigned long long n) {
