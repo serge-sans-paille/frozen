@@ -49,7 +49,7 @@ TEST_CASE("singleton frozen unordered map", "[unordered map]") {
   auto cbegin = ze_map.cbegin(), cend = ze_map.cend();
   REQUIRE(cbegin < cend);
 
-  std::for_each(ze_map.begin(), ze_map.end(), [](std::tuple<int, float>) {});
+  std::for_each(ze_map.begin(), ze_map.end(), [](std::tuple<int, double>) {});
 
   static_assert(std::is_same<typename decltype(ze_map)::key_type, int>::value, "");
   static_assert(std::is_same<typename decltype(ze_map)::mapped_type, double>::value, "");
