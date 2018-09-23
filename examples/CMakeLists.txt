@@ -1,4 +1,4 @@
-set(frozen.examples.srcs enum_to_string enum_to_string_hash pixel_art static_assert)
+set(frozen.examples.srcs enum_to_string enum_to_string_hash pixel_art static_assert partial_memoization)
 
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES ".*Clang")
     list(APPEND frozen.examples.srcs html_entities_map)
