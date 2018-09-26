@@ -23,6 +23,8 @@
 #ifndef FROZEN_LETITGO_CONSTEXPR_ASSERT_H
 #define FROZEN_LETITGO_CONSTEXPR_ASSERT_H
 
+#include <cassert>
+
 #ifdef _MSC_VER
 
 // FIXME: find a way to implement that correctly for msvc
@@ -31,11 +33,7 @@
 #else
 
 #define constexpr_assert(cond, msg)\
-  if(!(cond)) {\
-    extern void constexpr_assert_helper(char const*);\
-    constexpr_assert_helper(msg);\
-  }
-
+    assert(cond && msg);
 #endif
 
 #endif
