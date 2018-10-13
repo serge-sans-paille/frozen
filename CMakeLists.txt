@@ -113,7 +113,7 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/frozenConfigVersion.cmake"
 
 install(EXPORT frozenConfig
   FILE frozenConfig.cmake
-  NAMESPACE frozen
+  NAMESPACE frozen::
   DESTINATION share/cmake/frozen
   PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
 
