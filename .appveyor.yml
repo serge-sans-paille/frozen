@@ -7,4 +7,6 @@ platform:
 build_script:
     - cmake -DCMAKE_BUILD_TYPE=Release .
     - cmake --build .
-    - ctest -V -C Release
+    - dir
+    - dir tests
+    - ctest -V -C .
