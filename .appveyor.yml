@@ -7,6 +7,4 @@ platform:
 build_script:
     - cmake -DCMAKE_BUILD_TYPE=Release .
     - cmake --build .
-    - dir
-    - dir tests
-    - ctest -V -C Debug
+    - .\Debug\frozen.tests.exe '[algorithm]'
