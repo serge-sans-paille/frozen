@@ -9,4 +9,4 @@ build_script:
     - cmake --build .
     - dir
     - dir tests
-    - ctest -V -C .
+    - ctest -V -C Debug
