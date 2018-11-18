@@ -83,4 +83,6 @@ TEST_CASE("various frozen::unordered_map config", "[unordered_map]") {
       {"nice damn shit", 14},
       {"pouet", 11},
   };
+  static_cast<void>(olaf0);
+  static_cast<void>(olaf1);
 }
