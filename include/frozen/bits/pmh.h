@@ -194,25 +194,25 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
       // Repeatedly try different H of d until we find a hash function
       // that places all items in the bucket into free slots
       seed_or_index d{true, prg()};
-      cvector<std::size_t, decltype(step_one)::bucket_max> slots;
+      cvector<std::size_t, decltype(step_one)::bucket_max> bucket_slots;
 
-      while (slots.size() < bsize) {
-        auto slot = hash(key(items[bucket[slots.size()]]), static_cast<size_t>(d.value())) % M;
+      while (bucket_slots.size() < bsize) {
+        auto slot = hash(key(items[bucket[bucket_slots.size()]]), static_cast<size_t>(d.value())) % M;
 
-        if (H[slot] != UNUSED || !all_different_from(slots, slot)) {
-          slots.clear();
+        if (H[slot] != UNUSED || !all_different_from(bucket_slots, slot)) {
+          bucket_slots.clear();
           d = {true, prg()};
           continue;
         }
 
-        slots.push_back(slot);
+        bucket_slots.push_back(slot);
       }
 
       // Put successful seed in G, and put indices to items in their slots
       // assert(bucket.hash == hash(key(items[bucket[0]]), step_one.seed) % M);
       G[bucket.hash] = d;
       for (std::size_t i = 0; i < bsize; ++i)
-        H[slots[i]] = bucket[i];
+        H[bucket_slots[i]] = bucket[i];
     }
   }
 
