@@ -32,7 +32,7 @@ namespace frozen {
 
 template <class Key, std::size_t N, class Compare = std::less<Key>> class set {
   using container_type = bits::carray<Key, N>;
-  Compare const compare_;
+  Compare const less_than_;
   container_type const keys_;
 
 public:
@@ -57,8 +57,8 @@ public:
   constexpr set(const set &other) = default;
 
   constexpr set(container_type keys, Compare const & comp)
-      : compare_{comp}
-      , keys_(bits::quicksort(keys, compare_)) {
+      : less_than_{comp}
+      , keys_(bits::quicksort(keys, less_than_)) {
       }
 
   explicit constexpr set(container_type keys)
@@ -79,12 +79,12 @@ public:
 
   /* lookup */
   constexpr std::size_t count(Key const &key) const {
-    return bits::binary_search<N>(keys_.begin(), key, compare_);
+    return bits::binary_search<N>(keys_.begin(), key, less_than_);
   }
 
   constexpr const_iterator find(Key const &key) const {
     const_iterator where = lower_bound(key);
-    if ((where != end()) && !compare_(key, *where))
+    if ((where != end()) && !less_than_(key, *where))
       return where;
     else
       return end();
@@ -99,24 +99,24 @@ public:
   }
 
   constexpr const_iterator lower_bound(Key const &key) const {
-    auto const where = bits::lower_bound<N>(keys_.begin(), key, compare_);
-    if ((where != end()) && !compare_(key, *where))
+    auto const where = bits::lower_bound<N>(keys_.begin(), key, less_than_);
+    if ((where != end()) && !less_than_(key, *where))
       return where;
     else
       return end();
   }
 
   constexpr const_iterator upper_bound(Key const &key) const {
-    auto const where = bits::lower_bound<N>(keys_.begin(), key, compare_);
-    if ((where != end()) && !compare_(key, *where))
+    auto const where = bits::lower_bound<N>(keys_.begin(), key, less_than_);
+    if ((where != end()) && !less_than_(key, *where))
       return where + 1;
     else
       return end();
   }
 
   /* observers */
-  constexpr key_compare key_comp() const { return compare_; }
-  constexpr key_compare value_comp() const { return compare_; }
+  constexpr key_compare key_comp() const { return less_than_; }
+  constexpr key_compare value_comp() const { return less_than_; }
 
   /* iterators */
   constexpr const_iterator begin() const { return keys_.begin(); }
@@ -132,7 +132,7 @@ public:
 
 template <class Key, class Compare> class set<Key, 0, Compare> {
   using container_type = bits::carray<Key, 0>; // just for the type definitions
-  Compare const compare_;
+  Compare const less_than_;
 
 public:
   /* container typedefs*/
@@ -158,7 +158,7 @@ public:
   explicit constexpr set(bits::carray<Key, 0>) {}
 
   constexpr set(std::initializer_list<Key>, Compare const &comp)
-      : compare_{comp} {}
+      : less_than_{comp} {}
   constexpr set(std::initializer_list<Key> keys) : set{keys, Compare{}} {}
 
   /* capacity */
@@ -179,8 +179,8 @@ public:
   constexpr const_iterator upper_bound(Key const &) const { return end(); }
 
   /* observers */
-  constexpr key_compare key_comp() const { return compare_; }
-  constexpr key_compare value_comp() const { return compare_; }
+  constexpr key_compare key_comp() const { return less_than_; }
+  constexpr key_compare value_comp() const { return less_than_; }
 
   /* iterators */
   constexpr const_iterator begin() const { return nullptr; }

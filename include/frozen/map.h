@@ -71,7 +71,7 @@ public:
 template <class Key, class Value, std::size_t N, class Compare = std::less<Key>>
 class map {
   using container_type = bits::carray<std::pair<Key, Value>, N>;
-  impl::CompareKey<Compare> compare_;
+  impl::CompareKey<Compare> less_than_;
   container_type items_;
 
 public:
@@ -80,7 +80,7 @@ public:
   using value_type = typename container_type::value_type;
   using size_type = typename container_type::size_type;
   using difference_type = typename container_type::difference_type;
-  using key_compare = decltype(compare_);
+  using key_compare = decltype(less_than_);
   using const_reference = typename container_type::const_reference;
   using reference = const_reference;
   using const_pointer = typename container_type::const_pointer;
@@ -94,8 +94,8 @@ public:
 public:
   /* constructors */
   constexpr map(container_type items, Compare const &compare)
-      : compare_{compare}
-      , items_{bits::quicksort(items, compare_)} {}
+      : less_than_{compare}
+      , items_{bits::quicksort(items, less_than_)} {}
 
   explicit constexpr map(container_type items)
       : map{items, Compare{}} {}
@@ -136,12 +136,12 @@ public:
   /* lookup */
 
   constexpr std::size_t count(Key const &key) const {
-    return bits::binary_search<N>(items_.begin(), key, compare_);
+    return bits::binary_search<N>(items_.begin(), key, less_than_);
   }
 
   constexpr const_iterator find(Key const &key) const {
     const_iterator where = lower_bound(key);
-    if ((where != end()) && !compare_(key, *where))
+    if ((where != end()) && !less_than_(key, *where))
       return where;
     else
       return end();
@@ -156,30 +156,30 @@ public:
   }
 
   constexpr const_iterator lower_bound(Key const &key) const {
-    auto const where = bits::lower_bound<N>(items_.begin(), key, compare_);
-    if ((where != end()) && !compare_(key, *where))
+    auto const where = bits::lower_bound<N>(items_.begin(), key, less_than_);
+    if ((where != end()) && !less_than_(key, *where))
       return where;
     else
       return end();
   }
 
   constexpr const_iterator upper_bound(Key const &key) const {
-    auto const where = bits::lower_bound<N>(items_.begin(), key, compare_);
-    if ((where != end()) && !compare_(key, *where))
+    auto const where = bits::lower_bound<N>(items_.begin(), key, less_than_);
+    if ((where != end()) && !less_than_(key, *where))
       return where + 1;
     else
       return end();
   }
 
   /* observers */
-  constexpr key_compare key_comp() const { return compare_; }
-  constexpr key_compare value_comp() const { return compare_; }
+  constexpr key_compare key_comp() const { return less_than_; }
+  constexpr key_compare value_comp() const { return less_than_; }
 };
 
 template <class Key, class Value, class Compare>
 class map<Key, Value, 0, Compare> {
   using container_type = bits::carray<std::pair<Key, Value>, 0>;
-  impl::CompareKey<Compare> compare_;
+  impl::CompareKey<Compare> less_than_;
 
 public:
   using key_type = Key;
@@ -187,7 +187,7 @@ public:
   using value_type = typename container_type::value_type;
   using size_type = typename container_type::size_type;
   using difference_type = typename container_type::difference_type;
-  using key_compare = decltype(compare_);
+  using key_compare = decltype(less_than_);
   using const_reference = typename container_type::const_reference;
   using reference = const_reference;
   using const_pointer = typename container_type::const_pointer;
@@ -201,7 +201,7 @@ public:
   /* constructors */
   constexpr map(const map &other) = default;
   constexpr map(std::initializer_list<value_type>, Compare const &compare)
-      : compare_{compare} {}
+      : less_than_{compare} {}
   constexpr map(std::initializer_list<value_type> items)
       : map{items, Compare{}} {}
 
@@ -242,8 +242,8 @@ public:
   constexpr const_iterator upper_bound(Key const &) const { return end(); }
 
   /* observers */
-  constexpr key_compare key_comp() const { return compare_; }
-  constexpr key_compare value_comp() const { return compare_; }
+  constexpr key_compare key_comp() const { return less_than_; }
+  constexpr key_compare value_comp() const { return less_than_; }
 };
 
 template <typename T, typename U>
