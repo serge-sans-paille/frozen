@@ -32,6 +32,14 @@ string(CONCAT generator
     "$<$<PLATFORM_ID:Windows>:/W3;/WX;>"
     "$<$<NOT:$<PLATFORM_ID:Windows>>:-Wall;-Werror>>")
 
-target_compile_options(frozen.tests PUBLIC ${generator})  
+target_compile_options(frozen.tests PUBLIC ${generator})
+
+string(CONCAT generator
+  "$<$<OR:$<CXX_COMPILER_ID:GNU>"
+        ",$<CXX_COMPILER_ID:Clang>"
+        ",$<CXX_COMPILER_ID:AppleClang>>"
+   ":$<$<BOOL:${frozen.coverage}>:--coverage>>")
+  
+target_link_libraries(frozen.tests PUBLIC ${generator})  
 add_test(NAME frozen.tests COMMAND frozen.tests)
  
