@@ -21,7 +21,20 @@ matrix:
 script:
   - mkdir build
   - cd build
-  - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCMAKE_VERBOSE_MAKEFILE=ON ..
-  - cmake --build .
-  - ctest -V
+  - cmake -D CMAKE_BUILD_TYPE=DEBUG                                               \
+          -D frozen.coverage=ON                                                   \
+          -D CMAKE_CXX_COMPILER=${CXX_COMPILER}                                   \
+	  -D CMAKE_VERBOSE_MAKEFILE=ON                                            \
+	  -D CTEST_DROP_SITE_CDASH=TRUE                                           \
+	  -D CTEST_DROP_METHOD="http"                                             \
+	  -D CTEST_DROP_SITE="my.cdash.org"                                       \
+	  -D CTEST_DROP_LOCATION="/submit.php?project=frozen"                     \
+	  -D BUILDNAME="$(uname -s)-${CXX_COMPILER}-$(data +'%Y-%m-%d-%H:%M:%S')" \
+	  ..
+  - ctest -VV -M Experimental -T Start \
+    && ctest -VV -M Experimental -T Build \
+    && ctest -VV -M Experimental -T Test \
+    && ctest -VV -M Experimental -T Coverage    
+  - ctest -VV -M Experimental -T Submit
+  
 

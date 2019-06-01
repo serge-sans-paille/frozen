@@ -1,3 +1,8 @@
+configure_file(
+  "${PROJECT_SOURCE_DIR}/cmake/CTestCustom.cmake"
+  "${PROJECT_BINARY_DIR}/CTestCustom.cmake"
+  COPYONLY) 
+
 add_executable(frozen.tests "")
 target_link_libraries(frozen.tests PUBLIC frozen::frozen)
 target_sources(frozen.tests PRIVATE
@@ -15,7 +20,7 @@ target_sources(frozen.tests PRIVATE
   ${CMAKE_CURRENT_LIST_DIR}/test_unordered_set.cpp
   ${CMAKE_CURRENT_LIST_DIR}/test_unordered_str_set.cpp)
 
-string( CONCAT generator
+string(CONCAT generator
   # msvc gives invalid integral overflow warning for unsigned type
   "$<$<CXX_COMPILER_ID:MSVC>:/W3;/WX;/wd4307>"
   "$<$<OR:$<CXX_COMPILER_ID:GNU>"
@@ -27,6 +32,6 @@ string( CONCAT generator
     "$<$<PLATFORM_ID:Windows>:/W3;/WX;>"
     "$<$<NOT:$<PLATFORM_ID:Windows>>:-Wall;-Werror>>")
 
-target_compile_options(frozen.tests PUBLIC ${generator})
+target_compile_options(frozen.tests PUBLIC ${generator})  
 add_test(NAME frozen.tests COMMAND frozen.tests)
  
