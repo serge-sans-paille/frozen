@@ -9,8 +9,10 @@ cmake_minimum_required(VERSION 3.8)
 #
 if(DEFINED PROJECT_NAME)
   set(subproject ON)
+  set(INSTALL_SUBPROJECTS ON CACHE BOOL "Install subproject dependencies")
 else()
   set(subproject OFF)
+  set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 endif()
 
 project(frozen VERSION 1.1.0 LANGUAGES CXX)
@@ -20,9 +22,9 @@ include(CTest)
 include(GNUInstallDirs)
 
 #
-# The `frozen.testing`, `frozen.benchmark`, and `frozen.coverage` options 
-# only appear as cmake-gui and ccmake options iff frozen is the highest 
-# level project. In the case that frozen is a subproject, these options are 
+# The `frozen.testing`, `frozen.benchmark`, and `frozen.coverage` options
+# only appear as cmake-gui and ccmake options iff frozen is the highest
+# level project. In the case that frozen is a subproject, these options are
 # hidden from the user interface and set to `OFF`
 #
 CMAKE_DEPENDENT_OPTION(frozen.tests
@@ -36,6 +38,18 @@ CMAKE_DEPENDENT_OPTION(frozen.benchmark
 CMAKE_DEPENDENT_OPTION(frozen.coverage
   "Enable test coverage collection of frozen tests"
   OFF "NOT subproject" OFF)
+
+#
+# When the end user is consuming frozen as a nested subproject, an option
+# is provided such that the user may exlude frozen from the set of installed
+# cmake projects. This accomodates end users building executables or
+# compiled libraries which privately link to frozen, but wish to only ship their
+# artifacts in an installation
+#
+CMAKE_DEPENDENT_OPTION(frozen.installation
+  "Include frozen in the install set"
+  "${INSTALL_SUBPROJECTS}" "subproject" ON)
+mark_as_advanced(frozen.installation)
 
 #
 # frozen has no compiled components. As such, we declare it as an `INTERFACE`
@@ -80,69 +94,73 @@ if(frozen.benchmark)
   add_subdirectory(benchmarks)
 endif()
 
-#
-# As a header-only library, there are no target components to be installed
-# directly (the PUBLIC_HEADER property is not white listed for INTERFACE
-# targets for some reason).
-#
-# However, it is worthwhile export our target description in order to later
-# generate a CMake configuration file for consumption by CMake's `find_package`
-# intrinsic
-#
-install(TARGETS frozen frozen-headers EXPORT frozenConfig)
+if(frozen.installation)
+  #
+  # As a header-only library, there are no target components to be installed
+  # directly (the PUBLIC_HEADER property is not white listed for INTERFACE
+  # targets for some reason).
+  #
+  # However, it is worthwhile export our target description in order to later
+  # generate a CMake configuration file for consumption by CMake's `find_package`
+  # intrinsic
+  #
+  install(TARGETS frozen frozen-headers EXPORT frozenConfig)
 
-#
-# Non-testing header files (preserving relative paths) are installed to the
-# `include` subdirectory of the `$INSTALL_DIR/${CMAKE_INSTALL_PREFIX}`
-# directory. Source file permissions preserved.
-#
-install(DIRECTORY include/
-  DESTINATION include
-  USE_SOURCE_PERMISSIONS
-  FILES_MATCHING PATTERN "*.h")
+  #
+  # Non-testing header files (preserving relative paths) are installed to the
+  # `include` subdirectory of the `$INSTALL_DIR/${CMAKE_INSTALL_PREFIX}`
+  # directory. Source file permissions preserved.
+  #
+  install(DIRECTORY include/
+    DESTINATION include
+    USE_SOURCE_PERMISSIONS
+    FILES_MATCHING PATTERN "*.h")
 
-#
-# As a header-only library, there are no target components to be installed
-# directly (the PUBLIC_HEADER property is not white listed for INTERFACE
-# targets for some reason).
-#
-# However, it is worthwhile export our target description in order to later
-# generate a CMake configuration file for consumption by CMake's `find_package`
-# intrinsic
-#
-write_basic_package_version_file("frozenConfigVersion.cmake"
-  VERSION ${PROJECT_VERSION}
-  COMPATIBILITY SameMajorVersion)
+  #
+  # As a header-only library, there are no target components to be installed
+  # directly (the PUBLIC_HEADER property is not white listed for INTERFACE
+  # targets for some reason).
+  #
+  # However, it is worthwhile export our target description in order to later
+  # generate a CMake configuration file for consumption by CMake's `find_package`
+  # intrinsic
+  #
+  write_basic_package_version_file("frozenConfigVersion.cmake"
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion)
 
-install(FILES "${PROJECT_BINARY_DIR}/frozenConfigVersion.cmake"
-  DESTINATION share/cmake/frozen)
+  install(FILES "${PROJECT_BINARY_DIR}/frozenConfigVersion.cmake"
+    DESTINATION share/cmake/frozen)
 
-install(EXPORT frozenConfig
-  FILE frozenConfig.cmake
-  NAMESPACE frozen::
-  DESTINATION share/cmake/frozen)
+  install(EXPORT frozenConfig
+    FILE frozenConfig.cmake
+    NAMESPACE frozen::
+    DESTINATION share/cmake/frozen)
 
-#
-# Rudimentary CPack support.
-#
-# CPack provides a mechanism to generate installation packaging for a project,
-# e.g., self-extracting shell scripts, compressed tarballs, Debian Package files,
-# RPM Package Manager files, Windows NSIS installation wizards,
-# Apple Disk Images (.dmg), etc.
-#
-# A packaged installation can be generated by calling
-#
-# ```sh
-# cpack -G <packaging type> --config CPackConfig.cmake
-# ```
-#
-# See `cpack --help` or the CPack documentation for more information.
-#
-set(CPACK_PACKAGE_VENDOR "Quarkslab")
-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
-set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
-set(CPACK_PACKAGE_VERSION_MINOR "${PROJECT_VERSION_MINOR}")
-set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "a C++14 header-only, constexpr alternative to gperf")
-set(CMAKE_PROJECT_HOMEPAGE_URL "https://blog.quarkslab.com/frozen-an-header-only-constexpr-alternative-to-gperf-for-c14-users.html")
-include(CPack)
+  #
+  # Rudimentary CPack support.
+  #
+  # CPack provides a mechanism to generate installation packaging for a project,
+  # e.g., self-extracting shell scripts, compressed tarballs, Debian Package files,
+  # RPM Package Manager files, Windows NSIS installation wizards,
+  # Apple Disk Images (.dmg), etc.
+  #
+  # A packaged installation can be generated by calling
+  #
+  # ```sh
+  # cpack -G <packaging type> --config CPackConfig.cmake
+  # ```
+  #
+  # See `cpack --help` or the CPack documentation for more information.
+  #
+  if(NOT subproject)
+    set(CPACK_PACKAGE_VENDOR "Quarkslab")
+    set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+    set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
+    set(CPACK_PACKAGE_VERSION_MINOR "${PROJECT_VERSION_MINOR}")
+    set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
+    set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "a C++14 header-only, constexpr alternative to gperf")
+    set(CMAKE_PROJECT_HOMEPAGE_URL "https://blog.quarkslab.com/frozen-an-header-only-constexpr-alternative-to-gperf-for-c14-users.html")
+    include(CPack)
+  endif()
+endif()
