@@ -112,7 +112,7 @@ constexpr Iterator partition(Iterator left, Iterator right, Compare const &compa
   auto pivot = left + (right - left) / 2;
   auto value = *pivot;
   cswap(*right, *pivot);
-  for (auto it = left; it < right; ++it) {
+  for (auto it = left; 0 < right - it; ++it) {
     if (compare(*it, value)) {
       cswap(*it, *left);
       left++;
@@ -124,7 +124,7 @@ constexpr Iterator partition(Iterator left, Iterator right, Compare const &compa
 
 template <typename Iterator, class Compare>
 constexpr void quicksort(Iterator left, Iterator right, Compare const &compare) {
-  while (left < right) {
+  while (0 < right - left) {
     auto new_pivot = bits::partition(left, right, compare);
     quicksort(left, new_pivot, compare);
     left = new_pivot + 1;
