@@ -264,3 +264,14 @@ TEST_CASE("frozen::set constexpr", "[set]") {
   static_assert(!ce.count(0), "");
   static_assert(ce.find(0) == ce.end(), "");
 }
+
+TEST_CASE("frozen::set of frozen::set", "[set]") {
+  using s1 = frozen::set<unsigned, 1>;
+  constexpr frozen::set<s1, 2> ce = {{3}, {11}};
+  static_assert(*ce.begin() == s1({3}), "");
+  static_assert(*(ce.begin() + 1) == s1({11}), "");
+  static_assert(ce.size() == 2, "");
+  static_assert(ce.count(s1({3})), "");
+  static_assert(!ce.count(s1({0})), "");
+  static_assert(ce.find(s1({0})) == ce.end(), "");
+}
