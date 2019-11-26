@@ -1,0 +1,37 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build_frozen:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macOS-latest
+        cmake_args:
+          - ""
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+
+    - name: Prepare
+      run: cmake -E make_directory build
+
+    - name: Configure
+      working-directory: build
+      run: cmake -DCMAKE_BUILD_TYPE=DEBUG "-Dfrozen.coverage=ON" -DCMAKE_VERBOSE_MAKEFILE=ON ..
+
+    - name: Build
+      working-directory: build
+      run: cmake --build .
+
+    - name: Test
+      if: startsWith(matrix.os, 'windows') == false
+      working-directory: build
+      run: cmake --build . --target test
