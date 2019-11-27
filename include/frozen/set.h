@@ -32,8 +32,8 @@ namespace frozen {
 
 template <class Key, std::size_t N, class Compare = std::less<Key>> class set {
   using container_type = bits::carray<Key, N>;
-  Compare const less_than_;
-  container_type const keys_;
+  Compare less_than_;
+  container_type keys_;
 
 public:
   /* container typedefs*/
@@ -128,11 +128,19 @@ public:
   constexpr const_reverse_iterator crbegin() const { return keys_.crbegin(); }
   constexpr const_reverse_iterator rend() const { return keys_.rend(); }
   constexpr const_reverse_iterator crend() const { return keys_.crend(); }
+
+  /* comparison */
+  constexpr bool operator==(set const& rhs) const { return bits::equal(begin(), end(), rhs.begin()); }
+  constexpr bool operator!=(set const& rhs) const { return !(*this == rhs); }
+  constexpr bool operator<(set const& rhs) const { return bits::lexicographical_compare(begin(), end(), rhs.begin(), rhs.end()); }
+  constexpr bool operator<=(set const& rhs) const { return (*this < rhs) || (*this == rhs); }
+  constexpr bool operator>(set const& rhs) const { return bits::lexicographical_compare(rhs.begin(), rhs.end(), begin(), end()); }
+  constexpr bool operator>=(set const& rhs) const { return (*this > rhs) || (*this == rhs); }
 };
 
 template <class Key, class Compare> class set<Key, 0, Compare> {
   using container_type = bits::carray<Key, 0>; // just for the type definitions
-  Compare const less_than_;
+  Compare less_than_;
 
 public:
   /* container typedefs*/
