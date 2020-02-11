@@ -23,9 +23,10 @@
 #ifndef FROZEN_LETITGO_STRING_H
 #define FROZEN_LETITGO_STRING_H
 
-#include <functional>
-
 #include "frozen/bits/elsa.h"
+#include "frozen/bits/version.h"
+
+#include <functional>
 
 namespace frozen {
 

@@ -23,8 +23,9 @@
 #ifndef FROZEN_LETITGO_ALGORITHM_H
 #define FROZEN_LETITGO_ALGORITHM_H
 
-#include "frozen/string.h"
 #include "frozen/bits/basic_types.h"
+#include "frozen/bits/version.h"
+#include "frozen/string.h"
 
 namespace frozen {
 
