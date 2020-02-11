@@ -20,31 +20,11 @@
  * under the License.
  */
 
-#ifndef FROZEN_LETITGO_ELSA_H
-#define FROZEN_LETITGO_ELSA_H
+#ifndef FROZEN_LETITGO_VERSION_H
+#define FROZEN_LETITGO_VERSION_H
 
-#include <type_traits>
-
-namespace frozen {
-
-template <class T> struct elsa {
-  static_assert(std::is_integral<T>::value || std::is_enum<T>::value,
-                "only supports integral types, specialize for other types");
-
-  constexpr std::size_t operator()(T const &value, std::size_t seed) const {
-    std::size_t key = seed ^ static_cast<std::size_t>(value);
-    key = (~key) + (key << 21); // key = (key << 21) - key - 1;
-    key = key ^ (key >> 24);
-    key = (key + (key << 3)) + (key << 8); // key * 265
-    key = key ^ (key >> 14);
-    key = (key + (key << 2)) + (key << 4); // key * 21
-    key = key ^ (key >> 28);
-    key = key + (key << 31);
-    return key;
-  }
-};
-
-template <class T> using anna = elsa<T>;
-} // namespace frozen
+#define FROZEN_MAJOR_VERSION 1
+#define FROZEN_MINOR_VERSION 0
+#define FROZEN_PATCH_VERSION 0
 
 #endif
