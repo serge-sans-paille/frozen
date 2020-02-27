@@ -23,7 +23,7 @@
 #ifndef FROZEN_LETITGO_EXCEPTIONS_H
 #define FROZEN_LETITGO_EXCEPTIONS_H
 
-#if defined(FROZEN_NO_EXCEPTIONS) || (defined(_MSC_VER) && !defined(_CPPUNWIND)) || (defined(__cpp_exceptions) && __cpp_exceptions)
+#if defined(FROZEN_NO_EXCEPTIONS) || (defined(_MSC_VER) && !defined(_CPPUNWIND)) || (defined(__cpp_exceptions) && (1 == __cpp_exceptions))
 
 #include <cstdlib>
 #define FROZEN_THROW_OR_ABORT(_) std::abort()
