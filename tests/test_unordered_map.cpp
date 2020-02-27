@@ -159,7 +159,5 @@ TEST_CASE("frozen::unordered_map constexpr", "[unordered_map]") {
 TEST_CASE("access", "[unordered_map]") {
   constexpr frozen::unordered_map<unsigned, unsigned, 2> ce = {{3,4}, {11,12}};
   REQUIRE(4 == ce.at(3));
-
   REQUIRE_THROWS(ce.at(33));
 }
-
