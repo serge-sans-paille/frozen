@@ -39,7 +39,15 @@ string(CONCAT generator
         ",$<CXX_COMPILER_ID:Clang>"
         ",$<CXX_COMPILER_ID:AppleClang>>"
    ":$<$<BOOL:${frozen.coverage}>:--coverage>>")
-  
-target_link_libraries(frozen.tests PUBLIC ${generator})  
+
+target_link_libraries(frozen.tests PUBLIC ${generator})
 add_test(NAME frozen.tests COMMAND frozen.tests)
- 
+
+
+add_executable(test_no_expections
+  ${CMAKE_CURRENT_LIST_DIR}/no_exceptions.cpp)
+target_link_libraries(test_no_expections PUBLIC frozen::frozen)
+target_compile_options(test_no_expections PUBLIC "-fno-exceptions")
+
+add_test(no_exceptions test_no_expections)
+set_tests_properties(no_exceptions PROPERTIES WILL_FAIL TRUE)
