@@ -28,6 +28,10 @@
 
 #include <functional>
 
+#if __cplusplus >= 201703L
+#include <string_view>
+#endif
+
 namespace frozen {
 
 class string {
@@ -40,6 +44,11 @@ public:
       : data_(data), size_(N - 1) {}
   constexpr string(char const *data, std::size_t size)
       : data_(data), size_(size) {}
+
+#if __cplusplus >= 201703L
+  constexpr string(std::string_view data)
+      : data_(data.data()), size_(data.size()) {}
+#endif
 
   constexpr string(const string &) noexcept = default;
   constexpr string &operator=(const string &) noexcept = default;
