@@ -1,3 +1,4 @@
+#include <cstdio> // for std::puts
 
 /* ELF Relocations */
 
@@ -120,7 +121,7 @@ char const * enum_to_string(RELOC_i386 e) {
 }
 
 int main() {
-  puts(enum_to_string(RELOC_i386::R_386_8));
+  std::puts(enum_to_string(RELOC_i386::R_386_8));
   return 0;
 }
 
