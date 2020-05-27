@@ -5,6 +5,7 @@ configure_file(
 
 add_executable(frozen.tests "")
 target_link_libraries(frozen.tests PUBLIC frozen::frozen)
+target_compile_features(frozen INTERFACE cxx_std_17)
 target_sources(frozen.tests PRIVATE
   ${CMAKE_CURRENT_LIST_DIR}/bench.hpp
   ${CMAKE_CURRENT_LIST_DIR}/catch.hpp

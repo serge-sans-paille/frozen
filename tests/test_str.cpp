@@ -3,6 +3,10 @@
 #include <string>
 #include <iostream>
 
+#if __cplusplus >= 201703L
+#include <string_view>
+#endif
+
 #include "bench.hpp"
 #include "catch.hpp"
 
@@ -25,6 +29,27 @@ TEST_CASE("Various string operation", "[string]") {
     static_assert(letItGo == "Let it go !"_s, "frozen::string constexpr literal");
   }
 }
+
+#if __cplusplus >= 201703L
+TEST_CASE("string_view operations", "[string]") {
+    using namespace std::literals;
+  {
+    std::string_view letItGo = "Let it go !"sv;
+    REQUIRE(letItGo == "Let it go !");
+    REQUIRE(letItGo == "Let it go !"_s.data());
+
+    letItGo = "Let it go, let it go !";
+    REQUIRE(letItGo == "Let it go, let it go !");
+    REQUIRE(letItGo == "Let it go, let it go !"_s.data());
+  }
+
+  {
+    constexpr std::string_view letItGo = "Let it go !"sv;
+    static_assert(letItGo == "Let it go !",   "string_view constexpr");
+    static_assert(letItGo == "Let it go !"_s.data(), "string_view constexpr literal");
+  }
+}
+#endif
 
 TEST_CASE("Knuth-Morris-Pratt str search", "[str-search]") {
 
