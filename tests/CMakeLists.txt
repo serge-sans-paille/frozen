@@ -6,7 +6,7 @@ configure_file(
 add_executable(frozen.tests "")
 target_link_libraries(frozen.tests PUBLIC frozen::frozen)
 
-if (NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
   target_compile_features(frozen INTERFACE cxx_std_17)
 endif()
 
