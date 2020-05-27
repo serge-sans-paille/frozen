@@ -1,14 +1,10 @@
 configure_file(
   "${PROJECT_SOURCE_DIR}/cmake/CTestCustom.cmake"
   "${PROJECT_BINARY_DIR}/CTestCustom.cmake"
-  COPYONLY) 
+  COPYONLY)
 
 add_executable(frozen.tests "")
 target_link_libraries(frozen.tests PUBLIC frozen::frozen)
-
-if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-  target_compile_features(frozen INTERFACE cxx_std_17)
-endif()
 
 target_sources(frozen.tests PRIVATE
   ${CMAKE_CURRENT_LIST_DIR}/bench.hpp
@@ -36,6 +32,11 @@ string(CONCAT generator
   "$<$<CXX_COMPILER_ID:Intel>:"
     "$<$<PLATFORM_ID:Windows>:/W3;/WX;>"
     "$<$<NOT:$<PLATFORM_ID:Windows>>:-Wall;-Werror>>")
+
+target_compile_options(frozen.tests PUBLIC ${generator})
+
+string(CONCAT generator
+  "$<$<CXX_COMPILER_ID:GNU>:-std=c++17>")
 
 target_compile_options(frozen.tests PUBLIC ${generator})
 
