@@ -84,11 +84,13 @@ template <typename _CharT> struct elsa<basic_string<_CharT>> {
       d = d * 33 + value[i];
     return d;
   }
+  // https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
+  // With the lowest bits removed, based on experimental setup.
   constexpr std::size_t operator()(basic_string<_CharT> value, std::size_t seed) const {
-    std::size_t d = seed;
+    std::size_t d =  (0x811c9dc5 ^ seed) * 0x01000193;
     for (std::size_t i = 0; i < value.size(); ++i)
-      d = (d * 0x01000193) ^ value[i];
-    return d;
+      d = (d ^ value[i]) * 0x01000193;
+    return d >> 8 ;
   }
 };
 
