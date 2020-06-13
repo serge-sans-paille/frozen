@@ -31,6 +31,10 @@ CMAKE_DEPENDENT_OPTION(frozen.tests
   "Build the frozen tests and integrate with ctest"
   ${BUILD_TESTING} "NOT subproject" OFF)
 
+CMAKE_DEPENDENT_OPTION(frozen.cxx17tests
+  "Enable tests requiring C++17"
+  OFF "NOT subproject" OFF)
+
 CMAKE_DEPENDENT_OPTION(frozen.benchmark
   "Build the frozen benchmark"
   OFF "NOT subproject" OFF)

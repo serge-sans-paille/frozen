@@ -35,10 +35,9 @@ string(CONCAT generator
 
 target_compile_options(frozen.tests PUBLIC ${generator})
 
-string(CONCAT generator
-  "$<$<CXX_COMPILER_ID:GNU>:-std=c++17>")
-
-target_compile_options(frozen.tests PUBLIC ${generator})
+if(frozen.cxx17tests)
+    target_compile_features(frozen.tests PUBLIC cxx_std_17)
+endif()
 
 string(CONCAT generator
   "$<$<OR:$<CXX_COMPILER_ID:GNU>"
