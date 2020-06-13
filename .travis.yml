@@ -50,6 +50,8 @@ matrix:
                 - ubuntu-toolchain-r-test
               packages:
                 - clang-5.0
+                - libc++-5-dev
+                - libc++abi-5-dev
           env: CXX_COMPILER=clang++-5.0 BUILD_TYPE=Debug COVERAGE=OFF CXX17_TESTS=ON
         - os: linux
           dist: xenial
@@ -59,6 +61,8 @@ matrix:
                 - ubuntu-toolchain-r-test
               packages:
                 - clang-5.0
+                - libc++-5-dev
+                - libc++abi-5-dev
           env: CXX_COMPILER=clang++-5.0 BUILD_TYPE=Release COVERAGE=OFF CXX17_TESTS=ON
         - os: osx
           osx_image: xcode8.3
@@ -68,6 +72,13 @@ matrix:
           env: CXX_COMPILER=clang++ BUILD_TYPE=Release COVERAGE=OFF CXX17_TESTS=OFF
 
 script:
+  - |
+    if [[ "${LLVM_VERSION}" != "" ]]; then
+    
+    if [[ "${CXX_COMPILER}" =~ ^clang.* ]]; then
+      export CXXFLAGS="-stdlib=libc++"
+    fi
+    
   - mkdir build
   - cd build
   - >
