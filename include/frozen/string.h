@@ -92,13 +92,13 @@ template <typename _CharT> struct elsa<basic_string<_CharT>> {
   }
 };
 
-  using string = basic_string<char>;
-  using wstring = basic_string<wchar_t>;
-  using u16string = basic_string<char16_t>;
-  using u32string = basic_string<char32_t>;
+using string = basic_string<char>;
+using wstring = basic_string<wchar_t>;
+using u16string = basic_string<char16_t>;
+using u32string = basic_string<char32_t>;
 
 #ifdef __cpp_char8_t
-  using u8string = basic_string<char8_t>;
+using u8string = basic_string<char8_t>;
 #endif
 
 namespace string_literals {
