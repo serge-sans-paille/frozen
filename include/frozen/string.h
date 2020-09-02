@@ -77,9 +77,6 @@ public:
   constexpr const chr_t *data() const { return data_; }
 };
 
-using string = basic_string<char>;
-using wstring = basic_string<wchar_t>;
-
 template <typename _CharT> struct elsa<basic_string<_CharT>> {
   constexpr std::size_t operator()(basic_string<_CharT> value) const {
     std::size_t d = 5381;
@@ -94,6 +91,15 @@ template <typename _CharT> struct elsa<basic_string<_CharT>> {
     return d;
   }
 };
+
+  using string = basic_string<char>;
+  using wstring = basic_string<wchar_t>;
+  using u16string = basic_string<char16_t>;
+  using u32string = basic_string<char32_t>;
+
+#ifdef __cpp_char8_t
+  using u8string = basic_string<char8_t>;
+#endif
 
 namespace string_literals {
 
