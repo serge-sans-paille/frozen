@@ -107,7 +107,7 @@ constexpr string operator"" _s(const char *data, std::size_t size) {
   return {data, size};
 }
 
-constexpr wstring operator"" _ws(const wchar_t *data, std::size_t size) {
+constexpr wstring operator"" _s(const wchar_t *data, std::size_t size) {
   return {data, size};
 }
 
