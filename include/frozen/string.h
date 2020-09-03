@@ -111,6 +111,20 @@ constexpr wstring operator"" _s(const wchar_t *data, std::size_t size) {
   return {data, size};
 }
 
+constexpr u16string operator"" _s(const char16_t *data, std::size_t size) {
+  return {data, size};
+}
+
+constexpr u32string operator"" _s(const char32_t *data, std::size_t size) {
+  return {data, size};
+}
+
+#ifdef __cpp_char8_t
+constexpr u8string operator"" _s(const char8_t *data, std::size_t size) {
+  return {data, size};
+}
+#endif
+
 } // namespace string_literals
 
 } // namespace frozen
