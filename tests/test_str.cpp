@@ -26,6 +26,80 @@ TEST_CASE("Various string operation", "[string]") {
   }
 }
 
+TEST_CASE("Various wstring operation", "[string]") {
+  {
+    frozen::wstring letItGo = L"Let it go !";
+    REQUIRE(letItGo == L"Let it go !");
+    REQUIRE(letItGo == L"Let it go !"_s);
+
+    letItGo = L"Let it go, let it go !";
+    REQUIRE(letItGo == L"Let it go, let it go !");
+    REQUIRE(letItGo == L"Let it go, let it go !"_s);
+  }
+
+  {
+    constexpr frozen::wstring letItGo = L"Let it go !";
+    static_assert(letItGo == L"Let it go !",   "frozen::wstring constexpr");
+    static_assert(letItGo == L"Let it go !"_s, "frozen::wstring constexpr literal");
+  }
+}
+
+TEST_CASE("Various u16string operation", "[string]") {
+  {
+    frozen::u16string letItGo = u"Let it go !";
+    REQUIRE(letItGo == u"Let it go !");
+    REQUIRE(letItGo == u"Let it go !"_s);
+
+    letItGo = u"Let it go, let it go !";
+    REQUIRE(letItGo == u"Let it go, let it go !");
+    REQUIRE(letItGo == u"Let it go, let it go !"_s);
+  }
+
+  {
+    constexpr frozen::u16string letItGo = u"Let it go !";
+    static_assert(letItGo == u"Let it go !",   "frozen::u16string constexpr");
+    static_assert(letItGo == u"Let it go !"_s, "frozen::u16string constexpr literal");
+  }
+}
+
+TEST_CASE("Various u32string operation", "[string]") {
+  {
+    frozen::u32string letItGo = U"Let it go !";
+    REQUIRE(letItGo == U"Let it go !");
+    REQUIRE(letItGo == U"Let it go !"_s);
+
+    letItGo = U"Let it go, let it go !";
+    REQUIRE(letItGo == U"Let it go, let it go !");
+    REQUIRE(letItGo == U"Let it go, let it go !"_s);
+  }
+
+  {
+    constexpr frozen::u32string letItGo = U"Let it go !";
+    static_assert(letItGo == U"Let it go !",   "frozen::u32string constexpr");
+    static_assert(letItGo == U"Let it go !"_s, "frozen::u32string constexpr literal");
+  }
+}
+
+#ifdef __cpp_char8_t
+TEST_CASE("Various u8string operation", "[string]") {
+  {
+    frozen::u8string letItGo = u8"Let it go !";
+    REQUIRE(letItGo == u8"Let it go !");
+    REQUIRE(letItGo == u8"Let it go !"_s);
+
+    letItGo = u8"Let it go, let it go !";
+    REQUIRE(letItGo == u8"Let it go, let it go !");
+    REQUIRE(letItGo == u8"Let it go, let it go !"_s);
+  }
+
+  {
+    constexpr frozen::u8string letItGo = u8"Let it go !";
+    static_assert(letItGo == u8"Let it go !",   "frozen::u8string constexpr");
+    static_assert(letItGo == u8"Let it go !"_s, "frozen::u8string constexpr literal");
+  }
+}
+#endif
+
 TEST_CASE("Knuth-Morris-Pratt str search", "[str-search]") {
 
   {
@@ -83,4 +157,3 @@ TEST_CASE("Boyer-Moore str search", "[str-search]") {
   }
 
 }
-
