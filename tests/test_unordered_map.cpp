@@ -1,4 +1,5 @@
 #include <frozen/unordered_map.h>
+#include <frozen/string.h>
 #include <iostream>
 #include <unordered_map>
 
@@ -145,6 +146,26 @@ TEST_CASE("frozen::unordered_map <> frozen::make_unordered_map", "[unordered_map
     for (auto v : frozen_map)
       REQUIRE(frozen_map2.count(std::get<0>(v)));
   }
+}
+
+TEST_CASE("frozen::unordered_map <> std::unordered_map /small", "[unordered_map]") {
+#define INIT_SEQ_SMALL \
+{"0", 0},{"1", 1},{"2", 2},{"3", 3},{"5", 4},{"8", 5},{"9", 6},{"A", 7},{"W", 8},{"X", 9},{"r", 10},{"y", 11},{"BF", 12},{"AP", 13}
+
+  const std::unordered_map<frozen::string, int> std_map = { INIT_SEQ_SMALL };
+  constexpr frozen::unordered_map<frozen::string, int, 14> frozen_map = { INIT_SEQ_SMALL };
+  SECTION("checking size and content") {
+    REQUIRE(std_map.size() == frozen_map.size());
+    for (auto v : std_map)
+      REQUIRE(frozen_map.count(std::get<0>(v)));
+    for (auto v : frozen_map)
+      REQUIRE(std_map.count(std::get<0>(v)));
+  }
+
+  static_assert(std::is_same<typename decltype(std_map)::key_type,
+                             typename decltype(frozen_map)::key_type>::value, "");
+  static_assert(std::is_same<typename decltype(std_map)::mapped_type,
+                             typename decltype(frozen_map)::mapped_type>::value, "");
 }
 
 TEST_CASE("frozen::unordered_map constexpr", "[unordered_map]") {
