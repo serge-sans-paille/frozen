@@ -35,7 +35,7 @@ string(CONCAT generator
 
 target_compile_options(frozen.tests PUBLIC ${generator})
 
-if(frozen.cxx17tests)
+if(cxx_17_supported)
     target_compile_features(frozen.tests PUBLIC cxx_std_17)
 endif()
 

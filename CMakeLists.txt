@@ -20,6 +20,7 @@ include(CMakeDependentOption)
 include(CMakePackageConfigHelpers) # provides `write_basic_package_version_file`
 include(CTest)
 include(GNUInstallDirs)
+include(cmake/detect_cxx_17.cmake)
 
 #
 # The `frozen.testing`, `frozen.benchmark`, and `frozen.coverage` options
@@ -30,10 +31,6 @@ include(GNUInstallDirs)
 CMAKE_DEPENDENT_OPTION(frozen.tests
   "Build the frozen tests and integrate with ctest"
   ${BUILD_TESTING} "NOT subproject" OFF)
-
-CMAKE_DEPENDENT_OPTION(frozen.cxx17tests
-  "Enable tests requiring C++17"
-  OFF "NOT subproject" OFF)
 
 CMAKE_DEPENDENT_OPTION(frozen.benchmark
   "Build the frozen benchmark"
