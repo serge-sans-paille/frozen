@@ -25,10 +25,11 @@
 
 #include "frozen/bits/elsa.h"
 #include "frozen/bits/version.h"
+#include "frozen/bits/define.h"
 
 #include <functional>
 
-#if __cplusplus >= 201703L
+#ifdef FROZEN_LETITGO_HAS_STRING_VIEW
 #include <string_view>
 #endif
 
@@ -48,7 +49,7 @@ public:
   constexpr basic_string(chr_t const *data, std::size_t size)
       : data_(data), size_(size) {}
 
-#if __cplusplus >= 201703L
+#ifdef FROZEN_LETITGO_HAS_STRING_VIEW
   constexpr basic_string(std::basic_string_view<chr_t> data)
       : data_(data.data()), size_(data.size()) {}
 #endif
