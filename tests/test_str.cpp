@@ -18,32 +18,35 @@ using namespace std::literals;
 template<typename Char>
 void test_string_view() {
 #ifdef FROZEN_LETITGO_HAS_STRING_VIEW
-  constexpr auto strings = []{
-    if constexpr (std::is_same_v<char>) {
-      return std::tuple{
-        "Let it go !", "Let it go !"_s, "Let it go !"sv
+  constexpr auto strings = []() -> std::tuple<
+    const Char(&)[12], frozen::basic_string<Char>, std::basic_string_view<Char>,
+    const Char(&)[23], frozen::basic_string<Char>, std::basic_string_view<Char>
+  > {
+    if constexpr (std::is_same_v<char, Char>) {
+      return {
+        "Let it go !", "Let it go !"_s, "Let it go !"sv,
         "Let it go, let it go !", "Let it go, let it go !"_s, "Let it go, let it go !"sv
       };
-    } else if constexpr (std::is_same_v<wchar_t>) {
-      return std::tuple{
-        L"Let it go !", L"Let it go !"_s, L"Let it go !"sv
+    } else if constexpr (std::is_same_v<wchar_t, Char>) {
+      return {
+        L"Let it go !", L"Let it go !"_s, L"Let it go !"sv,
         L"Let it go, let it go !", L"Let it go, let it go !"_s, L"Let it go, let it go !"sv
       };
-    } else if constexpr (std::is_same_v<char16_t>) {
-      return std::tuple{
-        u"Let it go !", u"Let it go !"_s, u"Let it go !"sv
+    } else if constexpr (std::is_same_v<char16_t, Char>) {
+      return {
+        u"Let it go !", u"Let it go !"_s, u"Let it go !"sv,
         u"Let it go, let it go !", u"Let it go, let it go !"_s, u"Let it go, let it go !"sv
       };
-    } else if constexpr (std::is_same_v<char32_t>) {
-      return std::tuple{
-        U"Let it go !", U"Let it go !"_s, U"Let it go !"sv
+    } else if constexpr (std::is_same_v<char32_t, Char>) {
+      return {
+        U"Let it go !", U"Let it go !"_s, U"Let it go !"sv,
         U"Let it go, let it go !", U"Let it go, let it go !"_s, U"Let it go, let it go !"sv
       };
     }
-#ifdef __cpp_char8_t
-    else if constexpr (std::is_same_v<char8_t>) {
-      return std::tuple{
-        u8"Let it go !", u8"Let it go !"_s, u8"Let it go !"sv
+#ifdef FROZEN_LETITGO_HAS_CHAR8T
+    else if constexpr (std::is_same_v<char8_t, Char>) {
+      return {
+        u8"Let it go !", u8"Let it go !"_s, u8"Let it go !"sv,
         u8"Let it go, let it go !", u8"Let it go, let it go !"_s, u8"Let it go, let it go !"sv
       };
     }
@@ -53,14 +56,14 @@ void test_string_view() {
   const auto [
     letitgo,
     letitgo_s,
-    letitgo_sv
+    letitgo_sv,
     letitgoletitgo,
     letitgoletitgo_s,
     letitgoletitgo_sv
   ] = strings;
 
   {
-    frozen::string letItGo = letitgo_sv;
+    frozen::basic_string<Char> letItGo = letitgo_sv;
     REQUIRE(letItGo == letitgo);
     REQUIRE(letItGo == letitgo_s);
     REQUIRE(letItGo == letitgo_sv);
@@ -72,7 +75,7 @@ void test_string_view() {
   }
 
   {
-    constexpr frozen::string letItGo = std::get<2>(strings);
+    constexpr frozen::basic_string<Char> letItGo = std::get<2>(strings);
     static_assert(letItGo == std::get<0>(strings), "frozen::string constexpr");
     static_assert(letItGo == std::get<1>(strings), "frozen::string constexpr literal");
     static_assert(letItGo == std::get<2>(strings), "frozen::string constexpr string view");
@@ -160,7 +163,7 @@ TEST_CASE("Various u32string operation", "[string]") {
   test_string_view<char32_t>();
 }
 
-#ifdef __cpp_char8_t
+#ifdef FROZEN_LETITGO_HAS_CHAR8T
 TEST_CASE("Various u8string operation", "[string]") {
   {
     frozen::u8string letItGo = u8"Let it go !";

@@ -43,12 +43,16 @@
 #endif /* _MSVC_LANG etc. */
 // End if taken code
 
-#if defined(FROZEN_LETITGO_HAS_CXX17) && defined(FROZEN_LETITGO_IS_MSVC)
+#if FROZEN_LETITGO_HAS_CXX17 == 1 && defined(FROZEN_LETITGO_IS_MSVC)
   #define FROZEN_LETITGO_HAS_STRING_VIEW // We assume Visual Studio always has string_view in C++17
 #else
-  #if defined(FROZEN_LETITGO_HAS_CXX17) && __has_include(<string_view>)
+  #if FROZEN_LETITGO_HAS_CXX17 == 1 && __has_include(<string_view>)
     #define FROZEN_LETITGO_HAS_STRING_VIEW
   #endif
 #endif
 
+#ifdef __cpp_char8_t
+  #define FROZEN_LETITGO_HAS_CHAR8T
 #endif
+
+#endif // FROZEN_LETITGO_DEFINES_H
