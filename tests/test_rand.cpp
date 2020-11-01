@@ -17,6 +17,7 @@ TEST_CASE("linear_congruential_engine", "[random]") {
   REQUIRE(dist0() == rdist0());
 
   auto next0 = dist0();
+  (void) next0;
   dist0.discard(3);
   rdist0.discard(4);
   REQUIRE(dist0() == rdist0());
