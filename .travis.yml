@@ -33,7 +33,7 @@ matrix:
                 - ubuntu-toolchain-r-test
               packages:
                 - g++-7
-          env: CXX_COMPILER=g++-7 BUILD_TYPE=Release COVERAGE=OFF CXX17_TESTS=ON
+          env: CXX_COMPILER=g++-7 BUILD_TYPE=Release COVERAGE=OFF
         - os: linux
           addons:
             apt:
@@ -41,17 +41,7 @@ matrix:
                 - ubuntu-toolchain-r-test
               packages:
                 - g++-7
-          env: CXX_COMPILER=g++-7 BUILD_TYPE=Debug COVERAGE=OFF CXX17_TESTS=ON
-        - os: linux
-          dist: xenial
-          addons:
-            apt:
-              sources:
-                - ubuntu-toolchain-r-test
-              packages:
-                - clang-5.0
-                - g++-7
-          env: CXX_COMPILER=clang++-5.0 BUILD_TYPE=Debug COVERAGE=OFF CXX17_TESTS=ON
+          env: CXX_COMPILER=g++-7 BUILD_TYPE=Debug COVERAGE=OFF
         - os: linux
           dist: xenial
           addons:
@@ -61,7 +51,17 @@ matrix:
               packages:
                 - clang-5.0
                 - g++-7
-          env: CXX_COMPILER=clang++-5.0 BUILD_TYPE=Release COVERAGE=OFF CXX17_TESTS=ON
+          env: CXX_COMPILER=clang++-5.0 BUILD_TYPE=Debug COVERAGE=OFF
+        - os: linux
+          dist: xenial
+          addons:
+            apt:
+              sources:
+                - ubuntu-toolchain-r-test
+              packages:
+                - clang-5.0
+                - g++-7
+          env: CXX_COMPILER=clang++-5.0 BUILD_TYPE=Release COVERAGE=OFF
         - os: osx
           osx_image: xcode8.3
           env: CXX_COMPILER=clang++ BUILD_TYPE=Debug COVERAGE=OFF
