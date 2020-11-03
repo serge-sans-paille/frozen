@@ -1,10 +1,11 @@
 configure_file(
   "${PROJECT_SOURCE_DIR}/cmake/CTestCustom.cmake"
   "${PROJECT_BINARY_DIR}/CTestCustom.cmake"
-  COPYONLY) 
+  COPYONLY)
 
 add_executable(frozen.tests "")
 target_link_libraries(frozen.tests PUBLIC frozen::frozen)
+
 target_sources(frozen.tests PRIVATE
   ${CMAKE_CURRENT_LIST_DIR}/bench.hpp
   ${CMAKE_CURRENT_LIST_DIR}/catch.hpp
@@ -33,6 +34,12 @@ string(CONCAT generator
     "$<$<NOT:$<PLATFORM_ID:Windows>>:-Wall;-Werror>>")
 
 target_compile_options(frozen.tests PUBLIC ${generator})
+
+if(cxx_20_supported)
+  target_compile_features(frozen.tests PUBLIC cxx_std_20)
+elseif(cxx_17_supported)
+  target_compile_features(frozen.tests PUBLIC cxx_std_17)
+endif()
 
 string(CONCAT generator
   "$<$<OR:$<CXX_COMPILER_ID:GNU>"

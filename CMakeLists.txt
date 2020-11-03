@@ -20,6 +20,7 @@ include(CMakeDependentOption)
 include(CMakePackageConfigHelpers) # provides `write_basic_package_version_file`
 include(CTest)
 include(GNUInstallDirs)
+include(cmake/detect_cxx_version.cmake)
 
 #
 # The `frozen.testing`, `frozen.benchmark`, and `frozen.coverage` options

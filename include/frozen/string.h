@@ -25,8 +25,13 @@
 
 #include "frozen/bits/elsa.h"
 #include "frozen/bits/version.h"
+#include "frozen/bits/defines.h"
 
 #include <functional>
+
+#ifdef FROZEN_LETITGO_HAS_STRING_VIEW
+#include <string_view>
+#endif
 
 namespace frozen {
 
@@ -43,6 +48,11 @@ public:
       : data_(data), size_(N - 1) {}
   constexpr basic_string(chr_t const *data, std::size_t size)
       : data_(data), size_(size) {}
+
+#ifdef FROZEN_LETITGO_HAS_STRING_VIEW
+  constexpr basic_string(std::basic_string_view<chr_t> data)
+      : data_(data.data()), size_(data.size()) {}
+#endif
 
   constexpr basic_string(const basic_string &) noexcept = default;
   constexpr basic_string &operator=(const basic_string &) noexcept = default;
@@ -99,7 +109,7 @@ using wstring = basic_string<wchar_t>;
 using u16string = basic_string<char16_t>;
 using u32string = basic_string<char32_t>;
 
-#ifdef __cpp_char8_t
+#ifdef FROZEN_LETITGO_HAS_CHAR8T
 using u8string = basic_string<char8_t>;
 #endif
 
@@ -121,7 +131,7 @@ constexpr u32string operator"" _s(const char32_t *data, std::size_t size) {
   return {data, size};
 }
 
-#ifdef __cpp_char8_t
+#ifdef FROZEN_LETITGO_HAS_CHAR8T
 constexpr u8string operator"" _s(const char8_t *data, std::size_t size) {
   return {data, size};
 }
