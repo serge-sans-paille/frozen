@@ -30,8 +30,11 @@ TEST_CASE("linear_congruential_engine", "[random]") {
 
 
   frozen::minstd_rand dist1;
+  (void)dist1;
   frozen::minstd_rand dist2;
+  (void)dist2;
   frozen::linear_congruential_engine<std::size_t, 3, 3, 0> dist3;
+  (void)dist3;
 
 }
 
