@@ -60,6 +60,7 @@ class unordered_map {
 
 public:
   /* typedefs */
+  using self = unordered_map<Key, Value, N, Hash, KeyEqual>;
   using key_type = Key;
   using mapped_type = Value;
   using value_type = typename container_type::value_type;
@@ -67,12 +68,12 @@ public:
   using difference_type = typename container_type::difference_type;
   using hasher = Hash;
   using key_equal = KeyEqual;
+  using reference = typename container_type::reference;
   using const_reference = typename container_type::const_reference;
-  using reference = const_reference;
+  using pointer = typename container_type::pointer;
   using const_pointer = typename container_type::const_pointer;
-  using pointer = const_pointer;
-  using const_iterator = const_pointer;
-  using iterator = const_iterator;
+  using iterator = typename container_type::iterator;
+  using const_iterator = typename container_type::const_iterator;
 
 public:
   /* constructors */
@@ -97,6 +98,8 @@ public:
       : unordered_map{items, Hash{}, KeyEqual{}} {}
 
   /* iterators */
+  constexpr iterator begin() { return items_.begin(); }
+  constexpr iterator end() { return items_.end(); }
   constexpr const_iterator begin() const { return items_.begin(); }
   constexpr const_iterator end() const { return items_.end(); }
   constexpr const_iterator cbegin() const { return items_.cbegin(); }
@@ -121,6 +124,13 @@ public:
       FROZEN_THROW_OR_ABORT(std::out_of_range("unknown key"));
   }
 
+  constexpr Value &at(Key const &key) {
+    // Since the member function calling it is non-const, the object itself is
+    // non-const, and thus casting away the const is allowed
+    // https://stackoverflow.com/a/123995/4832300
+    return const_cast<Value &>(const_cast<const self *>(this)->at(key));
+  }
+
   constexpr const_iterator find(Key const &key) const {
     auto const &kv = lookup(key);
     if (equal_(kv.first, key))
@@ -129,12 +139,27 @@ public:
       return items_.end();
   }
 
+  constexpr iterator find(Key const &key) {
+    // Since the member function calling it is non-const, the object itself is
+    // non-const, and thus casting away the const is allowed
+    // https://stackoverflow.com/a/123995/4832300
+    return const_cast<iterator>(const_cast<const self *>(this)->find(key));
+  }
+
   constexpr std::pair<const_iterator, const_iterator> equal_range(Key const &key) const {
     auto const &kv = lookup(key);
     if (equal_(kv.first, key))
       return {&kv, &kv + 1};
     else
       return {items_.end(), items_.end()};
+  }
+
+  constexpr std::pair<iterator, iterator> equal_range(Key const &key) {
+    // Since the member function calling it is non-const, the object itself is
+    // non-const, and thus casting away the const is allowed
+    // https://stackoverflow.com/a/123995/4832300
+    auto ret = const_cast<const self *>(this)->equal_range(key);
+    return {const_cast<iterator>(ret.first), const_cast<iterator>(ret.second)};
   }
 
   /* bucket interface */
