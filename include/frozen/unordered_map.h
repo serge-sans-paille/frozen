@@ -60,7 +60,7 @@ class unordered_map {
 
 public:
   /* typedefs */
-  using self = unordered_map<Key, Value, N, Hash, KeyEqual>;
+  using Self = unordered_map<Key, Value, N, Hash, KeyEqual>;
   using key_type = Key;
   using mapped_type = Value;
   using value_type = typename container_type::value_type;
@@ -117,49 +117,24 @@ public:
   }
 
   constexpr Value const &at(Key const &key) const {
-    auto const &kv = lookup(key);
-    if (equal_(kv.first, key))
-      return kv.second;
-    else
-      FROZEN_THROW_OR_ABORT(std::out_of_range("unknown key"));
+    return at_impl(*this, key);
   }
-
   constexpr Value &at(Key const &key) {
-    // Since the member function calling it is non-const, the object itself is
-    // non-const, and thus casting away the const is allowed
-    // https://stackoverflow.com/a/123995/4832300
-    return const_cast<Value &>(const_cast<const self *>(this)->at(key));
+    return at_impl(*this, key);
   }
 
   constexpr const_iterator find(Key const &key) const {
-    auto const &kv = lookup(key);
-    if (equal_(kv.first, key))
-      return &kv;
-    else
-      return items_.end();
+    return find_impl(*this, key);
   }
-
   constexpr iterator find(Key const &key) {
-    // Since the member function calling it is non-const, the object itself is
-    // non-const, and thus casting away the const is allowed
-    // https://stackoverflow.com/a/123995/4832300
-    return const_cast<iterator>(const_cast<const self *>(this)->find(key));
+    return find_impl(*this, key);
   }
 
   constexpr std::pair<const_iterator, const_iterator> equal_range(Key const &key) const {
-    auto const &kv = lookup(key);
-    if (equal_(kv.first, key))
-      return {&kv, &kv + 1};
-    else
-      return {items_.end(), items_.end()};
+    return equal_range_impl(*this, key);
   }
-
   constexpr std::pair<iterator, iterator> equal_range(Key const &key) {
-    // Since the member function calling it is non-const, the object itself is
-    // non-const, and thus casting away the const is allowed
-    // https://stackoverflow.com/a/123995/4832300
-    auto ret = const_cast<const self *>(this)->equal_range(key);
-    return {const_cast<iterator>(ret.first), const_cast<iterator>(ret.second)};
+    return equal_range_impl(*this, key);
   }
 
   /* bucket interface */
@@ -171,8 +146,60 @@ public:
   constexpr key_equal key_eq() const { return equal_; }
 
 private:
-  constexpr auto const &lookup(Key const &key) const {
-    return items_[tables_.lookup(key)];
+  /*
+   * Template used to reduce code duplication between const and non-const
+   * functions. https://stackoverflow.com/a/62215403/4832300
+   */
+  template <class This>
+  static constexpr auto& at_impl(This& self, Key const &key) {
+    auto& kv = self.lookup(key);
+    if (self.equal_(kv.first, key))
+      return kv.second;
+    else
+      FROZEN_THROW_OR_ABORT(std::out_of_range("unknown key"));
+  }
+
+  /*
+   * Template used to reduce code duplication between const and non-const
+   * functions. https://stackoverflow.com/a/62215403/4832300
+   */
+  template <class This>
+  static constexpr auto find_impl(This& self, Key const &key) {
+    auto& kv = self.lookup(key);
+    if (self.equal_(kv.first, key))
+      return &kv;
+    else
+      return self.items_.end();
+  }
+
+  /*
+   * Template used to reduce code duplication between const and non-const
+   * functions. https://stackoverflow.com/a/62215403/4832300
+   */
+  template <class This>
+  static constexpr auto equal_range_impl(This& self, Key const &key) {
+    auto& kv = self.lookup(key);
+    using kv_ptr = decltype(&kv);
+    if (self.equal_(kv.first, key))
+      return std::pair<kv_ptr, kv_ptr>{&kv, &kv + 1};
+    else
+      return std::pair<kv_ptr, kv_ptr>{self.items_.end(), self.items_.end()};
+  }
+
+  /*
+   * Template used to reduce code duplication between const and non-const
+   * functions. https://stackoverflow.com/a/62215403/4832300
+   */
+  template <class This>
+  static constexpr auto& lookup_impl(This& self, Key const &key) {
+    return self.items_[self.tables_.lookup(key)];
+  }
+
+  constexpr auto const& lookup(Key const &key) const {
+    return lookup_impl(*this, key);
+  }
+  constexpr auto& lookup(Key const &key) {
+    return lookup_impl(*this, key);
   }
 };
 
