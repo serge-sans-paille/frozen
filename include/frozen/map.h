@@ -178,12 +178,8 @@ public:
   constexpr key_compare value_comp() const { return less_than_; }
 
  private:
-  /*
-   * Template used to reduce code duplication between const and non-const
-   * functions. https://stackoverflow.com/a/62215403/4832300
-   */
   template <class This>
-  static constexpr auto find_impl(This& self, Key const &key) {
+  static constexpr auto find_impl(This&& self, Key const &key) {
     auto where = self.lower_bound(key);
     if ((where != self.end()) && !self.less_than_(key, *where))
       return where;
@@ -191,12 +187,8 @@ public:
       return self.end();
   }
 
-  /*
-   * Template used to reduce code duplication between const and non-const
-   * functions. https://stackoverflow.com/a/62215403/4832300
-   */
   template <class This>
-  static constexpr auto equal_range_impl(This& self, Key const &key) {
+  static constexpr auto equal_range_impl(This&& self, Key const &key) {
     auto lower = self.lower_bound(key);
     using lower_t = decltype(lower);
     if (lower == self.end())
@@ -205,12 +197,8 @@ public:
       return std::pair<lower_t, lower_t>{lower, lower + 1};
   }
 
-  /*
-   * Template used to reduce code duplication between const and non-const
-   * functions. https://stackoverflow.com/a/62215403/4832300
-   */
   template <class This>
-  static constexpr const_iterator lower_bound_impl(This& self, Key const &key) {
+  static constexpr const_iterator lower_bound_impl(This&& self, Key const &key) {
     auto const where = bits::lower_bound<N>(self.items_.begin(), key, self.less_than_);
     if ((where != self.end()) && !self.less_than_(key, *where))
       return where;
@@ -218,12 +206,8 @@ public:
       return self.end();
   }
 
-  /*
-   * Template used to reduce code duplication between const and non-const
-   * functions. https://stackoverflow.com/a/62215403/4832300
-   */
   template <class This>
-  static constexpr const_iterator upper_bound_impl(This& self, Key const &key) {
+  static constexpr const_iterator upper_bound_impl(This&& self, Key const &key) {
     auto const where = bits::lower_bound<N>(self.items_.begin(), key, self.less_than_);
     if ((where != self.end()) && !self.less_than_(key, *where))
       return where + 1;

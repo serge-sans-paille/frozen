@@ -146,12 +146,9 @@ public:
   constexpr key_equal key_eq() const { return equal_; }
 
 private:
-  /*
-   * Template used to reduce code duplication between const and non-const
-   * functions. https://stackoverflow.com/a/62215403/4832300
-   */
+
   template <class This>
-  static constexpr auto& at_impl(This& self, Key const &key) {
+  static constexpr auto& at_impl(This&& self, Key const &key) {
     auto& kv = self.lookup(key);
     if (self.equal_(kv.first, key))
       return kv.second;
@@ -159,12 +156,8 @@ private:
       FROZEN_THROW_OR_ABORT(std::out_of_range("unknown key"));
   }
 
-  /*
-   * Template used to reduce code duplication between const and non-const
-   * functions. https://stackoverflow.com/a/62215403/4832300
-   */
   template <class This>
-  static constexpr auto find_impl(This& self, Key const &key) {
+  static constexpr auto find_impl(This&& self, Key const &key) {
     auto& kv = self.lookup(key);
     if (self.equal_(kv.first, key))
       return &kv;
@@ -172,12 +165,8 @@ private:
       return self.items_.end();
   }
 
-  /*
-   * Template used to reduce code duplication between const and non-const
-   * functions. https://stackoverflow.com/a/62215403/4832300
-   */
   template <class This>
-  static constexpr auto equal_range_impl(This& self, Key const &key) {
+  static constexpr auto equal_range_impl(This&& self, Key const &key) {
     auto& kv = self.lookup(key);
     using kv_ptr = decltype(&kv);
     if (self.equal_(kv.first, key))
@@ -186,12 +175,8 @@ private:
       return std::pair<kv_ptr, kv_ptr>{self.items_.end(), self.items_.end()};
   }
 
-  /*
-   * Template used to reduce code duplication between const and non-const
-   * functions. https://stackoverflow.com/a/62215403/4832300
-   */
   template <class This>
-  static constexpr auto& lookup_impl(This& self, Key const &key) {
+  static constexpr auto& lookup_impl(This&& self, Key const &key) {
     return self.items_[self.tables_.lookup(key)];
   }
 
