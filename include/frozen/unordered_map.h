@@ -146,9 +146,8 @@ public:
   constexpr key_equal key_eq() const { return equal_; }
 
 private:
-
   template <class This>
-  static constexpr auto& at_impl(This&& self, Key const &key) {
+  static inline constexpr auto& at_impl(This&& self, Key const &key) {
     auto& kv = self.lookup(key);
     if (self.equal_(kv.first, key))
       return kv.second;
@@ -157,7 +156,7 @@ private:
   }
 
   template <class This>
-  static constexpr auto find_impl(This&& self, Key const &key) {
+  static inline constexpr auto find_impl(This&& self, Key const &key) {
     auto& kv = self.lookup(key);
     if (self.equal_(kv.first, key))
       return &kv;
@@ -166,7 +165,7 @@ private:
   }
 
   template <class This>
-  static constexpr auto equal_range_impl(This&& self, Key const &key) {
+  static inline constexpr auto equal_range_impl(This&& self, Key const &key) {
     auto& kv = self.lookup(key);
     using kv_ptr = decltype(&kv);
     if (self.equal_(kv.first, key))
@@ -176,7 +175,7 @@ private:
   }
 
   template <class This>
-  static constexpr auto& lookup_impl(This&& self, Key const &key) {
+  static inline constexpr auto& lookup_impl(This&& self, Key const &key) {
     return self.items_[self.tables_.lookup(key)];
   }
 

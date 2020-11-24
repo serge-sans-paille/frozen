@@ -110,26 +110,25 @@ public:
       : map{items, Compare{}} {}
 
   /* element access */
-  constexpr mapped_type at(Key const &key) const {
-    auto const where = lower_bound(key);
-    if (where != end())
-      return where->second;
-    else
-      FROZEN_THROW_OR_ABORT(std::out_of_range("invalid key"));
+  constexpr Value& at(Key const &key) const {
+    return at_impl(*this, key);
+  }
+  constexpr Value& at(Key const &key) {
+    return at_impl(*this, key);
   }
 
   /* iterators */
-  constexpr const_iterator begin() { return items_.begin(); }
+  constexpr iterator begin() { return items_.begin(); }
   constexpr const_iterator begin() const { return items_.begin(); }
   constexpr const_iterator cbegin() const { return items_.cbegin(); }
-  constexpr const_iterator end() { return items_.end(); }
+  constexpr iterator end() { return items_.end(); }
   constexpr const_iterator end() const { return items_.end(); }
   constexpr const_iterator cend() const { return items_.cend(); }
 
-  constexpr const_reverse_iterator rbegin() { return items_.rbegin(); }
+  constexpr reverse_iterator rbegin() { return items_.rbegin(); }
   constexpr const_reverse_iterator rbegin() const { return items_.rbegin(); }
   constexpr const_reverse_iterator crbegin() const { return items_.crbegin(); }
-  constexpr const_reverse_iterator rend() { return items_.rend(); }
+  constexpr reverse_iterator rend() { return items_.rend(); }
   constexpr const_reverse_iterator rend() const { return items_.rend(); }
   constexpr const_reverse_iterator crend() const { return items_.crend(); }
 
@@ -179,7 +178,16 @@ public:
 
  private:
   template <class This>
-  static constexpr auto find_impl(This&& self, Key const &key) {
+  static inline constexpr auto& at_impl(This&& self, Key const &key) {
+    auto where = self.lower_bound(key);
+    if (where != self.end())
+      return where->second;
+    else
+      FROZEN_THROW_OR_ABORT(std::out_of_range("unknown key"));
+  }
+
+  template <class This>
+  static inline constexpr auto find_impl(This&& self, Key const &key) {
     auto where = self.lower_bound(key);
     if ((where != self.end()) && !self.less_than_(key, *where))
       return where;
@@ -188,7 +196,7 @@ public:
   }
 
   template <class This>
-  static constexpr auto equal_range_impl(This&& self, Key const &key) {
+  static inline constexpr auto equal_range_impl(This&& self, Key const &key) {
     auto lower = self.lower_bound(key);
     using lower_t = decltype(lower);
     if (lower == self.end())
@@ -198,8 +206,8 @@ public:
   }
 
   template <class This>
-  static constexpr const_iterator lower_bound_impl(This&& self, Key const &key) {
-    auto const where = bits::lower_bound<N>(self.items_.begin(), key, self.less_than_);
+  static inline constexpr auto lower_bound_impl(This&& self, Key const &key) -> decltype(self.end()) {
+    auto where = bits::lower_bound<N>(self.items_.begin(), key, self.less_than_);
     if ((where != self.end()) && !self.less_than_(key, *where))
       return where;
     else
@@ -207,8 +215,8 @@ public:
   }
 
   template <class This>
-  static constexpr const_iterator upper_bound_impl(This&& self, Key const &key) {
-    auto const where = bits::lower_bound<N>(self.items_.begin(), key, self.less_than_);
+  static inline constexpr auto upper_bound_impl(This&& self, Key const &key) -> decltype(self.end()) {
+    auto where = bits::lower_bound<N>(self.items_.begin(), key, self.less_than_);
     if ((where != self.end()) && !self.less_than_(key, *where))
       return where + 1;
     else
@@ -249,6 +257,9 @@ public:
   constexpr mapped_type at(Key const &) const {
     FROZEN_THROW_OR_ABORT(std::out_of_range("invalid key"));
   }
+  constexpr mapped_type at(Key const &) {
+    FROZEN_THROW_OR_ABORT(std::out_of_range("invalid key"));
+  }
 
   /* iterators */
   constexpr iterator begin() { return nullptr; }
@@ -274,8 +285,8 @@ public:
 
   constexpr std::size_t count(Key const &) const { return 0; }
 
-  constexpr iterator find(Key const &) { return end(); }
   constexpr const_iterator find(Key const &) const { return end(); }
+  constexpr iterator find(Key const &) { return end(); }
 
   constexpr std::pair<const_iterator, const_iterator>
   equal_range(Key const &) const {

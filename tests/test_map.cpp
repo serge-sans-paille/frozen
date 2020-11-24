@@ -285,7 +285,6 @@ TEST_CASE("frozen::map <> frozen::make_map", "[map]") {
   }
 }
 
-
 TEST_CASE("frozen::map constexpr", "[map]") {
   constexpr frozen::map<unsigned, unsigned, 2> ce = {{3,4}, {11,12}};
   static_assert(*ce.begin() == std::pair<unsigned, unsigned>{3,4}, "");
@@ -294,4 +293,47 @@ TEST_CASE("frozen::map constexpr", "[map]") {
   static_assert(ce.count(3), "");
   static_assert(!ce.count(0), "");
   static_assert(ce.find(0) == ce.end(), "");
+}
+
+TEST_CASE("Modifiable frozen::map", "[map]") {
+  frozen::map<int, int, 3> frozen_map = {{0, 1}, {2, 3}, {4, 5}};
+
+  SECTION("Lookup existing values") {
+    REQUIRE(frozen_map.at(0) == 1);
+    REQUIRE(frozen_map.find(0)->second == 1);
+    REQUIRE(frozen_map.equal_range(0).first->second == 1);
+
+    REQUIRE(frozen_map.at(2) == 3);
+    REQUIRE(frozen_map.find(2)->second == 3);
+    REQUIRE(frozen_map.equal_range(2).first->second == 3);
+
+    REQUIRE(frozen_map.at(4) == 5);
+    REQUIRE(frozen_map.find(4)->second == 5);
+    REQUIRE(frozen_map.equal_range(4).first->second == 5);
+  }
+
+  SECTION("Lookup failure") {
+    REQUIRE(frozen_map.find(5) == frozen_map.end());
+    REQUIRE_THROWS_AS(frozen_map.at(5), std::out_of_range);
+  }
+
+  SECTION("Modify value") {
+    frozen_map.at(0) = -1;
+    REQUIRE(frozen_map.at(0) == -1);
+
+    frozen_map.begin()->second = -2;
+    REQUIRE(frozen_map.begin()->second == -2);
+
+    (frozen_map.end() - 1)->second = -3;
+    REQUIRE((frozen_map.end() - 1)->second == -3);
+
+    frozen_map.equal_range(4).first->second = -5;
+    REQUIRE(frozen_map.at(4) == -5);
+
+    frozen_map.lower_bound(2)->second = -22;
+    REQUIRE(frozen_map.at(2) == -22);
+
+    frozen_map.upper_bound(2)->second = -33;
+    REQUIRE(frozen_map.at(4) == -33);
+  }
 }
