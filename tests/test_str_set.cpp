@@ -43,6 +43,42 @@ TEST_CASE("tripleton int frozen ordered set", "[set]") {
   std::for_each(ze_set.begin(), ze_set.end(), [](frozen::string const &) {});
 }
 
+TEST_CASE("tripleton int frozen ordered set from make_set", "[set]") {
+  constexpr auto ze_set = frozen::make_set<frozen::string>({"1", "2", "3"});
+
+  constexpr auto empty = ze_set.empty();
+  REQUIRE(!empty);
+
+  constexpr auto size = ze_set.size();
+  REQUIRE(size == 3);
+
+  constexpr auto max_size = ze_set.max_size();
+  REQUIRE(max_size == 3);
+
+  constexpr auto nocount = ze_set.count("4");
+  REQUIRE(nocount == 0);
+
+  constexpr auto count = ze_set.count("1");
+  REQUIRE(count == 1);
+
+  auto notfound = ze_set.find("4");
+  REQUIRE(notfound == ze_set.end());
+
+  auto found = ze_set.find("1");
+  REQUIRE(found == ze_set.begin());
+
+  auto range = ze_set.equal_range("1");
+  REQUIRE(std::get<0>(range) != ze_set.end());
+
+  auto begin = ze_set.begin(), end = ze_set.end();
+  REQUIRE(begin != end);
+
+  auto cbegin = ze_set.cbegin(), cend = ze_set.cend();
+  REQUIRE(cbegin != cend);
+
+  std::for_each(ze_set.begin(), ze_set.end(), [](frozen::string const &) {});
+}
+
 TEST_CASE("frozen::set<str> <> std::set",
           "[set]") {
 #define INIT_SEQ                                                               \
