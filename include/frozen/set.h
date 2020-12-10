@@ -217,7 +217,7 @@ namespace detail {
   }
 }
 
-template <typename T, std::size_t N, typename U = T>
+template <typename T, std::size_t N, typename U>
 constexpr auto make_set(const U (&args)[N]) {
     return detail::make_set_helper<T>(args, std::make_index_sequence<N>{});
 }
