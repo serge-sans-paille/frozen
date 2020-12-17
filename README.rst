@@ -95,7 +95,7 @@ String support is built-in:
 
 The associative containers have different functionality with and without ``constexpr``. 
 With ``constexpr``, frozen maps have immutable keys and values. Without ``constexpr``, the 
-vales can be updated in runtime (the keys, however, remain immutable):
+values can be updated in runtime (the keys, however, remain immutable):
 
 .. code:: C++
 
