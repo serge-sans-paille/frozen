@@ -50,6 +50,8 @@ public:
   using const_pointer = const value_type *;
   using iterator = pointer;
   using const_iterator = const_pointer;
+  using reverse_iterator = std::reverse_iterator<iterator>;
+  using const_reverse_iterator = std::reverse_iterator<const_iterator>;
   using size_type = std::size_t;
   using difference_type = std::ptrdiff_t;
 
@@ -59,13 +61,34 @@ public:
     for (std::size_t i = 0; i < N; ++i)
       data[i] = value;
   }
+  template<typename Iter>
+  constexpr cvector(Iter begin, Iter end) : dsize(0) {
+    while(begin != end)
+      data[dsize++] = *begin++;
+  }
+  constexpr cvector(std::initializer_list<T> values) : dsize(0) {
+    for(auto value : values)
+      data[dsize++] = value;
+  }
 
   // Iterators
   constexpr iterator begin() noexcept { return data; }
   constexpr iterator end() noexcept { return data + dsize; }
+  constexpr const_iterator begin() const noexcept { return data; }
+  constexpr const_iterator end() const noexcept { return data + dsize; }
+  constexpr const_iterator cbegin() const noexcept { return data; }
+  constexpr const_iterator cend() const noexcept { return data + dsize; }
+
+  constexpr reverse_iterator rbegin() noexcept { return reverse_iterator(end()); }
+  constexpr const_reverse_iterator rbegin() const noexcept { return const_reverse_iterator(end()); }
+  constexpr const_reverse_iterator crbegin() const noexcept { return const_reverse_iterator(end()); }
+  constexpr reverse_iterator rend() noexcept { return reverse_iterator(begin()); }
+  constexpr const_reverse_iterator rend() const noexcept { return const_reverse_iterator(begin()); }
+  constexpr const_reverse_iterator crend() const noexcept { return const_reverse_iterator(begin()); }
 
   // Capacity
   constexpr size_type size() const { return dsize; }
+  constexpr bool empty() const { return dsize == 0; }
 
   // Element access
   constexpr       reference operator[](std::size_t index) { return data[index]; }

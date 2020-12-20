@@ -33,7 +33,7 @@
 namespace frozen {
 
 template <class Key, std::size_t N, class Compare = std::less<Key>> class set {
-  using container_type = bits::carray<Key, N>;
+  using container_type = bits::cvector<Key, N>;
   Compare less_than_;
   container_type keys_;
 
@@ -68,7 +68,7 @@ public:
 
   constexpr set(std::initializer_list<Key> keys, Compare const & comp)
       : set{container_type{keys}, comp} {
-        constexpr_assert(keys.size() == N, "Inconsistent initializer_list size and type size argument");
+        constexpr_assert(keys.size() <= N, "Inconsistent initializer_list size and type size argument");
       }
 
   constexpr set(std::initializer_list<Key> keys)
@@ -211,7 +211,7 @@ constexpr auto make_set(bits::ignored_arg = {}/* for consistency with the initia
 
 template <typename T, std::size_t N>
 constexpr auto make_set(const T (&args)[N]) {
-  return set<T, N>(args);
+  return set<T, N>(bits::cvector<T, N>{&args[0], &args[N]});
 }
 
 

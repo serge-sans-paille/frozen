@@ -275,3 +275,14 @@ TEST_CASE("frozen::set of frozen::set", "[set]") {
   static_assert(!ce.count(s1({0})), "");
   static_assert(ce.find(s1({0})) == ce.end(), "");
 }
+
+TEST_CASE("frozen::set of frozen::set with different sizes", "[set]") {
+  using s1 = frozen::set<unsigned, 2>;
+  constexpr frozen::set<s1, 2> ce = {{3}, {11, 4}};
+  static_assert(*ce.begin() == s1({3}), "");
+  static_assert(*(ce.begin() + 1) == s1({11, 4}), "");
+  static_assert(ce.size() == 2, "");
+  static_assert(ce.count(s1({3})), "");
+  static_assert(!ce.count(s1({0})), "");
+  static_assert(ce.find(s1({0})) == ce.end(), "");
+}

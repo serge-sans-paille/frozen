@@ -43,6 +43,7 @@ class basic_string {
   std::size_t size_;
 
 public:
+  constexpr basic_string() = default;
   template <std::size_t N>
   constexpr basic_string(chr_t const (&data)[N])
       : data_(data), size_(N - 1) {}
