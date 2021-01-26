@@ -293,6 +293,7 @@ TEST_CASE("frozen::map constexpr", "[map]") {
   static_assert(ce.count(3), "");
   static_assert(!ce.count(0), "");
   static_assert(ce.find(0) == ce.end(), "");
+  static_assert(ce.at(3) == 4, "");
 }
 
 TEST_CASE("Modifiable frozen::map", "[map]") {

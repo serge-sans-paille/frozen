@@ -110,7 +110,7 @@ public:
       : map{items, Compare{}} {}
 
   /* element access */
-  constexpr Value& at(Key const &key) const {
+  constexpr Value const& at(Key const &key) const {
     return at_impl(*this, key);
   }
   constexpr Value& at(Key const &key) {
