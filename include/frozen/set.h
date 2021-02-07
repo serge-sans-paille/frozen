@@ -209,11 +209,18 @@ constexpr auto make_set(bits::ignored_arg = {}/* for consistency with the initia
   return set<T, 0>{};
 }
 
-template <typename T, std::size_t N>
-constexpr auto make_set(const T (&args)[N]) {
-  return set<T, N>(args);
+namespace detail {
+  template <typename T, typename U, std::size_t N, std::size_t... I>
+  constexpr auto make_set_helper(const U (&args)[N], std::index_sequence<I...>) {
+    T args_t[N] = { T{args[I]}... };
+    return frozen::set<T, N>(args_t);
+  }
 }
 
+template <typename T, std::size_t N, typename U>
+constexpr auto make_set(const U (&args)[N]) {
+    return detail::make_set_helper<T>(args, std::make_index_sequence<N>{});
+}
 
 } // namespace frozen
 
