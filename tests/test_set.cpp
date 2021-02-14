@@ -190,7 +190,7 @@ TEST_CASE("triple frozen set", "[set]") {
   REQUIRE(cbegin == (cend - ze_set.size()));
 
   std::for_each(ze_set.begin(), ze_set.end(), [](int) {});
-  REQUIRE(std::distance(ze_set.rbegin(), ze_set.rend()) == ze_set.size());
+  REQUIRE((std::size_t)std::distance(ze_set.rbegin(), ze_set.rend()) == ze_set.size());
   REQUIRE(std::count(ze_set.crbegin(), ze_set.crend(), 3) == 0);
   REQUIRE(std::count(ze_set.crbegin(), ze_set.crend(), 20) == 1);
 }
