@@ -192,6 +192,11 @@ constexpr auto make_unordered_map(std::pair<T, U> const (&items)[N]) {
   return unordered_map<T, U, N>{items};
 }
 
+template <typename T, typename U, std::size_t N>
+constexpr auto make_unordered_map(std::array<std::pair<T, U>, N> const &items) {
+  return unordered_map<T, U, N>{items};
+}
+
 } // namespace frozen
 
 #endif

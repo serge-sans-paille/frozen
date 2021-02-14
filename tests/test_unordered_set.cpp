@@ -137,6 +137,8 @@ TEST_CASE("frozen::unordered_set with enum keys", "[unordered_set]") {
 TEST_CASE("frozen::unordered_set <> frozen::make_unordered_set", "[unordered_set]") {
   constexpr frozen::unordered_set<int, 129> frozen_set = { INIT_SEQ };
   constexpr auto frozen_set2 = frozen::make_unordered_set<int>({INIT_SEQ});
+  constexpr auto frozen_set3 = frozen::make_unordered_set(std::array<int, 129>{{INIT_SEQ}});
+  REQUIRE(std::equal(frozen_set2.begin(), frozen_set2.end(), frozen_set3.begin()));
 
   SECTION("checking size and content") {
     REQUIRE(frozen_set.size() == frozen_set2.size());

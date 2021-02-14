@@ -227,6 +227,8 @@ TEST_CASE("frozen::set <> std::set", "[set]") {
 TEST_CASE("frozen::set <> frozen::make_set", "[set]") {
   constexpr frozen::set<int, 128> frozen_set = { INIT_SEQ };
   constexpr auto frozen_set2 = frozen::make_set<int>({INIT_SEQ});
+  constexpr auto frozen_set3 = frozen::make_set(std::array<int, 128>{{INIT_SEQ}});
+  REQUIRE(std::equal(frozen_set2.begin(), frozen_set2.end(), frozen_set3.begin()));
 
   SECTION("checking size and content") {
     REQUIRE(frozen_set.size() == frozen_set2.size());
