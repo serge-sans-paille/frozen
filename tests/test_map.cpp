@@ -198,7 +198,7 @@ TEST_CASE("triple frozen map", "[map]") {
   REQUIRE(cbegin == (cend - ze_map.size()));
 
   std::for_each(ze_map.begin(), ze_map.end(), [](std::tuple<unsigned long, bool>) {});
-  REQUIRE(std::distance(ze_map.rbegin(), ze_map.rend()) == ze_map.size());
+  REQUIRE((std::size_t)std::distance(ze_map.rbegin(), ze_map.rend()) == ze_map.size());
   REQUIRE(std::count(ze_map.crbegin(), ze_map.crend(),
                      decltype(ze_map)::value_type(3, 14)) == 0);
   REQUIRE(std::count(ze_map.crbegin(), ze_map.crend(),
