@@ -257,6 +257,8 @@ TEST_CASE("frozen::map <> std::map", "[map]") {
 TEST_CASE("frozen::map <> frozen::make_map", "[map]") {
   constexpr frozen::map<int, int, 128> frozen_map = { INIT_SEQ };
   constexpr auto frozen_map2 = frozen::make_map<int, int>({INIT_SEQ});
+  constexpr auto frozen_map3 = frozen::make_map(std::array<std::pair<int, int>, 128>{{INIT_SEQ}});
+  REQUIRE(std::equal(frozen_map2.begin(), frozen_map2.end(), frozen_map3.begin()));
 
   SECTION("checking size and content") {
     REQUIRE(frozen_map.size() == frozen_map2.size());

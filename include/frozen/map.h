@@ -318,6 +318,11 @@ constexpr auto make_map(std::pair<T, U> const (&items)[N]) {
   return map<T, U, N>{items};
 }
 
+template <typename T, typename U, std::size_t N>
+constexpr auto make_map(std::array<std::pair<T, U>, N> const &items) {
+  return map<T, U, N>{items};
+}
+
 } // namespace frozen
 
 #endif

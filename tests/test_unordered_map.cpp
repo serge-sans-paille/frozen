@@ -138,6 +138,8 @@ TEST_CASE("frozen::unordered_map <> std::unordered_map", "[unordered_map]") {
 TEST_CASE("frozen::unordered_map <> frozen::make_unordered_map", "[unordered_map]") {
   constexpr frozen::unordered_map<int, int, 128> frozen_map = { INIT_SEQ };
   constexpr auto frozen_map2 = frozen::make_unordered_map<int, int>({INIT_SEQ});
+  constexpr auto frozen_map3 = frozen::make_unordered_map(std::array<std::pair<int, int>, 128>{{INIT_SEQ}});
+  REQUIRE(std::equal(frozen_map2.begin(), frozen_map2.end(), frozen_map3.begin()));
 
   SECTION("checking size and content") {
     REQUIRE(frozen_map.size() == frozen_map2.size());
