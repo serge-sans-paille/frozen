@@ -141,6 +141,83 @@ public:
   }
 };
 
+// Specialization for a compile-time empty container.
+template <class T>
+class cvector<T, 0> {
+public:
+  // Container typdefs
+  using value_type = T;
+  using reference = value_type &;
+  using const_reference = const value_type &;
+  using pointer = value_type *;
+  using const_pointer = const value_type *;
+  using iterator = pointer;
+  using const_iterator = const_pointer;
+  using reverse_iterator = std::reverse_iterator<iterator>;
+  using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+  using size_type = std::size_t;
+  using difference_type = std::ptrdiff_t;
+
+  // Constructors
+  constexpr cvector(void) = default;
+  constexpr cvector(size_type count, const T& value)
+  {
+    // static_assert(count == 0, "Cannot initialize empty cvector");
+  }
+
+  template <std::size_t M>
+  constexpr cvector(T const (&init)[M])
+  {
+    static_assert(M == 0, "Cannot initialize empty cvector");
+  }
+
+  constexpr cvector(std::initializer_list<T> init)
+  {
+    static_assert(init.size() == 0, "Cannot initialize empty cvector");
+  }
+
+  // Iterators
+  constexpr iterator begin() noexcept { return nullptr; }
+  constexpr const_iterator begin() const noexcept { return nullptr; }
+  constexpr const_iterator cbegin() const noexcept { return nullptr; }
+  constexpr iterator end() noexcept { return nullptr; }
+  constexpr const_iterator end() const noexcept { return nullptr; }
+  constexpr const_iterator cend() const noexcept { return nullptr; }
+
+  constexpr reverse_iterator rbegin() noexcept { return reverse_iterator(); }
+  constexpr const_reverse_iterator rbegin() const noexcept { return const_reverse_iterator(); }
+  constexpr const_reverse_iterator crbegin() const noexcept { return const_reverse_iterator(); }
+  constexpr reverse_iterator rend() noexcept { return reverse_iterator(); }
+  constexpr const_reverse_iterator rend() const noexcept { return const_reverse_iterator(); }
+  constexpr const_reverse_iterator crend() const noexcept { return const_reverse_iterator(); }
+
+  // Capacity
+  constexpr bool empty() const { return true; }
+  constexpr size_type size() const { return 0; }
+  constexpr size_type max_size() const { return 0; }
+  constexpr size_type capacity() const { return 0; }
+
+  // Element access
+  constexpr       reference at(std::size_t index) {
+    FROZEN_THROW_OR_ABORT(std::out_of_range("Index (" + std::to_string(index) + ") out of bound (0)"));
+  }
+  constexpr const_reference at(std::size_t index) const {
+    FROZEN_THROW_OR_ABORT(std::out_of_range("Index (" + std::to_string(index) + ") out of bound (0)"));
+  }
+
+  constexpr       value_type* data() noexcept { return nullptr; }
+  constexpr const value_type* data() const noexcept { return nullptr; }
+
+  // Modifiers
+  constexpr void push_back(const T & a) {}
+  constexpr void push_back(T && a) {}
+  constexpr void pop_back() {}
+
+  constexpr void clear() {}
+
+  constexpr void fill(const value_type& val) {}
+};
+
 template <class T, std::size_t N>
 class carray {
   T data_ [N] = {}; // zero-initialization for scalar type T, default-initialized otherwise
@@ -237,6 +314,8 @@ public:
       data_[i] = val;
   }
 };
+
+// Specialization for a compile-time empty container.
 template <class T>
 class carray<T, 0> {
 
@@ -256,6 +335,61 @@ public:
 
   // Constructors
   constexpr carray(void) = default;
+  constexpr carray(size_type count, const T& value)
+  {
+    // static_assert(count == 0, "Cannot initialize empty carray");
+  }
+
+  template <std::size_t M>
+  constexpr carray(T const (&init)[M])
+  {
+    static_assert(M == 0, "Cannot initialize empty carray");
+  }
+
+  template <std::size_t M>
+  constexpr carray(std::array<T, M> const &init)
+  {
+    static_assert(M == 0, "Cannot initialize empty carray");
+  }
+
+  constexpr carray(std::initializer_list<T> init)
+  {
+    static_assert(init.size() == 0, "Cannot initialize empty carray");
+  }
+
+  // Iterators
+  constexpr iterator begin() noexcept { return nullptr; }
+  constexpr const_iterator begin() const noexcept { return nullptr; }
+  constexpr const_iterator cbegin() const noexcept { return nullptr; }
+  constexpr iterator end() noexcept { return nullptr; }
+  constexpr const_iterator end() const noexcept { return nullptr; }
+  constexpr const_iterator cend() const noexcept { return nullptr; }
+
+  constexpr reverse_iterator rbegin() noexcept { return reverse_iterator(); }
+  constexpr const_reverse_iterator rbegin() const noexcept { return const_reverse_iterator(); }
+  constexpr const_reverse_iterator crbegin() const noexcept { return const_reverse_iterator(); }
+  constexpr reverse_iterator rend() noexcept { return reverse_iterator(); }
+  constexpr const_reverse_iterator rend() const noexcept { return const_reverse_iterator(); }
+  constexpr const_reverse_iterator crend() const noexcept { return const_reverse_iterator(); }
+
+  // Capacity
+  constexpr bool empty() const { return true; }
+  constexpr size_type size() const { return 0; }
+  constexpr size_type max_size() const { return 0; }
+
+  // Element access
+  constexpr       reference at(std::size_t index) {
+    FROZEN_THROW_OR_ABORT(std::out_of_range("Index (" + std::to_string(index) + ") out of bound (0)"));
+  }
+  constexpr const_reference at(std::size_t index) const {
+    FROZEN_THROW_OR_ABORT(std::out_of_range("Index (" + std::to_string(index) + ") out of bound (0)"));
+  }
+
+  constexpr       value_type* data() noexcept { return nullptr; }
+  constexpr const value_type* data() const noexcept { return nullptr; }
+
+  // Modifiers
+  constexpr void fill(const value_type& val) {}
 
 };
 

@@ -3,7 +3,6 @@
 #include "bench.hpp"
 #include "catch.hpp"
 
-/*
 TEST_CASE("empty frozen array", "[array]") {
   constexpr frozen::array<int, 0> ze_array{};
 
@@ -16,9 +15,6 @@ TEST_CASE("empty frozen array", "[array]") {
   constexpr auto max_size = ze_array.max_size();
   REQUIRE(max_size == 0);
 
-  constexpr auto capacity = ze_array.capacity();
-  REQUIRE(capacity == 0);
-
   auto constexpr begin = ze_array.begin(), end = ze_array.end();
   REQUIRE(begin == end);
 
@@ -29,7 +25,6 @@ TEST_CASE("empty frozen array", "[array]") {
   REQUIRE(std::distance(ze_array.rbegin(), ze_array.rend()) == 0);
   REQUIRE(std::count(ze_array.crbegin(), ze_array.crend(), 3) == 0);
 }
-*/
 
 TEST_CASE("singleton frozen array", "[array]") {
   constexpr frozen::array<short, 1> ze_array{1};

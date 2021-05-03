@@ -3,7 +3,6 @@
 #include "bench.hpp"
 #include "catch.hpp"
 
-/*
 TEST_CASE("empty frozen vector", "[vector]") {
   constexpr frozen::vector<int, 0> ze_vector{};
 
@@ -29,7 +28,6 @@ TEST_CASE("empty frozen vector", "[vector]") {
   REQUIRE(std::distance(ze_vector.rbegin(), ze_vector.rend()) == 0);
   REQUIRE(std::count(ze_vector.crbegin(), ze_vector.crend(), 3) == 0);
 }
-*/
 
 TEST_CASE("singleton frozen vector", "[vector]") {
   constexpr frozen::vector<short, 1> ze_vector{1};
