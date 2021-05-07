@@ -163,12 +163,15 @@ public:
   constexpr cvector(size_type count, const T& value)
   {
     // static_assert(count == 0, "Cannot initialize empty cvector");
+    (void)count;
+    (void)value;
   }
 
   template <std::size_t M>
   constexpr cvector(T const (&init)[M])
   {
     static_assert(M == 0, "Cannot initialize empty cvector");
+    (void)init;
   }
 
   constexpr cvector(std::initializer_list<T> init)
@@ -209,13 +212,13 @@ public:
   constexpr const value_type* data() const noexcept { return nullptr; }
 
   // Modifiers
-  constexpr void push_back(const T & a) {}
-  constexpr void push_back(T && a) {}
+  constexpr void push_back(const T & a) { (void)a; }
+  constexpr void push_back(T && a) { (void)a; }
   constexpr void pop_back() {}
 
   constexpr void clear() {}
 
-  constexpr void fill(const value_type& val) {}
+  constexpr void fill(const value_type& val) { (void)val; }
 };
 
 template <class T, std::size_t N>
@@ -338,18 +341,22 @@ public:
   constexpr carray(size_type count, const T& value)
   {
     // static_assert(count == 0, "Cannot initialize empty carray");
+    (void)count;
+    (void)value;
   }
 
   template <std::size_t M>
   constexpr carray(T const (&init)[M])
   {
     static_assert(M == 0, "Cannot initialize empty carray");
+    (void)init;
   }
 
   template <std::size_t M>
   constexpr carray(std::array<T, M> const &init)
   {
     static_assert(M == 0, "Cannot initialize empty carray");
+    (void)init;
   }
 
   constexpr carray(std::initializer_list<T> init)
@@ -389,7 +396,7 @@ public:
   constexpr const value_type* data() const noexcept { return nullptr; }
 
   // Modifiers
-  constexpr void fill(const value_type& val) {}
+  constexpr void fill(const value_type& val) { (void)val; }
 
 };
 
