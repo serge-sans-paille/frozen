@@ -132,6 +132,74 @@ public:
 
   constexpr void clear() { dsize_ = 0; }
 
+  constexpr iterator insert(const_iterator pos, const_reference value) {
+    return insert(pos, 1, value);
+  }
+
+  constexpr iterator insert(const_iterator pos, size_type count, const_reference value) {
+    if (pos > end()) {
+      FROZEN_THROW_OR_ABORT(std::out_of_range("Insertion postion out of bounds"));
+    }
+
+    size_type remaining = capacity() - size();
+    if (count > remaining) {
+      FROZEN_THROW_OR_ABORT(std::length_error("Remaining capacity (" + std::to_string(remaining) + ") smaller than requested length (" + std::to_string(count) + ")"));
+    }
+
+    // Shift the existing values.
+    iterator start = const_cast<iterator>(pos);
+    size_type num_to_shift = end() - start;
+    for (iterator src = start + (num_to_shift - 1), dest = src + count;
+         src >= start;
+         --src, --dest) {
+      *dest = *src;
+    }
+
+    // Now insert the new ones.
+    dsize_ += count;
+    iterator dest = start;
+    while (count-- > 0) {
+      *(dest++) = value;
+    }
+
+    return start;
+  }
+
+  template<class InputIterator>
+  constexpr iterator insert(const_iterator pos, InputIterator first, InputIterator last) {
+    if (pos > end()) {
+      FROZEN_THROW_OR_ABORT(std::out_of_range("Insertion postion out of bounds"));
+    }
+
+    size_type count = std::distance(first, last);
+    size_type remaining = capacity() - size();
+    if (count > remaining) {
+      FROZEN_THROW_OR_ABORT(std::length_error("Remaining capacity (" + std::to_string(remaining) + ") smaller than requested length (" + std::to_string(count) + ")"));
+    }
+
+    // Shift the existing values.
+    iterator start = const_cast<iterator>(pos);
+    size_type num_to_shift = end() - start;
+    for (iterator src = start + (num_to_shift - 1), dest = src + count;
+         src >= start;
+         --src, --dest) {
+      *dest = *src;
+    }
+
+    // Now insert the new ones.
+    dsize_ += count;
+    iterator dest = start;
+    for (InputIterator curr = first; curr != last; ++curr) {
+      *(dest++) = *curr;
+    }
+
+    return start;
+  }
+
+  constexpr iterator insert(const_iterator pos, std::initializer_list<T> list) {
+    return insert(pos, list.begin(), list.end());
+  }
+
   constexpr iterator erase(const_iterator pos) {
     return erase(pos, pos + 1);
   }
