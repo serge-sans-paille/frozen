@@ -118,3 +118,35 @@ TEST_CASE("vector from initializer", "[vector]") {
   constexpr auto value2 = ze_vector2[2];
   REQUIRE(value2 == 3);
 }
+
+TEST_CASE("vector erase single", "[vector]") {
+  frozen::vector<short, 4> ze_vector({1, 2, 3, 4});
+  REQUIRE(ze_vector.size() == 4);
+
+  auto iter = ze_vector.erase(ze_vector.begin() + 2);
+  REQUIRE(ze_vector.size() == 3);
+  REQUIRE(ze_vector[0] == 1);
+  REQUIRE(ze_vector[1] == 2);
+  REQUIRE(ze_vector[2] == 4);
+  REQUIRE(iter == ze_vector.begin() + 2);
+}
+
+TEST_CASE("vector erase range", "[vector]") {
+  frozen::vector<short, 4> ze_vector({1, 2, 3, 4});
+  REQUIRE(ze_vector.size() == 4);
+
+  auto iter = ze_vector.erase(ze_vector.begin() + 1, ze_vector.begin() + 3);
+  REQUIRE(ze_vector.size() == 2);
+  REQUIRE(ze_vector[0] == 1);
+  REQUIRE(ze_vector[1] == 4);
+  REQUIRE(iter == ze_vector.begin() + 1);
+}
+
+TEST_CASE("vector erase none", "[vector]") {
+  frozen::vector<short, 4> ze_vector({1, 2, 3, 4});
+  REQUIRE(ze_vector.size() == 4);
+
+  auto iter = ze_vector.erase(ze_vector.begin() + 1, ze_vector.begin() + 1);
+  REQUIRE(ze_vector.size() == 4);
+  REQUIRE(iter == ze_vector.begin() + 1);
+}

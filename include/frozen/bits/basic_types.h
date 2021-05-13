@@ -132,6 +132,32 @@ public:
 
   constexpr void clear() { dsize_ = 0; }
 
+  constexpr iterator erase(const_iterator pos) {
+    return erase(pos, pos + 1);
+  }
+
+  constexpr iterator erase(const_iterator first, const_iterator last) {
+    if (dsize_ == 0) {
+      return end();
+    }
+    else if (first == last) {
+      return const_cast<iterator>(last);
+    }
+    else {
+      if (last != end()) {
+        for (iterator curr = const_cast<iterator>(first), next = const_cast<iterator>(last);
+             next != end();
+             ++curr, ++next) {
+          *curr = *next;
+        }
+      }
+
+      size_type num_to_remove = last - first;
+      dsize_ -= num_to_remove;
+      return const_cast<iterator>(first);
+    }
+  }
+
   constexpr void fill(const value_type& val) {
     for (std::size_t i = 0; i < N; ++i)
     {
