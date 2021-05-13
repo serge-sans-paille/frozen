@@ -99,7 +99,13 @@ public:
   constexpr bool empty() const { return dsize_ == 0; }
   constexpr size_type size() const { return dsize_; }
   constexpr size_type max_size() const { return N; }
+  constexpr void reserve(size_type capacity) {
+    if (capacity > N) {
+      FROZEN_THROW_OR_ABORT(std::length_error("Requested capacity (" + std::to_string(capacity) + ") too large (max " + std::to_string(N) + ')'));
+    }
+  }
   constexpr size_type capacity() const { return N; }
+  constexpr void shrink_to_fit() { /* no-op */ }
 
   // Element access
   constexpr       reference operator[](std::size_t index) { return data_[index]; }
@@ -224,6 +230,22 @@ public:
       dsize_ -= num_to_remove;
       return const_cast<iterator>(first);
     }
+  }
+
+  constexpr void resize(size_type count) {
+    resize(count, T{});
+  }
+
+  constexpr void resize(size_type count, const_reference value) {
+    if (count > N) {
+      FROZEN_THROW_OR_ABORT(std::length_error("Requested size (" + std::to_string(count) + ") too large (max " + std::to_string(N) + ')'));
+    }
+
+    for (size_type i = dsize_; i < count; ++i) {
+      data_[i] = value;
+    }
+
+    dsize_ = count;
   }
 
   constexpr void fill(const value_type& val) {

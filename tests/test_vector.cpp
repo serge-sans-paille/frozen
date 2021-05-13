@@ -203,3 +203,37 @@ TEST_CASE("vector erase none", "[vector]") {
   REQUIRE(ze_vector.size() == 4);
   REQUIRE(iter == ze_vector.begin() + 1);
 }
+
+TEST_CASE("vector reserve", "[vector]") {
+  frozen::vector<short, 4> ze_vector({1, 2});
+  REQUIRE(ze_vector.size() == 2);
+  REQUIRE(ze_vector.capacity() == 4);
+
+  // All reserve operations should be no-op.
+  REQUIRE(ze_vector.size() == 2);
+  REQUIRE(ze_vector.capacity() == 4);
+}
+
+TEST_CASE("vector resize", "[vector]") {
+  frozen::vector<short, 4> ze_vector({1, 2});
+  REQUIRE(ze_vector.size() == 2);
+
+  // Resize larger with default element value (0).
+  ze_vector.resize(3);
+  REQUIRE(ze_vector.size() == 3);
+  REQUIRE(ze_vector[0] == 1);
+  REQUIRE(ze_vector[1] == 2);
+  REQUIRE(ze_vector[2] == 0);
+
+  // Resize smaller.
+  ze_vector.resize(1);
+  REQUIRE(ze_vector.size() == 1);
+  REQUIRE(ze_vector[0] == 1);
+
+  // Resize larger with specified value.
+  ze_vector.resize(3, 6);
+  REQUIRE(ze_vector.size() == 3);
+  REQUIRE(ze_vector[0] == 1);
+  REQUIRE(ze_vector[1] == 6);
+  REQUIRE(ze_vector[2] == 6);
+}
