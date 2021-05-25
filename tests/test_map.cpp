@@ -7,14 +7,6 @@
 #include "bench.hpp"
 #include "catch.hpp"
 
-struct S {
-  int x;
-};
-constexpr inline bool operator==(S const &a, S const &b) { return a.x == b.x; }
-constexpr inline bool operator<(S const &a, S const &b) { return a.x < b.x; }
-constexpr inline bool operator<(S const &a, int b) { return a.x < b; }
-constexpr inline bool operator<(int a, S const &b) { return a < b.x; }
-
 TEST_CASE("empty frozen map", "[map]") {
   constexpr frozen::map<int, float, 0> ze_map{};
 
@@ -61,26 +53,6 @@ TEST_CASE("empty frozen map", "[map]") {
   REQUIRE(std::distance(ze_map.rbegin(), ze_map.rend()) == 0);
   REQUIRE(std::count(ze_map.crbegin(), ze_map.crend(),
                      decltype(ze_map)::value_type(3, 5.3f)) == 0);
-}
-
-TEST_CASE("empty frozen transparent map", "[map]") {
-  constexpr frozen::map<S, bool, 0, std::less<void>> ze_map{};
-
-  constexpr auto count = ze_map.count(3);
-  REQUIRE(count == 0);
-
-  constexpr auto find = ze_map.find(5);
-  REQUIRE(find == ze_map.end());
-
-  constexpr auto range = ze_map.equal_range(0);
-  REQUIRE(std::get<0>(range) == ze_map.end());
-  REQUIRE(std::get<1>(range) == ze_map.end());
-
-  constexpr auto lower_bound = ze_map.lower_bound(1);
-  REQUIRE(lower_bound == ze_map.end());
-
-  constexpr auto upper_bound = ze_map.upper_bound(1);
-  REQUIRE(upper_bound == ze_map.end());
 }
 
 TEST_CASE("singleton frozen map", "[map]") {
@@ -368,6 +340,34 @@ TEST_CASE("Modifiable frozen::map", "[map]") {
     frozen_map.upper_bound(2)->second = -33;
     REQUIRE(frozen_map.at(4) == -33);
   }
+}
+
+struct S {
+  int x;
+};
+constexpr inline bool operator==(S const &a, S const &b) { return a.x == b.x; }
+constexpr inline bool operator<(S const &a, S const &b) { return a.x < b.x; }
+constexpr inline bool operator<(S const &a, int b) { return a.x < b; }
+constexpr inline bool operator<(int a, S const &b) { return a < b.x; }
+
+TEST_CASE("empty frozen transparent map", "[map]") {
+  constexpr frozen::map<S, bool, 0, std::less<void>> ze_map{};
+
+  constexpr auto count = ze_map.count(3);
+  REQUIRE(count == 0);
+
+  constexpr auto find = ze_map.find(5);
+  REQUIRE(find == ze_map.end());
+
+  constexpr auto range = ze_map.equal_range(0);
+  REQUIRE(std::get<0>(range) == ze_map.end());
+  REQUIRE(std::get<1>(range) == ze_map.end());
+
+  constexpr auto lower_bound = ze_map.lower_bound(1);
+  REQUIRE(lower_bound == ze_map.end());
+
+  constexpr auto upper_bound = ze_map.upper_bound(1);
+  REQUIRE(upper_bound == ze_map.end());
 }
 
 TEST_CASE("frozen transparent map", "[map]") {
