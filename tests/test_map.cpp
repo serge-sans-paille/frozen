@@ -11,8 +11,6 @@ struct S {
   int x;
 };
 constexpr inline bool operator==(S const &a, S const &b) { return a.x == b.x; }
-constexpr inline bool operator==(S const &a, int b) { return a.x == b; }
-constexpr inline bool operator==(int a, S const &b) { return a == b.x; }
 constexpr inline bool operator<(S const &a, S const &b) { return a.x < b.x; }
 constexpr inline bool operator<(S const &a, int b) { return a.x < b; }
 constexpr inline bool operator<(int a, S const &b) { return a < b.x; }
@@ -372,7 +370,7 @@ TEST_CASE("Modifiable frozen::map", "[map]") {
   }
 }
 
-TEST_CASE("froze transparent map", "[map]") {
+TEST_CASE("frozen transparent map", "[map]") {
   constexpr frozen::map<S, bool, 4, std::less<void>> ze_map{
       {S{10}, true}, {S{20}, false}, {S{30}, true}, {S{40}, false}};
 
