@@ -188,7 +188,7 @@ public:
  private:
   template <class This, class KeyType>
   static inline constexpr auto& at_impl(This&& self, KeyType const &key) {
-    auto where = self.lower_bound(key);
+    auto where = self.find(key);
     if (where != self.end())
       return where->second;
     else
@@ -198,7 +198,7 @@ public:
   template <class This, class KeyType>
   static inline constexpr auto find_impl(This&& self, KeyType const &key) {
     auto where = self.lower_bound(key);
-    if ((where != self.end()) && !self.less_than_(key, *where))
+    if (where != self.end() && !self.less_than_(key, *where))
       return where;
     else
       return self.end();
@@ -208,28 +208,24 @@ public:
   static inline constexpr auto equal_range_impl(This&& self, KeyType const &key) {
     auto lower = self.lower_bound(key);
     using lower_t = decltype(lower);
-    if (lower == self.end())
-      return std::pair<lower_t, lower_t>{lower, lower};
-    else
+    if (lower != self.end() && !self.less_than_(key, *lower))
       return std::pair<lower_t, lower_t>{lower, lower + 1};
+    else
+      return std::pair<lower_t, lower_t>{lower, lower};
   }
 
   template <class This, class KeyType>
   static inline constexpr auto lower_bound_impl(This&& self, KeyType const &key) -> decltype(self.end()) {
-    auto where = bits::lower_bound<N>(self.items_.begin(), key, self.less_than_);
-    if ((where != self.end()) && !self.less_than_(key, *where))
-      return where;
-    else
-      return self.end();
+    return bits::lower_bound<N>(self.items_.begin(), key, self.less_than_);
   }
 
   template <class This, class KeyType>
-  static inline constexpr auto upper_bound_impl(This&& self, KeyType const &key) -> decltype(self.end()) {
-    auto where = bits::lower_bound<N>(self.items_.begin(), key, self.less_than_);
-    if ((where != self.end()) && !self.less_than_(key, *where))
-      return where + 1;
+  static inline constexpr auto upper_bound_impl(This&& self, KeyType const &key) {
+    auto lower = self.lower_bound(key);
+    if (lower != self.end() && !self.less_than_(key, *lower))
+      return lower + 1;
     else
-      return self.end();
+      return lower;
   }
 };
 
