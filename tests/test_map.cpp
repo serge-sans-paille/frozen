@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <frozen/map.h>
+#include <functional>
 #include <iostream>
 #include <map>
 
@@ -338,5 +339,143 @@ TEST_CASE("Modifiable frozen::map", "[map]") {
 
     frozen_map.upper_bound(2)->second = -33;
     REQUIRE(frozen_map.at(4) == -33);
+  }
+}
+
+struct S {
+  int x;
+};
+constexpr inline bool operator==(S const &a, S const &b) { return a.x == b.x; }
+constexpr inline bool operator<(S const &a, S const &b) { return a.x < b.x; }
+constexpr inline bool operator<(S const &a, int b) { return a.x < b; }
+constexpr inline bool operator<(int a, S const &b) { return a < b.x; }
+
+TEST_CASE("empty frozen transparent map", "[map]") {
+  constexpr frozen::map<S, bool, 0, std::less<void>> ze_map{};
+
+  constexpr auto count = ze_map.count(3);
+  REQUIRE(count == 0);
+
+  constexpr auto find = ze_map.find(5);
+  REQUIRE(find == ze_map.end());
+
+  constexpr auto range = ze_map.equal_range(0);
+  REQUIRE(std::get<0>(range) == ze_map.end());
+  REQUIRE(std::get<1>(range) == ze_map.end());
+
+  constexpr auto lower_bound = ze_map.lower_bound(1);
+  REQUIRE(lower_bound == ze_map.end());
+
+  constexpr auto upper_bound = ze_map.upper_bound(1);
+  REQUIRE(upper_bound == ze_map.end());
+}
+
+TEST_CASE("frozen transparent map", "[map]") {
+  constexpr frozen::map<S, bool, 4, std::less<void>> ze_map{
+      {S{10}, true}, {S{20}, false}, {S{30}, true}, {S{40}, false}};
+
+  constexpr auto empty = ze_map.empty();
+  REQUIRE(!empty);
+
+  constexpr auto size = ze_map.size();
+  REQUIRE(size == 4);
+
+  constexpr auto max_size = ze_map.max_size();
+  REQUIRE(max_size == 4);
+
+  constexpr auto count1 = ze_map.count(1);
+  REQUIRE(count1 == 0);
+
+  constexpr auto count10 = ze_map.count(10);
+  REQUIRE(count10 == 1);
+
+  const auto find10 = ze_map.find(10);
+  REQUIRE(find10 == ze_map.begin());
+  REQUIRE(std::get<0>(*find10) == S{10});
+  REQUIRE(std::get<1>(*find10) == true);
+
+  const auto find15 = ze_map.find(15);
+  REQUIRE(find15 == ze_map.end());
+
+  const auto range0 = ze_map.equal_range(0);
+  REQUIRE(std::get<0>(range0) == ze_map.end());
+  REQUIRE(std::get<1>(range0) == ze_map.end());
+
+  const auto range1 = ze_map.equal_range(10);
+  REQUIRE(std::get<0>(range1) == ze_map.begin());
+  REQUIRE(std::get<1>(range1) == ze_map.begin() + 1);
+
+  const auto lower_bound0 = ze_map.lower_bound(0);
+  REQUIRE(lower_bound0 == ze_map.end());
+
+  for (auto val : ze_map) {
+    const auto lower_bound = ze_map.lower_bound(std::get<0>(val));
+    REQUIRE(lower_bound == ze_map.find(std::get<0>(val)));
+  }
+
+  const auto lower_bound2 = ze_map.lower_bound(50);
+  REQUIRE(lower_bound2 == ze_map.end());
+
+  const auto upper_bound0 = ze_map.upper_bound(0);
+  REQUIRE(upper_bound0 == ze_map.end());
+
+  const auto upper_bound1 = ze_map.upper_bound(10);
+  REQUIRE(upper_bound1 == (ze_map.begin() + 1));
+
+  const auto upper_bound2 = ze_map.upper_bound(50);
+  REQUIRE(upper_bound2 == ze_map.end());
+
+  auto const begin = ze_map.begin(), end = ze_map.end();
+  REQUIRE((begin + ze_map.size()) == end);
+
+  auto const key_comp = ze_map.key_comp();
+  auto const key_comparison = key_comp(1, 2);
+  REQUIRE(key_comparison);
+
+  auto const value_comp = ze_map.value_comp();
+  auto const value_comparison = value_comp(11, 12);
+  REQUIRE(value_comparison);
+
+  auto const cbegin = ze_map.cbegin(), cend = ze_map.cend();
+  REQUIRE(cbegin == (cend - ze_map.size()));
+
+  std::for_each(ze_map.begin(), ze_map.end(), [](std::tuple<S, bool>) {});
+  REQUIRE((std::size_t)std::distance(ze_map.rbegin(), ze_map.rend()) == ze_map.size());
+  REQUIRE(std::count(ze_map.crbegin(), ze_map.crend(),
+                     decltype(ze_map)::value_type{S{20}, true}) == 0);
+  REQUIRE(std::count(ze_map.crbegin(), ze_map.crend(),
+                     decltype(ze_map)::value_type{S{20}, false}) == 1);
+}
+
+TEST_CASE("frozen::map <> frozen::make_map transparent", "[map]") {
+  constexpr frozen::map<int, int, 128, std::less<void>> frozen_map = { INIT_SEQ };
+  constexpr auto frozen_map2 = frozen::make_map<int, int, std::less<void>>({INIT_SEQ});
+  constexpr auto frozen_map3 = frozen::make_map<int, int, std::less<void>>(std::array<std::pair<int, int>, 128>{{INIT_SEQ}});
+  REQUIRE(std::equal(frozen_map2.begin(), frozen_map2.end(), frozen_map3.begin()));
+
+  SECTION("checking size and content") {
+    REQUIRE(frozen_map.size() == frozen_map2.size());
+    for (auto v : frozen_map2)
+      REQUIRE(frozen_map.count(std::get<0>(v)));
+    for (auto v : frozen_map)
+      REQUIRE(frozen_map2.count(std::get<0>(v)));
+  }
+
+  constexpr frozen::map<int, short, 0, std::less<void>> frozen_empty_map = {};
+  constexpr auto frozen_empty_map2 = frozen::make_map<int, short, std::less<void>>();
+  constexpr auto frozen_empty_map3 = frozen::make_map<int, short, std::less<void>>({});
+
+  SECTION("checking empty map") {
+    REQUIRE(frozen_empty_map.empty());
+    REQUIRE(frozen_empty_map.size() == 0);
+    REQUIRE(frozen_empty_map.begin() == frozen_empty_map.end());
+
+    REQUIRE(frozen_empty_map2.empty());
+    REQUIRE(frozen_empty_map2.size() == 0);
+    REQUIRE(frozen_empty_map2.begin() == frozen_empty_map2.end());
+
+    REQUIRE(frozen_empty_map3.empty());
+    REQUIRE(frozen_empty_map3.size() == 0);
+    REQUIRE(frozen_empty_map3.begin() == frozen_empty_map3.end());
   }
 }
