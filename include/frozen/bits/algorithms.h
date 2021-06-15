@@ -141,6 +141,15 @@ constexpr bits::carray<T, N> quicksort(bits::carray<T, N> const &array,
   return res;
 }
 
+template <typename T, std::size_t N, class Compare>
+constexpr bits::cvector<T, N> quicksort(bits::cvector<T, N> const &array,
+                                     Compare const &compare) {
+  bits::cvector<T, N> res = array;
+  if(!array.empty())
+    quicksort(res.begin(), res.end() - 1, compare);
+  return res;
+}
+
 template <class T, class Compare> struct LowerBound {
   T const &value_;
   Compare const &compare_;
