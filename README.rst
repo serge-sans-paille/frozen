@@ -9,9 +9,10 @@ Header-only library that provides 0 cost initialization for immutable containers
 Frozen provides:
 
 - immutable (a.k.a. frozen), ``constexpr``-compatible versions of ``std::set``,
-  ``std::unordered_set``, ``std::map`` and ``std::unordered_map``.
-  
-- fixed-capacity, ``constinit``-compatible versions of ``std::map`` and 
+  ``std::unordered_set``, ``std::map`` and ``std::unordered_map``,
+  ``std::vector``, and ``std::array``.
+
+- fixed-capacity, ``constinit``-compatible versions of ``std::map`` and
   ``std::unordered_map`` with immutable, compile-time selected keys mapped
   to mutable values.
 
