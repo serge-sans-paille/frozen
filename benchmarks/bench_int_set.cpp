@@ -19,7 +19,7 @@ static void BM_IntInFzSet(benchmark::State& state) {
   for (auto _ : state) {
     for(auto kw : *Some) {
       volatile bool status = Keywords.count(kw);
-      (void) status;
+      benchmark::DoNotOptimize(status);
     }
   }
 }
@@ -31,7 +31,7 @@ static void BM_IntInStdSet(benchmark::State& state) {
   for (auto _ : state) {
     for(auto kw : *Some) {
       volatile bool status = Keywords_.count(kw);
-      (void)status;
+      benchmark::DoNotOptimize(status);
     }
   }
 }
@@ -48,7 +48,7 @@ static void BM_IntInStdArray(benchmark::State& state) {
   for (auto _ : state) {
     for(auto kw : *Some) {
       volatile bool status = std::find(Keywords__.begin(), Keywords__.end(), kw) != Keywords__.end();
-      (void)status;
+      benchmark::DoNotOptimize(status);
     }
   }
 }
@@ -67,7 +67,7 @@ static void BM_IntNotInFzSet(benchmark::State& state) {
   for (auto _ : state) {
     for(auto kw : *SomeIntsPtr) {
       volatile bool status = Keywords.count(kw);
-      (void)status;
+      benchmark::DoNotOptimize(status);
     }
   }
 }
@@ -77,7 +77,7 @@ static void BM_IntNotInStdSet(benchmark::State& state) {
   for (auto _ : state) {
     for(auto kw : *SomeIntsPtr) {
       volatile bool status = Keywords_.count(kw);
-      (void)status;
+      benchmark::DoNotOptimize(status);
     }
   }
 }
@@ -87,7 +87,7 @@ static void BM_IntNotInStdArray(benchmark::State& state) {
   for (auto _ : state) {
     for(auto kw : *SomeIntsPtr) {
       volatile bool status = std::find(Keywords__.begin(), Keywords__.end(), kw) != Keywords__.end();
-      (void)status;
+      benchmark::DoNotOptimize(status);
     }
   }
 }
