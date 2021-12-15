@@ -41,3 +41,27 @@ jobs:
       if: startsWith(matrix.os, 'windows') == false
       working-directory: build
       run: cmake --build . --target test
+  build_meson:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macOS-latest
+    steps:
+    - name : Fetch meson
+      run : sudo apt -y install meson
+
+    - name: Checkout
+      uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+
+    - name: Prepare
+      run: meson build
+
+    - name: Build
+      working-directory: build
+      run: ninja
