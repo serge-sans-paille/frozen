@@ -27,6 +27,7 @@
 #include "frozen/bits/basic_types.h"
 #include "frozen/bits/constexpr_assert.h"
 #include "frozen/bits/version.h"
+#include "frozen/bits/defines.h"
 
 #include <utility>
 
@@ -73,6 +74,8 @@ public:
 
   constexpr set(std::initializer_list<Key> keys)
       : set{keys, Compare{}} {}
+
+  constexpr set& operator=(const set &other) = default;
 
   /* capacity */
   constexpr bool empty() const { return !N; }
@@ -171,6 +174,8 @@ public:
       : less_than_{comp} {}
   constexpr set(std::initializer_list<Key> keys) : set{keys, Compare{}} {}
 
+  constexpr set& operator=(const set &other) = default;
+
   /* capacity */
   constexpr bool empty() const { return true; }
   constexpr size_type size() const { return 0; }
@@ -219,6 +224,12 @@ constexpr auto make_set(std::array<T, N> const &args) {
   return set<T, N>(args);
 }
 
+#ifdef FROZEN_LETITGO_HAS_DEDUCTION_GUIDES
+
+template<class T, class... Args>
+set(T, Args...) -> set<T, sizeof...(Args) + 1>;
+
+#endif // FROZEN_LETITGO_HAS_DEDUCTION_GUIDES
 
 } // namespace frozen
 
