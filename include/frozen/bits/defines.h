@@ -55,4 +55,8 @@
   #define FROZEN_LETITGO_HAS_CHAR8T
 #endif
 
+#if __cpp_deduction_guides >= 201703L
+  #define FROZEN_LETITGO_HAS_DEDUCTION_GUIDES
+#endif
+
 #endif // FROZEN_LETITGO_DEFINES_H

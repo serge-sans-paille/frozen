@@ -2,6 +2,7 @@
 #include <frozen/set.h>
 #include <iostream>
 #include <set>
+#include <type_traits>
 
 #include "bench.hpp"
 #include "catch.hpp"
@@ -277,3 +278,14 @@ TEST_CASE("frozen::set of frozen::set", "[set]") {
   static_assert(!ce.count(s1({0})), "");
   static_assert(ce.find(s1({0})) == ce.end(), "");
 }
+
+#ifdef FROZEN_LETITGO_HAS_DEDUCTION_GUIDES
+
+TEST_CASE("frozen::set deduction guide", "[set]") {
+    constexpr frozen::set integersSet{1,2,3,4,5};
+    static_assert(std::is_same<
+            std::remove_cv_t<decltype(integersSet)>,
+            frozen::set<int, 5>>::value, "wrong type deduced");
+}
+
+#endif // FROZEN_LETITGO_HAS_DEDUCTION_GUIDES

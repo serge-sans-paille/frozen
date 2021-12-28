@@ -147,6 +147,13 @@ constexpr auto make_unordered_set(std::array<T, N> const &keys) {
   return unordered_set<T, N>{keys};
 }
 
+#ifdef FROZEN_LETITGO_HAS_DEDUCTION_GUIDES
+
+template <class T, class... Args>
+unordered_set(T, Args...) -> unordered_set<T, sizeof...(Args) + 1>;
+
+#endif
+
 } // namespace frozen
 
 #endif

@@ -156,3 +156,14 @@ TEST_CASE("frozen::unordered_set constexpr", "[unordered_set]") {
   static_assert(!ce.count(0), "");
   static_assert(ce.find(0) == ce.end(), "");
 }
+
+#ifdef FROZEN_LETITGO_HAS_DEDUCTION_GUIDES
+
+TEST_CASE("frozen::unordered_set deduction guide", "[unordered_set]") {
+    constexpr frozen::unordered_set integersSet{1,2,3,4,5};
+    static_assert(std::is_same<
+            std::remove_cv_t<decltype(integersSet)>,
+            frozen::unordered_set<int, 5>>::value, "wrong type deduced");
+}
+
+#endif // FROZEN_LETITGO_HAS_DEDUCTION_GUIDES
