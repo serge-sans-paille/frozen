@@ -14,9 +14,6 @@ jobs:
           - macOS-latest
         cmake_args:
           - ""
-        cxxstandard:
-          - 14
-          - 17
     steps:
     - name: Checkout
       uses: actions/checkout@v1
@@ -28,7 +25,7 @@ jobs:
 
     - name: Configure
       working-directory: build
-      run: cmake -DCMAKE_BUILD_TYPE=DEBUG "-Dfrozen.coverage=ON" -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_CXX_STANDARD=${{matrix.cxxstandard}} ..
+      run: cmake -DCMAKE_BUILD_TYPE=DEBUG "-Dfrozen.coverage=ON" -DCMAKE_VERBOSE_MAKEFILE=ON ..
 
     - name: Build
       working-directory: build
