@@ -24,6 +24,7 @@
 #define FROZEN_LETITGO_STRING_H
 
 #include "frozen/bits/elsa.h"
+#include "frozen/bits/hash_string.h"
 #include "frozen/bits/version.h"
 #include "frozen/bits/defines.h"
 
@@ -85,22 +86,16 @@ public:
   }
 
   constexpr const chr_t *data() const { return data_; }
+  constexpr const chr_t *begin() const { return data(); }
+  constexpr const chr_t *end() const { return data() + size(); }
 };
 
 template <typename _CharT> struct elsa<basic_string<_CharT>> {
   constexpr std::size_t operator()(basic_string<_CharT> value) const {
-    std::size_t d = 5381;
-    for (std::size_t i = 0; i < value.size(); ++i)
-      d = d * 33 + static_cast<size_t>(value[i]);
-    return d;
+    return hash_string(value);
   }
-  // https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
-  // With the lowest bits removed, based on experimental setup.
   constexpr std::size_t operator()(basic_string<_CharT> value, std::size_t seed) const {
-    std::size_t d =  (0x811c9dc5 ^ seed) * static_cast<size_t>(0x01000193);
-    for (std::size_t i = 0; i < value.size(); ++i)
-      d = (d ^ static_cast<size_t>(value[i])) * static_cast<size_t>(0x01000193);
-    return d >> 8 ;
+    return hash_string(value, seed);
   }
 };
 
