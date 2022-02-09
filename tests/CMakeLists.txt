@@ -10,6 +10,7 @@ target_sources(frozen.tests PRIVATE
   ${CMAKE_CURRENT_LIST_DIR}/bench.hpp
   ${CMAKE_CURRENT_LIST_DIR}/catch.hpp
   ${CMAKE_CURRENT_LIST_DIR}/test_algorithms.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/test_array.cpp
   ${CMAKE_CURRENT_LIST_DIR}/test_main.cpp
   ${CMAKE_CURRENT_LIST_DIR}/test_map.cpp
   ${CMAKE_CURRENT_LIST_DIR}/test_rand.cpp
@@ -19,7 +20,8 @@ target_sources(frozen.tests PRIVATE
   ${CMAKE_CURRENT_LIST_DIR}/test_unordered_map.cpp
   ${CMAKE_CURRENT_LIST_DIR}/test_unordered_map_str.cpp
   ${CMAKE_CURRENT_LIST_DIR}/test_unordered_set.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/test_unordered_str_set.cpp)
+  ${CMAKE_CURRENT_LIST_DIR}/test_unordered_str_set.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/test_vector.cpp)
 
 string(CONCAT generator
   # msvc gives invalid integral overflow warning for unsigned type
