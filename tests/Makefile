@@ -1,4 +1,4 @@
-SRCS=test_main.cpp test_rand.cpp test_set.cpp test_map.cpp test_unordered_set.cpp test_str_set.cpp test_unordered_str_set.cpp test_unordered_map.cpp test_unordered_map_str.cpp test_str.cpp test_algorithms.cpp
+SRCS=test_main.cpp test_rand.cpp test_set.cpp test_map.cpp test_unordered_set.cpp test_str_set.cpp test_unordered_str_set.cpp test_unordered_map.cpp test_unordered_map_str.cpp test_str.cpp test_algorithms.cpp test_array.cpp test_vector.cpp
 
 TARGET=test_main
 CXXFLAGS=-O3 -Wall -std=c++14 -march=native -Wextra -W -Werror -Wshadow -fPIC
@@ -25,6 +25,8 @@ test_rand.o: test_rand.cpp \
 test_algorithms.o: test_algorithms.cpp \
   ../include/frozen/bits/algorithms.h \
   catch.hpp
+test_array.o: test_array.cpp ../include/frozen/array.h \
+  ../include/frozen/bits/basic_types.h catch.hpp
 test_map.o: test_map.cpp ../include/frozen/map.h \
   ../include/frozen/bits/algorithms.h catch.hpp
 test_set.o: test_set.cpp ../include/frozen/set.h \
@@ -62,3 +64,5 @@ test_str.o: test_str.cpp \
   ../include/frozen/bits/basic_types.h ../include/frozen/bits/elsa.h \
   ../include/frozen/string.h ../include/frozen/algorithm.h \
   catch.hpp
+test_vector.o: test_vector.cpp ../include/frozen/vector.h \
+  ../include/frozen/bits/basic_types.h catch.hpp
