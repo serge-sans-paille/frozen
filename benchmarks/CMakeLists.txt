@@ -27,6 +27,7 @@ target_sources(frozen.benchmark PRIVATE
   ${CMAKE_CURRENT_LIST_DIR}/bench_main.cpp
   ${CMAKE_CURRENT_LIST_DIR}/bench_int_set.cpp
   ${CMAKE_CURRENT_LIST_DIR}/bench_str_set.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/bench_str_map.cpp
   ${frozen_BINARY_DIR}/benchmarks/bench_int_unordered_set.cpp
   ${frozen_BINARY_DIR}/benchmarks/bench_str_unordered_set.cpp
   $<$<BOOL:${frozen.benchmark.str_search}>:
