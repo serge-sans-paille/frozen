@@ -27,7 +27,7 @@
 
 namespace frozen {
 
-template <class T> struct elsa {
+template <class T = void> struct elsa {
   static_assert(std::is_integral<T>::value || std::is_enum<T>::value,
                 "only supports integral types, specialize for other types");
 
@@ -41,6 +41,13 @@ template <class T> struct elsa {
     key = key ^ (key >> 28);
     key = key + (key << 31);
     return key;
+  }
+};
+
+template <> struct elsa<void> {
+  template<class T>
+  constexpr std::size_t operator()(T const &value, std::size_t seed) const {
+    return elsa<T>{}(value, seed);
   }
 };
 

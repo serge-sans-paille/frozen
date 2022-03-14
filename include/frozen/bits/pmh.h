@@ -156,13 +156,18 @@ struct pmh_tables {
   carray<std::size_t, M> second_table_;
   Hasher hash_;
 
-  // Looks up a given key, to find its expected index in carray<Item, N>
-  // Always returns a valid index, must use KeyEqual test after to confirm.
   template <typename KeyType>
   constexpr std::size_t lookup(const KeyType & key) const {
-    auto const d = first_table_[hash_(key, static_cast<size_t>(first_seed_)) % M];
+    return lookup(key, hash_);
+  }
+
+  // Looks up a given key, to find its expected index in carray<Item, N>
+  // Always returns a valid index, must use KeyEqual test after to confirm.
+  template <typename KeyType, typename HasherType>
+  constexpr std::size_t lookup(const KeyType & key, const HasherType& hasher) const {
+    auto const d = first_table_[hasher(key, static_cast<size_t>(first_seed_)) % M];
     if (!d.is_seed()) { return static_cast<std::size_t>(d.value()); } // this is narrowing uint64 -> size_t but should be fine
-    else { return second_table_[hash_(key, static_cast<std::size_t>(d.value())) % M]; }
+    else { return second_table_[hasher(key, static_cast<std::size_t>(d.value())) % M]; }
   }
 };
 
