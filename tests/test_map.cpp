@@ -56,7 +56,7 @@ TEST_CASE("empty frozen map", "[map]") {
 }
 
 TEST_CASE("singleton frozen map", "[map]") {
-  constexpr frozen::map<short, double, 1> ze_map = {{1, 3.14}};
+  constexpr frozen::map<int, double, 1> ze_map = {{1, 3.14}};
 
   constexpr auto empty = ze_map.empty();
   REQUIRE(!empty);
@@ -130,7 +130,7 @@ TEST_CASE("singleton frozen map", "[map]") {
 }
 
 TEST_CASE("triple frozen map", "[map]") {
-  constexpr frozen::map<unsigned long, bool, 3> ze_map{
+  constexpr frozen::map<int, bool, 3> ze_map{
       {10, true}, {20, false}, {30, true}};
 
   constexpr auto empty = ze_map.empty();
@@ -289,9 +289,9 @@ TEST_CASE("frozen::map <> frozen::make_map", "[map]") {
 }
 
 TEST_CASE("frozen::map constexpr", "[map]") {
-  constexpr frozen::map<unsigned, unsigned, 2> ce = {{3,4}, {11,12}};
-  static_assert(*ce.begin() == std::pair<unsigned, unsigned>{3,4}, "");
-  static_assert(*(ce.begin() + 1) == std::pair<unsigned, unsigned>{11,12}, "");
+  constexpr frozen::map<int, unsigned, 2> ce = {{3,4}, {11,12}};
+  static_assert(*ce.begin() == std::pair<int, unsigned>{3,4}, "");
+  static_assert(*(ce.begin() + 1) == std::pair<int, unsigned>{11,12}, "");
   static_assert(ce.size() == 2, "");
   static_assert(ce.count(3), "");
   static_assert(!ce.count(0), "");
