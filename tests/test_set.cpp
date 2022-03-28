@@ -226,17 +226,18 @@ TEST_CASE("frozen::set <> std::set", "[set]") {
 }
 
 TEST_CASE("frozen::set <> frozen::make_set", "[set]") {
-  constexpr frozen::set<int, 128> frozen_set = { INIT_SEQ };
-  constexpr auto frozen_set2 = frozen::make_set<int>({INIT_SEQ});
-  constexpr auto frozen_set3 = frozen::make_set(std::array<int, 128>{{INIT_SEQ}});
-  REQUIRE(std::equal(frozen_set2.begin(), frozen_set2.end(), frozen_set3.begin()));
+  constexpr frozen::set<int, 128> from_ctor = { INIT_SEQ };
+  constexpr int init_array[]{INIT_SEQ};
+  constexpr auto from_c_array = frozen::make_set(init_array);
+  constexpr auto from_std_array = frozen::make_set(std::array<int, 128>{{INIT_SEQ}});
+  REQUIRE(std::equal(from_c_array.begin(), from_c_array.end(), from_std_array.begin()));
 
   SECTION("checking size and content") {
-    REQUIRE(frozen_set.size() == frozen_set2.size());
-    for (auto v : frozen_set2)
-      REQUIRE(frozen_set.count(v));
-    for (auto v : frozen_set)
-      REQUIRE(frozen_set2.count(v));
+    REQUIRE(from_ctor.size() == from_c_array.size());
+    for (auto v : from_c_array)
+      REQUIRE(from_ctor.count(v));
+    for (auto v : from_ctor)
+      REQUIRE(from_c_array.count(v));
   }
 
   constexpr frozen::set<short, 0> frozen_empty_set = {};
@@ -277,6 +278,28 @@ TEST_CASE("frozen::set of frozen::set", "[set]") {
   static_assert(ce.count(s1({3})), "");
   static_assert(!ce.count(s1({0})), "");
   static_assert(ce.find(s1({0})) == ce.end(), "");
+}
+
+struct Foo {
+  int x;
+};
+constexpr inline bool operator==(Foo const &a, Foo const &b) { return a.x == b.x; }
+constexpr inline bool operator<(Foo const &a, Foo const &b) { return a.x < b.x; }
+constexpr inline bool operator<(Foo const &a, int b) { return a.x < b; }
+constexpr inline bool operator<(int a, Foo const &b) { return a < b.x; }
+
+TEST_CASE("frozen::set heterogeneous container", "[set]") {
+  constexpr std::array<Foo, 3> std_array{{{1}, {2}, {3}}};
+  constexpr Foo c_array[]{{1}, {2}, {3}};
+  constexpr auto from_std_array = frozen::make_set<Foo, std::less<>>(std_array);
+  constexpr auto from_c_array = frozen::make_set<Foo, std::less<>>(c_array);
+
+  REQUIRE(from_std_array == from_c_array);
+  for (const auto& set : {from_std_array, from_c_array}) {
+    REQUIRE(set.find(1) != set.end());
+    REQUIRE(set.count(2) == 1);
+    REQUIRE(set.count(42) == 0);
+  }
 }
 
 #ifdef FROZEN_LETITGO_HAS_DEDUCTION_GUIDES
