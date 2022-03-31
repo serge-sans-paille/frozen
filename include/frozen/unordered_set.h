@@ -104,8 +104,8 @@ public:
 
   /* lookup */
   template <class KeyType, class Hasher, class Equal>
-  constexpr std::size_t count(KeyType const &key, Hasher const &hasher, Equal const &equal) const {
-    auto const k = lookup(key, hasher);
+  constexpr std::size_t count(KeyType const &key, Hasher const &hash, Equal const &equal) const {
+    auto const k = lookup(key, hash);
     return equal(k, key);
   }
   template <class KeyType>
@@ -114,8 +114,8 @@ public:
   }
 
   template <class KeyType, class Hasher, class Equal>
-  constexpr const_iterator find(KeyType const &key, Hasher const &hasher, Equal const &equal) const {
-    auto const &k = lookup(key, hasher);
+  constexpr const_iterator find(KeyType const &key, Hasher const &hash, Equal const &equal) const {
+    auto const &k = lookup(key, hash);
     if (equal(k, key))
       return &k;
     else
@@ -128,8 +128,8 @@ public:
 
   template <class KeyType, class Hasher, class Equal>
   constexpr std::pair<const_iterator, const_iterator> equal_range(
-          KeyType const &key, Hasher const &hasher, Equal const &equal) const {
-    auto const &k = lookup(key, hasher);
+          KeyType const &key, Hasher const &hash, Equal const &equal) const {
+    auto const &k = lookup(key, hash);
     if (equal(k, key))
       return {&k, &k + 1};
     else
@@ -150,8 +150,8 @@ public:
 
 private:
   template <class KeyType, class Hasher>
-  constexpr auto const &lookup(KeyType const &key, Hasher const &hasher) const {
-    return keys_[tables_.lookup(key, hasher)];
+  constexpr auto const &lookup(KeyType const &key, Hasher const &hash) const {
+    return keys_[tables_.lookup(key, hash)];
   }
 };
 
@@ -161,8 +161,8 @@ constexpr auto make_unordered_set(T const (&keys)[N]) {
 }
 
 template <typename T, std::size_t N, typename Hasher, typename Equal>
-constexpr auto make_unordered_set(T const (&keys)[N], Hasher const& hasher, Equal const& equal) {
-  return unordered_set<T, N, Hasher, Equal>{keys, hasher, equal};
+constexpr auto make_unordered_set(T const (&keys)[N], Hasher const& hash, Equal const& equal) {
+  return unordered_set<T, N, Hasher, Equal>{keys, hash, equal};
 }
 
 template <typename T, std::size_t N>
@@ -171,8 +171,8 @@ constexpr auto make_unordered_set(std::array<T, N> const &keys) {
 }
 
 template <typename T, std::size_t N, typename Hasher, typename Equal>
-constexpr auto make_unordered_set(std::array<T, N> const &keys, Hasher const& hasher, Equal const& equal) {
-  return unordered_set<T, N, Hasher, Equal>{keys, hasher, equal};
+constexpr auto make_unordered_set(std::array<T, N> const &keys, Hasher const& hash, Equal const& equal) {
+  return unordered_set<T, N, Hasher, Equal>{keys, hash, equal};
 }
 
 #ifdef FROZEN_LETITGO_HAS_DEDUCTION_GUIDES

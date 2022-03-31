@@ -171,10 +171,10 @@ TEST_CASE("frozen::unordered_set deduction guide", "[unordered_set]") {
 
 #endif // FROZEN_LETITGO_HAS_DEDUCTION_GUIDES
 
-TEST_CASE("frozen::unordered_set heterogeneous lookup", "[unordered_map]") {
+TEST_CASE("frozen::unordered_set heterogeneous lookup", "[unordered_set]") {
   using namespace frozen::string_literals;
 
-  constexpr frozen::unordered_set set{"one"_s, "two"_s, "three"_s};
+  constexpr frozen::unordered_set<frozen::string, 3> set{"one"_s, "two"_s, "three"_s};
 
   const auto eq = [](const frozen::string& frozen, const std::string& std) {
     return frozen == frozen::string{std.data(), std.size()};
@@ -183,13 +183,15 @@ TEST_CASE("frozen::unordered_set heterogeneous lookup", "[unordered_map]") {
   REQUIRE(set.find(std::string{"two"}, frozen::elsa<std::string>{}, eq) != set.end());
 }
 
-TEST_CASE("frozen::unordered_set heterogeneous container", "[unordered_map]") {
+TEST_CASE("frozen::unordered_set heterogeneous container", "[unordered_set]") {
+  using namespace frozen::string_literals;
+
   const auto eq = [](const frozen::string& frozen, const auto& str) {
     return frozen == frozen::string{str.data(), str.size()};
   };
 
   constexpr auto set = frozen::make_unordered_set<frozen::string>(
-          {"one", "two", "three"},
+          {"one"_s, "two"_s, "three"_s},
           frozen::elsa<>{}, eq);
 
   REQUIRE(set.find(std::string{"two"}) != set.end());

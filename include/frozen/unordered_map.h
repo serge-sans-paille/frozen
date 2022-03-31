@@ -112,8 +112,8 @@ public:
 
   /* lookup */
   template <class KeyType, class Hasher, class Equal>
-  constexpr std::size_t count(KeyType const &key, Hasher const &hasher, Equal const &equal) const {
-    auto const &kv = lookup(key, hasher);
+  constexpr std::size_t count(KeyType const &key, Hasher const &hash, Equal const &equal) const {
+    auto const &kv = lookup(key, hash);
     return equal(kv.first, key);
   }
   template <class KeyType>
@@ -122,12 +122,12 @@ public:
   }
 
   template <class KeyType, class Hasher, class Equal>
-  constexpr Value const &at(KeyType const &key, Hasher const &hasher, Equal const &equal) const {
-    return at_impl(*this, key, hasher, equal);
+  constexpr Value const &at(KeyType const &key, Hasher const &hash, Equal const &equal) const {
+    return at_impl(*this, key, hash, equal);
   }
   template <class KeyType, class Hasher, class Equal>
-  constexpr Value &at(KeyType const &key, Hasher const &hasher, Equal const &equal) {
-    return at_impl(*this, key, hasher, equal);
+  constexpr Value &at(KeyType const &key, Hasher const &hash, Equal const &equal) {
+    return at_impl(*this, key, hash, equal);
   }
   template <class KeyType>
   constexpr Value const &at(KeyType const &key) const {
@@ -139,12 +139,12 @@ public:
   }
 
   template <class KeyType, class Hasher, class Equal>
-  constexpr const_iterator find(KeyType const &key, Hasher const &hasher, Equal const &equal) const {
-    return find_impl(*this, key, hasher, equal);
+  constexpr const_iterator find(KeyType const &key, Hasher const &hash, Equal const &equal) const {
+    return find_impl(*this, key, hash, equal);
   }
   template <class KeyType, class Hasher, class Equal>
-  constexpr iterator find(KeyType const &key, Hasher const &hasher, Equal const &equal) {
-    return find_impl(*this, key, hasher, equal);
+  constexpr iterator find(KeyType const &key, Hasher const &hash, Equal const &equal) {
+    return find_impl(*this, key, hash, equal);
   }
   template <class KeyType>
   constexpr const_iterator find(KeyType const &key) const {
@@ -156,12 +156,12 @@ public:
   }
 
   template <class KeyType, class Hasher, class Equal>
-  constexpr std::pair<const_iterator, const_iterator> equal_range(KeyType const &key, Hasher const &hasher, Equal const &equal) const {
-    return equal_range_impl(*this, key, hasher, equal);
+  constexpr std::pair<const_iterator, const_iterator> equal_range(KeyType const &key, Hasher const &hash, Equal const &equal) const {
+    return equal_range_impl(*this, key, hash, equal);
   }
   template <class KeyType, class Hasher, class Equal>
-  constexpr std::pair<iterator, iterator> equal_range(KeyType const &key, Hasher const &hasher, Equal const &equal) {
-    return equal_range_impl(*this, key, hasher, equal);
+  constexpr std::pair<iterator, iterator> equal_range(KeyType const &key, Hasher const &hash, Equal const &equal) {
+    return equal_range_impl(*this, key, hash, equal);
   }
   template <class KeyType>
   constexpr std::pair<const_iterator, const_iterator> equal_range(KeyType const &key) const {
@@ -182,8 +182,8 @@ public:
 
 private:
   template <class This, class KeyType, class Hasher, class Equal>
-  static inline constexpr auto& at_impl(This&& self, KeyType const &key, Hasher const &hasher, Equal const &equal) {
-    auto& kv = self.lookup(key, hasher);
+  static inline constexpr auto& at_impl(This&& self, KeyType const &key, Hasher const &hash, Equal const &equal) {
+    auto& kv = self.lookup(key, hash);
     if (equal(kv.first, key))
       return kv.second;
     else
@@ -191,8 +191,8 @@ private:
   }
 
   template <class This, class KeyType, class Hasher, class Equal>
-  static inline constexpr auto find_impl(This&& self, KeyType const &key, Hasher const &hasher, Equal const &equal) {
-    auto& kv = self.lookup(key, hasher);
+  static inline constexpr auto find_impl(This&& self, KeyType const &key, Hasher const &hash, Equal const &equal) {
+    auto& kv = self.lookup(key, hash);
     if (equal(kv.first, key))
       return &kv;
     else
@@ -200,8 +200,8 @@ private:
   }
 
   template <class This, class KeyType, class Hasher, class Equal>
-  static inline constexpr auto equal_range_impl(This&& self, KeyType const &key, Hasher const &hasher, Equal const &equal) {
-    auto& kv = self.lookup(key, hasher);
+  static inline constexpr auto equal_range_impl(This&& self, KeyType const &key, Hasher const &hash, Equal const &equal) {
+    auto& kv = self.lookup(key, hash);
     using kv_ptr = decltype(&kv);
     if (equal(kv.first, key))
       return std::pair<kv_ptr, kv_ptr>{&kv, &kv + 1};
@@ -210,17 +210,17 @@ private:
   }
 
   template <class This, class KeyType, class Hasher>
-  static inline constexpr auto& lookup_impl(This&& self, KeyType const &key, Hasher const &hasher) {
-    return self.items_[self.tables_.lookup(key, hasher)];
+  static inline constexpr auto& lookup_impl(This&& self, KeyType const &key, Hasher const &hash) {
+    return self.items_[self.tables_.lookup(key, hash)];
   }
 
   template <class KeyType, class Hasher>
-  constexpr auto const& lookup(KeyType const &key, Hasher const &hasher) const {
-    return lookup_impl(*this, key, hasher);
+  constexpr auto const& lookup(KeyType const &key, Hasher const &hash) const {
+    return lookup_impl(*this, key, hash);
   }
   template <class KeyType, class Hasher>
-  constexpr auto& lookup(KeyType const &key, Hasher const &hasher) {
-    return lookup_impl(*this, key, hasher);
+  constexpr auto& lookup(KeyType const &key, Hasher const &hash) {
+    return lookup_impl(*this, key, hash);
   }
 };
 
@@ -232,9 +232,9 @@ constexpr auto make_unordered_map(std::pair<T, U> const (&items)[N]) {
 template <typename T, typename U, std::size_t N, typename Hasher, typename Equal>
 constexpr auto make_unordered_map(
         std::pair<T, U> const (&items)[N],
-        Hasher const &hasher = elsa<T>{},
+        Hasher const &hash = elsa<T>{},
         Equal const &equal = std::equal_to<T>{}) {
-  return unordered_map<T, U, N, Hasher, Equal>{items, hasher, equal};
+  return unordered_map<T, U, N, Hasher, Equal>{items, hash, equal};
 }
 
 template <typename T, typename U, std::size_t N>
@@ -245,9 +245,9 @@ constexpr auto make_unordered_map(std::array<std::pair<T, U>, N> const &items) {
 template <typename T, typename U, std::size_t N, typename Hasher, typename Equal>
 constexpr auto make_unordered_map(
         std::array<std::pair<T, U>, N> const &items,
-        Hasher const &hasher = elsa<T>{},
+        Hasher const &hash = elsa<T>{},
         Equal const &equal = std::equal_to<T>{}) {
-  return unordered_map<T, U, N, Hasher, Equal>{items, hasher, equal};
+  return unordered_map<T, U, N, Hasher, Equal>{items, hash, equal};
 }
 
 } // namespace frozen
