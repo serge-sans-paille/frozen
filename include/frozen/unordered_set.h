@@ -116,7 +116,7 @@ public:
   constexpr const_iterator find(KeyType const &key, Hasher const &hash, Equal const &equal) const {
     auto const pos = tables_.lookup(key, hash);
     auto it = keys_.begin() + pos;
-    if (equal(*it, key))
+    if (it != keys_.end() && equal(*it, key))
       return it;
     else
       return keys_.end();
