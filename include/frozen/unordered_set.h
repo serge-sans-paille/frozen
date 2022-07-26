@@ -105,8 +105,7 @@ public:
   /* lookup */
   template <class KeyType, class Hasher, class Equal>
   constexpr std::size_t count(KeyType const &key, Hasher const &hash, Equal const &equal) const {
-    auto const & k = lookup(key, hash);
-    return equal(k, key);
+    return find(key, hash, equal) != end();
   }
   template <class KeyType>
   constexpr std::size_t count(KeyType const &key) const {
@@ -115,9 +114,10 @@ public:
 
   template <class KeyType, class Hasher, class Equal>
   constexpr const_iterator find(KeyType const &key, Hasher const &hash, Equal const &equal) const {
-    auto const &k = lookup(key, hash);
-    if (equal(k, key))
-      return &k;
+    auto const pos = tables_.lookup(key, hash);
+    auto it = keys_.begin() + pos;
+    if (equal(*it, key))
+      return it;
     else
       return keys_.end();
   }
@@ -134,9 +134,9 @@ public:
   template <class KeyType, class Hasher, class Equal>
   constexpr std::pair<const_iterator, const_iterator> equal_range(
           KeyType const &key, Hasher const &hash, Equal const &equal) const {
-    auto const &k = lookup(key, hash);
-    if (equal(k, key))
-      return {&k, &k + 1};
+    auto const it = find(key, hash, equal);
+    if (it != end())
+      return {it, it + 1};
     else
       return {keys_.end(), keys_.end()};
   }
@@ -152,12 +152,6 @@ public:
   /* observers*/
   constexpr const hasher& hash_function() const { return tables_.hash_; }
   constexpr const key_equal& key_eq() const { return equal_; }
-
-private:
-  template <class KeyType, class Hasher>
-  constexpr auto const &lookup(KeyType const &key, Hasher const &hash) const {
-    return keys_[tables_.lookup(key, hash)];
-  }
 };
 
 template <typename T, std::size_t N>

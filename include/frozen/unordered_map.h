@@ -33,6 +33,7 @@
 
 #include <tuple>
 #include <functional>
+#include <utility>
 
 namespace frozen {
 
@@ -113,8 +114,7 @@ public:
   /* lookup */
   template <class KeyType, class Hasher, class Equal>
   constexpr std::size_t count(KeyType const &key, Hasher const &hash, Equal const &equal) const {
-    auto const &kv = lookup(key, hash);
-    return equal(kv.first, key);
+    return find(key, hash, equal) != end();
   }
   template <class KeyType>
   constexpr std::size_t count(KeyType const &key) const {
@@ -188,44 +188,30 @@ public:
 private:
   template <class This, class KeyType, class Hasher, class Equal>
   static inline constexpr auto& at_impl(This&& self, KeyType const &key, Hasher const &hash, Equal const &equal) {
-    auto& kv = self.lookup(key, hash);
-    if (equal(kv.first, key))
-      return kv.second;
+    auto it = self.find(key, hash, equal);
+    if (it != self.end())
+      return it->second;
     else
       FROZEN_THROW_OR_ABORT(std::out_of_range("unknown key"));
   }
 
   template <class This, class KeyType, class Hasher, class Equal>
   static inline constexpr auto find_impl(This&& self, KeyType const &key, Hasher const &hash, Equal const &equal) {
-    auto& kv = self.lookup(key, hash);
-    if (equal(kv.first, key))
-      return &kv;
+    auto const pos = self.tables_.lookup(key, hash);
+    auto it = self.items_.begin() + pos;
+    if (equal(it->first, key))
+      return it;
     else
       return self.items_.end();
   }
 
   template <class This, class KeyType, class Hasher, class Equal>
   static inline constexpr auto equal_range_impl(This&& self, KeyType const &key, Hasher const &hash, Equal const &equal) {
-    auto& kv = self.lookup(key, hash);
-    using kv_ptr = decltype(&kv);
-    if (equal(kv.first, key))
-      return std::pair<kv_ptr, kv_ptr>{&kv, &kv + 1};
+    auto const it = self.find(key, hash, equal);
+    if (it != self.end())
+      return std::make_pair(it, it + 1);
     else
-      return std::pair<kv_ptr, kv_ptr>{self.items_.end(), self.items_.end()};
-  }
-
-  template <class This, class KeyType, class Hasher>
-  static inline constexpr auto& lookup_impl(This&& self, KeyType const &key, Hasher const &hash) {
-    return self.items_[self.tables_.lookup(key, hash)];
-  }
-
-  template <class KeyType, class Hasher>
-  constexpr auto const& lookup(KeyType const &key, Hasher const &hash) const {
-    return lookup_impl(*this, key, hash);
-  }
-  template <class KeyType, class Hasher>
-  constexpr auto& lookup(KeyType const &key, Hasher const &hash) {
-    return lookup_impl(*this, key, hash);
+      return std::make_pair(self.end(), self.end());
   }
 };
 
