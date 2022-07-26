@@ -199,7 +199,7 @@ private:
   static inline constexpr auto find_impl(This&& self, KeyType const &key, Hasher const &hash, Equal const &equal) {
     auto const pos = self.tables_.lookup(key, hash);
     auto it = self.items_.begin() + pos;
-    if (equal(it->first, key))
+    if (it != self.items_.end() && equal(it->first, key))
       return it;
     else
       return self.items_.end();

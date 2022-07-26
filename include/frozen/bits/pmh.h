@@ -186,11 +186,18 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
   // Step 2: Sort the buckets to process the ones with the most items first.
   auto buckets = step_one.get_sorted_buckets();
 
+  // Special value for unused slots. This is purposefully the index
+  // one-past-the-end of 'items' to function as a sentinel value. Both to avoid
+  // the need to apply the KeyEqual predicate and to be easily convertible to
+  // end().
+  // Unused entries in both hash tables (G and H) have to contain this value.
+  const auto UNUSED = items.size();
+
   // G becomes the first hash table in the resulting pmh function
   carray<seed_or_index, M> G; // Default constructed to "index 0"
+  G.fill({false, UNUSED});
 
   // H becomes the second hash table in the resulting pmh function
-  constexpr std::size_t UNUSED = std::numeric_limits<std::size_t>::max();
   carray<std::size_t, M> H;
   H.fill(UNUSED);
 
@@ -228,14 +235,6 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
         H[bucket_slots[i]] = bucket[i];
     }
   }
-
-  // Any unused entries in the H table have to get changed to zero.
-  // This is because hashing should not fail or return an out-of-bounds entry.
-  // A lookup fails after we apply user-supplied KeyEqual to the query and the
-  // key found by hashing. Sending such queries to zero cannot hurt.
-  for (std::size_t i = 0; i < M; ++i)
-    if (H[i] == UNUSED)
-      H[i] = 0;
 
   return {step_one.seed, G, H, hash};
 }
