@@ -148,15 +148,29 @@ public:
 
 // Represents the perfect hash function created by pmh algorithm
 template <std::size_t M, class Hasher>
-struct pmh_tables {
+struct pmh_tables : private Hasher {
   std::uint64_t first_seed_;
   carray<seed_or_index, M> first_table_;
   carray<std::size_t, M> second_table_;
-  Hasher hash_;
+
+  constexpr pmh_tables(
+      std::uint64_t first_seed,
+      carray<seed_or_index, M> first_table,
+      carray<std::size_t, M> second_table,
+      Hasher hash) noexcept
+    : Hasher(hash)
+    , first_seed_(first_seed)
+    , first_table_(first_table)
+    , second_table_(second_table)
+  {}
+
+  constexpr Hasher const& hash_function() const noexcept {
+    return static_cast<Hasher const&>(*this);
+  }
 
   template <typename KeyType>
   constexpr std::size_t lookup(const KeyType & key) const {
-    return lookup(key, hash_);
+    return lookup(key, hash_function());
   }
 
   // Looks up a given key, to find its expected index in carray<Item, N>

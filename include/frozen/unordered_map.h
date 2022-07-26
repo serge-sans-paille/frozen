@@ -49,13 +49,12 @@ struct GetKey {
 
 template <class Key, class Value, std::size_t N, typename Hash = anna<Key>,
           class KeyEqual = std::equal_to<Key>>
-class unordered_map {
+class unordered_map : private KeyEqual {
   static constexpr std::size_t storage_size =
       bits::next_highest_power_of_two(N) * (N < 32 ? 2 : 1); // size adjustment to prevent high collision rate for small sets
   using container_type = bits::carray<std::pair<Key, Value>, N>;
   using tables_type = bits::pmh_tables<storage_size, Hash>;
 
-  KeyEqual const equal_;
   container_type items_;
   tables_type tables_;
 
@@ -81,7 +80,7 @@ public:
   unordered_map(unordered_map const &) = default;
   constexpr unordered_map(container_type items,
                           Hash const &hash, KeyEqual const &equal)
-      : equal_{equal}
+      : KeyEqual{equal}
       , items_{items}
       , tables_{
             bits::make_pmh_tables<storage_size>(
@@ -182,8 +181,8 @@ public:
   constexpr std::size_t max_bucket_count() const { return storage_size; }
 
   /* observers*/
-  constexpr const hasher& hash_function() const { return tables_.hash_; }
-  constexpr const key_equal& key_eq() const { return equal_; }
+  constexpr const hasher& hash_function() const { return tables_.hash_function(); }
+  constexpr const key_equal& key_eq() const { return static_cast<KeyEqual const&>(*this); }
 
 private:
   template <class This, class KeyType, class Hasher, class Equal>

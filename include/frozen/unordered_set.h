@@ -46,13 +46,12 @@ struct Get {
 
 template <class Key, std::size_t N, typename Hash = elsa<Key>,
           class KeyEqual = std::equal_to<Key>>
-class unordered_set {
+class unordered_set : private KeyEqual {
   static constexpr std::size_t storage_size =
       bits::next_highest_power_of_two(N) * (N < 32 ? 2 : 1); // size adjustment to prevent high collision rate for small sets
   using container_type = bits::carray<Key, N>;
   using tables_type = bits::pmh_tables<storage_size, Hash>;
 
-  KeyEqual const equal_;
   container_type keys_;
   tables_type tables_;
 
@@ -76,7 +75,7 @@ public:
   unordered_set(unordered_set const &) = default;
   constexpr unordered_set(container_type keys, Hash const &hash,
                           KeyEqual const &equal)
-      : equal_{equal}
+      : KeyEqual{equal}
       , keys_{keys}
       , tables_{bits::make_pmh_tables<storage_size>(
             keys_, hash, bits::Get{}, default_prg_t{})} {}
@@ -150,8 +149,8 @@ public:
   constexpr std::size_t max_bucket_count() const { return storage_size; }
 
   /* observers*/
-  constexpr const hasher& hash_function() const { return tables_.hash_; }
-  constexpr const key_equal& key_eq() const { return equal_; }
+  constexpr const hasher& hash_function() const { return tables_.hash_function(); }
+  constexpr const key_equal& key_eq() const { return static_cast<KeyEqual const&>(*this); }
 };
 
 template <typename T, std::size_t N>
