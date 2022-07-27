@@ -90,8 +90,8 @@ struct pmh_buckets {
   }
 };
 
-template <std::size_t M, class Item, std::size_t N, class Hash, class Key, class PRG>
-pmh_buckets<M> constexpr make_pmh_buckets(const carray<Item, N> & items,
+template <std::size_t M, class Items, class Hash, class Key, class PRG>
+pmh_buckets<M> constexpr make_pmh_buckets(const Items& items,
                                 Hash const & hash,
                                 Key const & key,
                                 PRG & prg) {
@@ -184,8 +184,8 @@ struct pmh_tables : private Hasher {
 };
 
 // Make pmh tables for given items, hash function, prg, etc.
-template <std::size_t M, class Item, std::size_t N, class Hash, class Key, class PRG>
-pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
+template <std::size_t M, class Items, class Hash, class Key, class PRG>
+pmh_tables<M, Hash> constexpr make_pmh_tables(Items const &
                                                                items,
                                                            Hash const &hash,
                                                            Key const &key,
