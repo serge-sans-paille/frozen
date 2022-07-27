@@ -226,24 +226,23 @@ TEST_CASE("Modifiable frozen::unordered_map", "[unordered_map]") {
   }
 }
 
+struct eq {
+  template<class StrTy>
+  constexpr auto operator()(const frozen::string &frozen, const StrTy &str) const {
+    return frozen == frozen::string{str.data(), str.size()};
+  }
+};
+
 TEST_CASE("frozen::unordered_map heterogeneous lookup", "[unordered_map]") {
   constexpr auto map = frozen::make_unordered_map<frozen::string, int>({{"one", 1}, {"two", 2}, {"three", 3}});
 
-  const auto eq = [](const frozen::string& frozen, const std::string& std) {
-      return frozen == frozen::string{std.data(), std.size()};
-  };
-
-  REQUIRE(map.find(std::string{"two"}, frozen::elsa<std::string>{}, eq)->second == 2);
+  REQUIRE(map.find(std::string{"two"}, frozen::elsa<std::string>{}, eq{})->second == 2);
 }
 
 TEST_CASE("frozen::unordered_map heterogeneous container", "[unordered_map]") {
-  const auto eq = [](const frozen::string& frozen, const auto& str) {
-    return frozen == frozen::string{str.data(), str.size()};
-  };
-
   constexpr auto map = frozen::make_unordered_map<frozen::string, int>(
           {{"one", 1}, {"two", 2}, {"three", 3}},
-          frozen::elsa<>{}, eq);
+          frozen::elsa<>{}, eq{});
 
   REQUIRE(map.find(std::string{"two"})->second == 2);
   REQUIRE(map.find(frozen::string{"two"})->second == 2);
