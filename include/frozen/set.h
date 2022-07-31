@@ -29,6 +29,7 @@
 #include "frozen/bits/version.h"
 #include "frozen/bits/defines.h"
 
+#include <iterator>
 #include <utility>
 
 namespace frozen {
@@ -50,9 +51,9 @@ public:
   using pointer = typename container_type::const_pointer;
   using const_pointer = pointer;
   using iterator = typename container_type::const_iterator;
-  using reverse_iterator = typename container_type::const_reverse_iterator;
+  using reverse_iterator = std::reverse_iterator<iterator>;
   using const_iterator = iterator;
-  using const_reverse_iterator = reverse_iterator;
+  using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 public:
   /* constructors */
@@ -134,14 +135,14 @@ public:
 
   /* iterators */
   constexpr const_iterator begin() const { return keys_.begin(); }
-  constexpr const_iterator cbegin() const { return keys_.cbegin(); }
+  constexpr const_iterator cbegin() const { return keys_.begin(); }
   constexpr const_iterator end() const { return keys_.end(); }
-  constexpr const_iterator cend() const { return keys_.cend(); }
+  constexpr const_iterator cend() const { return keys_.end(); }
 
-  constexpr const_reverse_iterator rbegin() const { return keys_.rbegin(); }
-  constexpr const_reverse_iterator crbegin() const { return keys_.crbegin(); }
-  constexpr const_reverse_iterator rend() const { return keys_.rend(); }
-  constexpr const_reverse_iterator crend() const { return keys_.crend(); }
+  constexpr const_reverse_iterator rbegin() const { return const_reverse_iterator{keys_.end()}; }
+  constexpr const_reverse_iterator crbegin() const { return const_reverse_iterator{keys_.end()}; }
+  constexpr const_reverse_iterator rend() const { return const_reverse_iterator{keys_.begin()}; }
+  constexpr const_reverse_iterator crend() const { return const_reverse_iterator{keys_.begin()}; }
 
   /* comparison */
   constexpr bool operator==(set const& rhs) const { return bits::equal(begin(), end(), rhs.begin()); }

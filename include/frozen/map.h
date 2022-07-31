@@ -29,6 +29,7 @@
 #include "frozen/bits/exceptions.h"
 #include "frozen/bits/version.h"
 
+#include <iterator>
 #include <utility>
 
 namespace frozen {
@@ -89,9 +90,8 @@ public:
   using const_pointer = typename container_type::const_pointer;
   using iterator = typename container_type::iterator;
   using const_iterator = typename container_type::const_iterator;
-  using reverse_iterator = typename container_type::reverse_iterator;
-  using const_reverse_iterator =
-      typename container_type::const_reverse_iterator;
+  using reverse_iterator = std::reverse_iterator<iterator>;
+  using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 public:
   /* constructors */
@@ -121,17 +121,17 @@ public:
   /* iterators */
   constexpr iterator begin() { return items_.begin(); }
   constexpr const_iterator begin() const { return items_.begin(); }
-  constexpr const_iterator cbegin() const { return items_.cbegin(); }
+  constexpr const_iterator cbegin() const { return items_.begin(); }
   constexpr iterator end() { return items_.end(); }
   constexpr const_iterator end() const { return items_.end(); }
-  constexpr const_iterator cend() const { return items_.cend(); }
+  constexpr const_iterator cend() const { return items_.end(); }
 
-  constexpr reverse_iterator rbegin() { return items_.rbegin(); }
-  constexpr const_reverse_iterator rbegin() const { return items_.rbegin(); }
-  constexpr const_reverse_iterator crbegin() const { return items_.crbegin(); }
-  constexpr reverse_iterator rend() { return items_.rend(); }
-  constexpr const_reverse_iterator rend() const { return items_.rend(); }
-  constexpr const_reverse_iterator crend() const { return items_.crend(); }
+  constexpr reverse_iterator rbegin() { return reverse_iterator{items_.end()}; }
+  constexpr const_reverse_iterator rbegin() const { return const_reverse_iterator{items_.end()}; }
+  constexpr const_reverse_iterator crbegin() const { return const_reverse_iterator{items_.end()}; }
+  constexpr reverse_iterator rend() { return reverse_iterator{items_.begin()}; }
+  constexpr const_reverse_iterator rend() const { return const_reverse_iterator{items_.begin()}; }
+  constexpr const_reverse_iterator crend() const { return const_reverse_iterator{items_.begin()}; }
 
   /* capacity */
   constexpr bool empty() const { return !N; }
