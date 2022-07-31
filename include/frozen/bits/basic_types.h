@@ -27,7 +27,6 @@
 
 #include <array>
 #include <utility>
-#include <iterator>
 #include <string>
 
 namespace frozen {
@@ -106,8 +105,6 @@ public:
   using const_pointer = const value_type *;
   using iterator = pointer;
   using const_iterator = const_pointer;
-  using reverse_iterator = std::reverse_iterator<iterator>;
-  using const_reverse_iterator = std::reverse_iterator<const_iterator>;
   using size_type = std::size_t;
   using difference_type = std::ptrdiff_t;
 
@@ -137,17 +134,8 @@ public:
   // Iterators
   constexpr iterator begin() noexcept { return data_; }
   constexpr const_iterator begin() const noexcept { return data_; }
-  constexpr const_iterator cbegin() const noexcept { return data_; }
   constexpr iterator end() noexcept { return data_ + N; }
   constexpr const_iterator end() const noexcept { return data_ + N; }
-  constexpr const_iterator cend() const noexcept { return data_ + N; }
-
-  constexpr reverse_iterator rbegin() noexcept { return reverse_iterator(end()); }
-  constexpr const_reverse_iterator rbegin() const noexcept { return const_reverse_iterator(end()); }
-  constexpr const_reverse_iterator crbegin() const noexcept { return const_reverse_iterator(end()); }
-  constexpr reverse_iterator rend() noexcept { return reverse_iterator(begin()); }
-  constexpr const_reverse_iterator rend() const noexcept { return const_reverse_iterator(begin()); }
-  constexpr const_reverse_iterator crend() const noexcept { return const_reverse_iterator(begin()); }
 
   // Capacity
   constexpr size_type size() const { return N; }
@@ -189,8 +177,6 @@ public:
   using const_pointer = const value_type *;
   using iterator = pointer;
   using const_iterator = const_pointer;
-  using reverse_iterator = std::reverse_iterator<iterator>;
-  using const_reverse_iterator = std::reverse_iterator<const_iterator>;
   using size_type = std::size_t;
   using difference_type = std::ptrdiff_t;
 

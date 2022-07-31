@@ -102,8 +102,8 @@ public:
   constexpr iterator end() { return items_.end(); }
   constexpr const_iterator begin() const { return items_.begin(); }
   constexpr const_iterator end() const { return items_.end(); }
-  constexpr const_iterator cbegin() const { return items_.cbegin(); }
-  constexpr const_iterator cend() const { return items_.cend(); }
+  constexpr const_iterator cbegin() const { return items_.begin(); }
+  constexpr const_iterator cend() const { return items_.end(); }
 
   /* capacity */
   constexpr bool empty() const { return !N; }
