@@ -139,10 +139,10 @@ constexpr void quicksort(Iterator left, Iterator right, Compare const &compare) 
   }
 }
 
-template <typename T, std::size_t N, class Compare>
-constexpr bits::carray<T, N> quicksort(bits::carray<T, N> const &array,
+template <typename Container, class Compare>
+constexpr Container quicksort(Container const &array,
                                      Compare const &compare) {
-  bits::carray<T, N> res = array;
+  Container res = array;
   quicksort(res.begin(), res.end() - 1, compare);
   return res;
 }
