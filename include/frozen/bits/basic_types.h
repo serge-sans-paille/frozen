@@ -61,8 +61,10 @@ public:
   }
 
   // Iterators
-  constexpr iterator begin() noexcept { return data; }
-  constexpr iterator end() noexcept { return data + dsize; }
+  constexpr       iterator begin() noexcept { return data; }
+  constexpr       iterator end() noexcept { return data + dsize; }
+  constexpr const_iterator begin() const noexcept { return data; }
+  constexpr const_iterator end() const noexcept { return data + dsize; }
 
   // Capacity
   constexpr size_type size() const { return dsize; }
