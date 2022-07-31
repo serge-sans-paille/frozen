@@ -39,20 +39,22 @@ namespace frozen {
 
 template <typename _CharT>
 class basic_string {
-  using chr_t = _CharT;
+public:
+  using value_type = _CharT;
 
-  chr_t const *data_;
+private:
+  value_type const *data_;
   std::size_t size_;
 
 public:
   template <std::size_t N>
-  constexpr basic_string(chr_t const (&data)[N])
+  constexpr basic_string(value_type const (&data)[N])
       : data_(data), size_(N - 1) {}
-  constexpr basic_string(chr_t const *data, std::size_t size)
+  constexpr basic_string(value_type const *data, std::size_t size)
       : data_(data), size_(size) {}
 
 #ifdef FROZEN_LETITGO_HAS_STRING_VIEW
-  constexpr basic_string(std::basic_string_view<chr_t> data)
+  constexpr basic_string(std::basic_string_view<value_type> data)
       : data_(data.data()), size_(data.size()) {}
 #endif
 
@@ -61,7 +63,7 @@ public:
 
   constexpr std::size_t size() const { return size_; }
 
-  constexpr chr_t operator[](std::size_t i) const { return data_[i]; }
+  constexpr value_type operator[](std::size_t i) const { return data_[i]; }
 
   constexpr bool operator==(basic_string other) const {
     if (size_ != other.size_)
@@ -90,9 +92,9 @@ public:
     return rhs < lhs;
   }
 
-  constexpr const chr_t *data() const { return data_; }
-  constexpr const chr_t *begin() const { return data(); }
-  constexpr const chr_t *end() const { return data() + size(); }
+  constexpr const value_type *data() const { return data_; }
+  constexpr const value_type *begin() const { return data(); }
+  constexpr const value_type *end() const { return data() + size(); }
 };
 
 template <typename _CharT> struct elsa<basic_string<_CharT>> {
