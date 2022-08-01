@@ -86,6 +86,10 @@ public:
     return size() < other.size();
   }
 
+  friend constexpr bool operator>(const basic_string& lhs, const basic_string& rhs) {
+    return rhs < lhs;
+  }
+
   constexpr const chr_t *data() const { return data_; }
   constexpr const chr_t *begin() const { return data(); }
   constexpr const chr_t *end() const { return data() + size(); }
