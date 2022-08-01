@@ -45,11 +45,12 @@ struct Get {
 } // namespace bits
 
 template <class Key, std::size_t N, typename Hash = elsa<Key>,
-          class KeyEqual = std::equal_to<Key>>
+          class KeyEqual = std::equal_to<Key>,
+	  class Container = bits::carray<Key, N>>
 class unordered_set : private KeyEqual {
   static constexpr std::size_t storage_size =
       bits::next_highest_power_of_two(N) * (N < 32 ? 2 : 1); // size adjustment to prevent high collision rate for small sets
-  using container_type = bits::carray<Key, N>;
+  using container_type = Container;
   using tables_type = bits::pmh_tables<storage_size, Hash>;
 
   container_type keys_;

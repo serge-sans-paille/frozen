@@ -72,9 +72,10 @@ public:
 
 } // namespace impl
 
-template <class Key, class Value, std::size_t N, class Compare = std::less<Key>>
+template <class Key, class Value, std::size_t N, class Compare = std::less<Key>,
+          class Container = bits::carray<std::pair<const Key, Value>, N>>
 class map : private impl::CompareKey<Compare> {
-  using container_type = bits::carray<std::pair<const Key, Value>, N>;
+  using container_type = Container;
   container_type items_;
 
 public:
@@ -236,9 +237,9 @@ public:
   }
 };
 
-template <class Key, class Value, class Compare>
-class map<Key, Value, 0, Compare> : private impl::CompareKey<Compare> {
-  using container_type = bits::carray<std::pair<Key, Value>, 0>;
+template <class Key, class Value, class Compare, class Container>
+class map<Key, Value, 0, Compare, Container> : private impl::CompareKey<Compare> {
+  using container_type = Container;
 
 public:
   using key_type = Key;

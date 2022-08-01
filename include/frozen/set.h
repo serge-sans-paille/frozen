@@ -34,8 +34,9 @@
 
 namespace frozen {
 
-template <class Key, std::size_t N, class Compare = std::less<Key>> class set : private Compare {
-  using container_type = bits::carray<Key, N>;
+template <class Key, std::size_t N, class Compare = std::less<Key>,
+	  class Container = bits::carray<Key, N>> class set : private Compare {
+  using container_type = Container;
   container_type keys_;
 
 public:
@@ -153,8 +154,9 @@ public:
   constexpr bool operator>=(set const& rhs) const { return (*this > rhs) || (*this == rhs); }
 };
 
-template <class Key, class Compare> class set<Key, 0, Compare> : private Compare {
-  using container_type = bits::carray<Key, 0>; // just for the type definitions
+template <class Key, class Compare, class Container>
+class set<Key, 0, Compare, Container> : private Compare {
+  using container_type = Container; // just for the type definitions
 
 public:
   /* container typedefs*/
@@ -176,8 +178,8 @@ public:
 public:
   /* constructors */
   constexpr set(const set &other) = default;
-  constexpr set(bits::carray<Key, 0>, Compare const &) {}
-  explicit constexpr set(bits::carray<Key, 0>) {}
+  constexpr set(container_type, Compare const &) {}
+  explicit constexpr set(container_type) {}
 
   constexpr set(std::initializer_list<Key>, Compare const &comp)
       : Compare{comp} {}
