@@ -8,7 +8,7 @@
 #include "catch.hpp"
 
 TEST_CASE("tripleton int frozen ordered set", "[set]") {
-  constexpr frozen::set<frozen::string, 3> ze_set{"1", "2", "3"};
+  constexpr auto ze_set = frozen::make_set<frozen::string>("1", "2", "3");
 
   constexpr auto empty = ze_set.empty();
   REQUIRE(!empty);
@@ -69,7 +69,7 @@ TEST_CASE("frozen::set<str> <> std::set",
       "1112779988", "1115779988", "1118779988", "1110779988"
 
   const std::set<frozen::string> std_set = {INIT_SEQ};
-  constexpr frozen::set<frozen::string, 128> frozen_set = {INIT_SEQ};
+  constexpr auto frozen_set = frozen::make_set<frozen::string>(INIT_SEQ);
   SECTION("checking size and content") {
     REQUIRE(std_set.size() == frozen_set.size());
     for (auto v : std_set)

@@ -26,10 +26,12 @@
 #include "frozen/bits/basic_types.h"
 #include "frozen/bits/constexpr_assert.h"
 #include "frozen/bits/elsa.h"
+#include "frozen/bits/pic_array.h"
 #include "frozen/bits/pmh.h"
 #include "frozen/bits/version.h"
 #include "frozen/random.h"
 
+#include <type_traits>
 #include <utility>
 
 namespace frozen {
@@ -172,6 +174,23 @@ constexpr auto make_unordered_set(std::array<T, N> const &keys) {
 template <typename T, std::size_t N, typename Hasher, typename Equal>
 constexpr auto make_unordered_set(std::array<T, N> const &keys, Hasher const& hash, Equal const& equal) {
   return unordered_set<T, N, Hasher, Equal>{keys, hash, equal};
+}
+
+template <typename T, typename Hasher, typename Equal, std::size_t... Ns,
+  std::enable_if_t<!std::is_array<Hasher>::value && !std::is_array<Equal>::value>* = nullptr>
+constexpr auto make_unordered_set(
+    Hasher const& hash,
+    Equal const& equal,
+    const typename T::value_type (&... values)[Ns])
+{
+  constexpr const auto storage_size = bits::accumulate({Ns...});
+  using container_type = bits::pic_array<T, sizeof...(Ns), storage_size>;
+  return unordered_set<T, sizeof...(Ns), Hasher, Equal, container_type>{container_type{values...}, hash, equal};
+}
+
+template <typename T, std::size_t... Ns>
+constexpr auto make_unordered_set(const typename T::value_type (&... values)[Ns]) {
+  return make_unordered_set<T>(elsa<T>{}, std::equal_to<T>{}, values...);
 }
 
 #ifdef FROZEN_LETITGO_HAS_DEDUCTION_GUIDES

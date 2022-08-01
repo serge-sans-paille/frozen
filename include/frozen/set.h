@@ -26,10 +26,12 @@
 #include "frozen/bits/algorithms.h"
 #include "frozen/bits/basic_types.h"
 #include "frozen/bits/constexpr_assert.h"
+#include "frozen/bits/pic_array.h"
 #include "frozen/bits/version.h"
 #include "frozen/bits/defines.h"
 
 #include <iterator>
+#include <type_traits>
 #include <utility>
 
 namespace frozen {
@@ -248,6 +250,21 @@ constexpr auto make_set(const T (&args)[N], Compare const& compare = Compare{}) 
 template <typename T, typename Compare, std::size_t N>
 constexpr auto make_set(std::array<T, N> const &args, Compare const& compare = Compare{}) {
   return set<T, N, Compare>(args, compare);
+}
+
+template <typename T, typename Compare, std::size_t... Ns,
+  std::enable_if_t<!std::is_array<Compare>::value>* = nullptr>
+constexpr auto make_set(
+    Compare const& compare,
+    const typename T::value_type (&... values)[Ns]) {
+  constexpr const auto storage_size = bits::accumulate({Ns...});
+  using container_type = bits::pic_array<T, sizeof...(Ns), storage_size>;
+  return set<T, sizeof...(Ns), Compare, container_type>{container_type{values...}, compare};
+}
+
+template <typename T, std::size_t... Ns>
+constexpr auto make_set(const typename T::value_type (&... values)[Ns]) {
+  return make_set<T>(std::less<T>{}, values...);
 }
 
 #ifdef FROZEN_LETITGO_HAS_DEDUCTION_GUIDES
