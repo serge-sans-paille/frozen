@@ -32,6 +32,8 @@ namespace bits {
 // Forward declarations
 template <class, std::size_t>
 class carray;
+template <typename T, std::size_t N, std::size_t string_size>
+struct pic_array;
 
 template <typename T>
 struct remove_cv : std::remove_cv<T> {};
@@ -44,6 +46,11 @@ struct remove_cv<std::pair<T...>> {
 template <typename T, std::size_t N>
 struct remove_cv<carray<T, N>> {
   using type = carray<typename remove_cv<T>::type, N>;
+};
+
+template <typename T, std::size_t N, std::size_t string_size>
+struct remove_cv<pic_array<T, N, string_size>> {
+  using type = pic_array<typename remove_cv<T>::type, N, string_size>;
 };
 
 template <typename T>
