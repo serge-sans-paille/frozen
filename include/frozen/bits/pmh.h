@@ -96,16 +96,12 @@ pmh_buckets<M> constexpr make_pmh_buckets(const carray<Item, N> & items,
                                 Key const & key,
                                 PRG & prg) {
   using result_t = pmh_buckets<M>;
-  result_t result{};
-  bool rejected = false;
   // Continue until all items are placed without exceeding bucket_max
   while (1) {
-    for (auto & b : result.buckets) {
-      b.clear();
-    }
+    result_t result{};
     result.seed = prg();
-    rejected = false;
-    for (std::size_t i = 0; i < N; ++i) {
+    bool rejected = false;
+    for (std::size_t i = 0; i < items.size(); ++i) {
       auto & bucket = result.buckets[hash(key(items[i]), static_cast<std::size_t>(result.seed)) % M];
       if (bucket.size() >= result_t::bucket_max) {
         rejected = true;
