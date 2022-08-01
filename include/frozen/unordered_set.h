@@ -67,7 +67,7 @@ public:
   using reference = const_reference;
   using const_pointer = typename container_type::const_pointer;
   using pointer = const_pointer;
-  using const_iterator = const_pointer;
+  using const_iterator = typename container_type::const_iterator;
   using iterator = const_iterator;
 
 public:
