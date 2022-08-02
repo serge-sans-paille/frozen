@@ -28,12 +28,14 @@
 #include "frozen/bits/elsa.h"
 #include "frozen/bits/exceptions.h"
 #include "frozen/bits/mpl.h"
+#include "frozen/bits/pic_array.h"
 #include "frozen/bits/pmh.h"
 #include "frozen/bits/version.h"
 #include "frozen/random.h"
 
 #include <tuple>
 #include <functional>
+#include <type_traits>
 #include <utility>
 
 namespace frozen {
@@ -247,6 +249,81 @@ constexpr auto make_unordered_map(
         Hasher const &hash = elsa<T>{},
         Equal const &equal = std::equal_to<T>{}) {
   return unordered_map<T, U, N, Hasher, Equal>{items, hash, equal};
+}
+
+template <typename T, typename U, typename Hasher, typename Equal, std::size_t... KNs,
+          std::enable_if_t<
+             !bits::has_type<bits::element_type<U>>::value
+          && !bits::is_pair<Hasher>::value
+          && !bits::is_pair<Equal>::value>* = nullptr>
+constexpr auto make_unordered_map(
+  Hasher const &hash,
+  Equal const &equal,
+  std::pair<
+    bits::element_t<T> const (&)[KNs]
+  , U> const&... items) {
+  constexpr const auto key_storage_size = bits::accumulate({KNs...});
+  using container_type = bits::pic_array<std::pair<const T, U>, sizeof...(KNs), key_storage_size>;
+  return unordered_map<T, U, sizeof...(KNs), Hasher, Equal, container_type>{container_type{items...}, hash, equal};
+}
+
+template <typename T, typename U, std::size_t... KNs,
+          std::enable_if_t<!bits::has_type<bits::element_type<U>>::value>* = nullptr>
+constexpr auto make_unordered_map(
+  std::pair<
+    bits::element_t<T> const (&)[KNs]
+  , U> const&... items) {
+  return make_unordered_map<T, U>(anna<T>{}, std::equal_to<T>{}, items...);
+}
+
+template <typename T, typename U, typename Hasher, typename Equal, std::size_t... VNs,
+          std::enable_if_t<
+            !bits::has_type<bits::element_type<T>>::value
+         && !bits::is_pair<Hasher>::value
+         && !bits::is_pair<Equal>::value>* = nullptr>
+constexpr auto make_unordered_map(
+  Hasher const &hash,
+  Equal const &equal,
+  std::pair<
+    T
+  , bits::element_t<U> const (&)[VNs]
+  > const&... items) {
+  constexpr const auto val_storage_size = bits::accumulate({VNs...});
+  using container_type = bits::pic_array<std::pair<const T, U>, sizeof...(VNs), val_storage_size>;
+  return unordered_map<T, U, sizeof...(VNs), Hasher, Equal, container_type>{container_type{items...}, hash, equal};
+}
+
+template <typename T, typename U, std::size_t... VNs,
+          std::enable_if_t<!bits::has_type<bits::element_type<T>>::value>* = nullptr>
+constexpr auto make_unordered_map(
+  std::pair<
+    T
+  , bits::element_t<U> const (&)[VNs]
+  > const&... items) {
+  return make_unordered_map<T, U>(anna<T>{}, std::equal_to<T>{}, items...);
+}
+
+template <typename T, typename U, typename Hasher, typename Equal, std::size_t... KNs, std::size_t... VNs,
+          std::enable_if_t<!bits::is_pair<Hasher>::value && !bits::is_pair<Equal>::value>* = nullptr>
+constexpr auto make_unordered_map(
+  Hasher const &hash,
+  Equal const &equal,
+  std::pair<
+    bits::element_t<T> const (&)[KNs]
+  , bits::element_t<U> const (&)[VNs]
+  > const&... items) {
+  constexpr const auto key_storage_size = bits::accumulate({KNs...});
+  constexpr const auto val_storage_size = bits::accumulate({VNs...});
+  using container_type = bits::pic_array<std::pair<const T, U>, sizeof...(KNs), key_storage_size + val_storage_size>;
+  return unordered_map<T, U, sizeof...(KNs), Hasher, Equal, container_type>{container_type{items...}, hash, equal};
+}
+
+template <typename T, typename U, std::size_t... KNs, std::size_t... VNs>
+constexpr auto make_unordered_map(std::pair<
+    bits::element_t<T> const (&)[KNs]
+  , bits::element_t<U> const (&)[VNs]
+  > const&... items) {
+  return make_unordered_map<T, U>(anna<T>{}, std::equal_to<T>{}, items...);
 }
 
 } // namespace frozen

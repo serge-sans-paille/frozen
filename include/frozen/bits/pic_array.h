@@ -520,6 +520,27 @@ private:
 
 } // namespace bits
 
+// Helpers to preserve arrays in type information, instead of letting them decay to pointers
+template <typename T, typename U, std::size_t TN, std::size_t UN>
+constexpr std::pair<T (&)[TN], U (&)[UN]> kv_pair(T (& key)[TN], U (& val)[UN]) {
+  return {key, val};
+}
+
+template <typename T, typename U, std::size_t N>
+constexpr std::pair<T (&)[N], U> kv_pair(T (& key)[N], U val) {
+  return {key, val};
+}
+
+template <typename T, typename U, std::size_t N>
+constexpr std::pair<T, U (&)[N]> kv_pair(T key, U (& val)[N]) {
+  return {key, val};
+}
+
+template <typename T, typename U>
+constexpr std::pair<T, U> kv_pair(T key, U val) {
+  return {key, val};
+}
+
 } // namespace frozen
 
 #endif

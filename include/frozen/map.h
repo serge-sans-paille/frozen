@@ -28,6 +28,7 @@
 #include "frozen/bits/constexpr_assert.h"
 #include "frozen/bits/exceptions.h"
 #include "frozen/bits/mpl.h"
+#include "frozen/bits/pic_array.h"
 #include "frozen/bits/version.h"
 
 #include <iterator>
@@ -358,6 +359,58 @@ constexpr auto make_map(std::pair<T, U> const (&items)[N], Compare const& compar
 template <typename T, typename U, typename Compare, std::size_t N>
 constexpr auto make_map(std::array<std::pair<T, U>, N> const &items, Compare const& compare = Compare{}) {
   return map<T, U, N, Compare>{items, compare};
+}
+
+template <typename T, typename U, typename Compare, std::size_t... KNs,
+          std::enable_if_t<!bits::is_pair<Compare>::value>* = nullptr>
+constexpr auto make_map(
+  Compare const& compare,
+  std::pair<
+    bits::element_t<T> const (&)[KNs]
+  , U> const&... items) {
+  constexpr const auto key_storage_size = bits::accumulate({KNs...});
+  using container_type = bits::pic_array<std::pair<const T, U>, sizeof...(KNs), key_storage_size>;
+  return map<T, U, sizeof...(KNs), Compare, container_type>{container_type{items...}, compare};
+}
+
+template <typename T, typename U, std::size_t... KNs>
+constexpr auto make_map(std::pair<bits::element_t<T> const (&)[KNs], U> const&... items) {
+  return make_map<T, U>(std::less<T>{}, items...);
+}
+
+template <typename T, typename U, typename Compare, std::size_t... VNs,
+          std::enable_if_t<!bits::is_pair<Compare>::value>* = nullptr>
+constexpr auto make_map(
+  Compare const& compare,
+  std::pair<
+    T
+  , bits::element_t<U> const (&)[VNs]> const&... items) {
+  constexpr const auto key_storage_size = bits::accumulate({VNs...});
+  using container_type = bits::pic_array<std::pair<const T, U>, sizeof...(VNs), key_storage_size>;
+  return map<T, U, sizeof...(VNs), Compare, container_type>{container_type{items...}, compare};
+}
+
+template <typename T, typename U, std::size_t... KNs>
+constexpr auto make_map(std::pair<T, bits::element_t<U> const (&)[KNs]> const&... items) {
+  return make_map<T, U>(std::less<T>{}, items...);
+}
+
+template <typename T, typename U, typename Compare, std::size_t... KNs, std::size_t... VNs,
+          std::enable_if_t<!bits::is_pair<Compare>::value>* = nullptr>
+constexpr auto make_map(
+  Compare const& compare,
+  std::pair<
+    bits::element_t<T> const (&)[KNs]
+  , bits::element_t<U> const (&)[VNs]> const&... items) {
+  constexpr const auto key_storage_size = bits::accumulate({KNs...});
+  constexpr const auto val_storage_size = bits::accumulate({VNs...});
+  using container_type = bits::pic_array<std::pair<const T, U>, sizeof...(KNs), key_storage_size + val_storage_size>;
+  return map<T, U, sizeof...(KNs), Compare, container_type>{container_type{items...}, compare};
+}
+
+template <typename T, typename U, std::size_t... KNs, std::size_t... VNs>
+constexpr auto make_map(std::pair<bits::element_t<T> const (&)[KNs], bits::element_t<U> const (&)[VNs]> const&... items) {
+  return make_map<T, U>(std::less<T>{}, items...);
 }
 
 } // namespace frozen

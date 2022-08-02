@@ -88,6 +88,12 @@ struct has_type_selector
 template <class T>
 struct has_type : decltype(has_type_selector::test(std::declval<T>())) {};
 
+template <typename T>
+struct is_pair : std::false_type {};
+
+template <class... T>
+struct is_pair<std::pair<T...>> : std::true_type {};
+
 } // namespace bits
 
 } // namespace frozen
