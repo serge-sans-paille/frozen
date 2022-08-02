@@ -25,10 +25,12 @@
 
 #include "frozen/bits/constexpr_assert.h"
 #include "frozen/bits/defines.h"
+#include "frozen/bits/mpl.h"
 #include "frozen/string.h"
 
 #include <memory>
 #include <type_traits>
+#include <utility>
 
 #ifdef FROZEN_LETITGO_HAS_STRING_VIEW
 #include <string_view>
@@ -65,8 +67,28 @@ struct ext_array {
 };
 
 template <typename T, typename ElemT>
+constexpr T& make_absolute(T& self, const ElemT* /* base */) noexcept {
+  return self;
+}
+
+template <typename T, typename ElemT>
+constexpr const T& make_absolute(const T& self, const ElemT* /* base */) noexcept {
+  return self;
+}
+
+template <typename T, typename ElemT>
 constexpr T make_absolute(const ext_array<ElemT>& self, const ElemT* base) noexcept {
   return T{base + self.data_pos, self.data_size};
+}
+
+template <typename T, typename ElemT, typename U, std::size_t... Is>
+constexpr T make_absolute(U& self, const ElemT* base, std::index_sequence<Is...>) noexcept {
+  return T{make_absolute<std::tuple_element_t<Is, T>>(std::get<Is>(self), base)...};
+}
+
+template <typename T, typename ElemT, typename U, std::enable_if_t<std::tuple_size<T>::value == std::tuple_size<U>::value>* = nullptr>
+constexpr T make_absolute(U& self, const ElemT* base) noexcept {
+  return make_absolute<T>(self, base, std::make_index_sequence<std::tuple_size<T>::value>());
 }
 
 template <typename T>
@@ -86,9 +108,14 @@ struct pic_store<std::basic_string_view<CharT, Traits>> {
 };
 #endif
 
+template <typename Key, typename Value>
+struct pic_store<std::pair<Key, Value>> {
+  using type = std::pair<typename pic_store<Key>::type, typename pic_store<Value>::type>;
+};
+
 // Helper to convert supported string_view/span-like types to ext_array
 template <typename T>
-using pic_store_type = typename pic_store<T>::type;
+using pic_store_type = typename pic_store<remove_cv_t<T>>::type;
 
 template <typename T>
 struct pic_reference {
@@ -117,6 +144,16 @@ struct pic_reference<const std::basic_string_view<CharT, Traits>&> {
 };
 #endif
 
+template <typename Key, typename Value>
+struct pic_reference<std::pair<Key, Value>&> {
+  using type = std::pair<typename pic_reference<Key&>::type, typename pic_reference<Value&>::type>;
+};
+
+template <typename Key, typename Value>
+struct pic_reference<const std::pair<Key, Value>&> {
+  using type = std::pair<typename pic_reference<const Key&>::type, typename pic_reference<const Value&>::type>;
+};
+
 // Helper to convert references to supported string_view/span-like types to by-value types to
 // allow our proxy iterator to convert back from ext_array. This relies on lifetime extension
 // of temporaries to be safe in range-based for loops.
@@ -131,16 +168,56 @@ struct element_type<basic_string<CharT>> {
   using type = CharT;
 };
 
+template <typename CharT>
+struct element_type<std::pair<basic_string<CharT>, basic_string<CharT>>> {
+  using type = CharT;
+};
+
+template <typename CharT, typename U>
+struct element_type<std::pair<basic_string<CharT>, U>> {
+  using type = CharT;
+};
+
+template <typename CharT, typename U>
+struct element_type<std::pair<U, basic_string<CharT>>> {
+  using type = CharT;
+};
+
 #if defined(FROZEN_LETITGO_HAS_STRING_VIEW)
 template <typename CharT, typename Traits>
 struct element_type<std::basic_string_view<CharT, Traits>> {
+  using type = CharT;
+};
+
+template <typename CharT, typename TraitsL, typename TraitsR>
+struct element_type<std::pair<std::basic_string_view<CharT, TraitsL>, std::basic_string_view<CharT, TraitsR>>> {
+  using type = CharT;
+};
+
+template <typename CharT, typename Traits>
+struct element_type<std::pair<basic_string<CharT>, std::basic_string_view<CharT, Traits>>> {
+  using type = CharT;
+};
+
+template <typename CharT, typename Traits>
+struct element_type<std::pair<std::basic_string_view<CharT, Traits>, basic_string<CharT>>> {
+  using type = CharT;
+};
+
+template <typename CharT, typename Traits, typename U>
+struct element_type<std::pair<std::basic_string_view<CharT, Traits>, U>> {
+  using type = CharT;
+};
+
+template <typename CharT, typename Traits, typename U>
+struct element_type<std::pair<U, std::basic_string_view<CharT, Traits>>> {
   using type = CharT;
 };
 #endif
 
 // Helper to determine type of element we need to store in our storage array.
 template <typename T>
-using element_t = typename element_type<T>::type;
+using element_t = typename element_type<remove_cv_t<T>>::type;
 
 template <class Reference>
 struct arrow_operator_proxy {
@@ -404,6 +481,39 @@ private:
         store_pos += 1; // NUL-terminator
 
       return str_value;
+    }
+
+    template <typename ViewL, typename ViewR>
+    constexpr auto operator()(const std::pair<ViewL, ViewR>& item)
+      -> std::enable_if_t<
+        std::is_same<element_t<ViewL>, element_t<value_type>>::value
+        && std::is_same<element_t<ViewL>, element_t<ViewR>>::value
+      , storage_type
+      >
+    {
+      return storage_type{(*this)(item.first), (*this)(item.second)};
+    }
+
+    template <typename View, typename U>
+    constexpr auto operator()(const std::pair<View, U>& item)
+      -> std::enable_if_t<
+        std::is_same<element_t<View>, element_t<value_type>>::value
+        && !has_type<element_type<remove_cv_t<U>>>::value
+      , storage_type
+      >
+    {
+      return storage_type{(*this)(item.first), item.second};
+    }
+
+    template <typename View, typename U>
+    constexpr auto operator()(const std::pair<U, View>& item)
+      -> std::enable_if_t<
+        std::is_same<element_t<View>, element_t<value_type>>::value
+        && !has_type<element_type<remove_cv_t<U>>>::value
+      , storage_type
+      >
+    {
+      return storage_type{item.first, (*this)(item.second)};
     }
   };
 };

@@ -76,6 +76,18 @@ public:
 template <typename Container, typename ElemRef, typename Value>
 using copy_cv_iter_ref_t = typename copy_cv_iter_ref<Container, ElemRef, Value>::type;
 
+struct has_type_selector
+{
+  // Relies on SFINAE to eliminate this overload when the type of it's first parameter does not
+  // have a 'type' member type.
+  template <class T>
+  static std::true_type test(const T&, typename T::type* = nullptr);
+  static std::false_type test(...);
+};
+
+template <class T>
+struct has_type : decltype(has_type_selector::test(std::declval<T>())) {};
+
 } // namespace bits
 
 } // namespace frozen
