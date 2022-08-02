@@ -81,7 +81,8 @@ public:
   using value_type = typename container_type::value_type;
   using size_type = typename container_type::size_type;
   using difference_type = typename container_type::difference_type;
-  using key_compare = impl::CompareKey<Compare>;
+  using key_compare = Compare;
+  using value_compare = impl::CompareKey<Compare>;
   using reference = typename container_type::reference;
   using const_reference = typename container_type::const_reference;
   using pointer = typename container_type::pointer;
@@ -187,8 +188,8 @@ public:
   }
 
   /* observers */
-  constexpr const key_compare& key_comp() const { return value_comp(); }
-  constexpr const key_compare& value_comp() const { return static_cast<impl::CompareKey<Compare> const&>(*this); }
+  constexpr const key_compare& key_comp() const { return value_comp().key_comp(); }
+  constexpr const value_compare& value_comp() const { return static_cast<impl::CompareKey<Compare> const&>(*this); }
 
  private:
   template <class This, class KeyType>
@@ -244,7 +245,8 @@ public:
   using value_type = typename container_type::value_type;
   using size_type = typename container_type::size_type;
   using difference_type = typename container_type::difference_type;
-  using key_compare = impl::CompareKey<Compare>;
+  using key_compare = Compare;
+  using value_compare = impl::CompareKey<Compare>;
   using reference = typename container_type::reference;
   using const_reference = typename container_type::const_reference;
   using pointer = typename container_type::pointer;
@@ -320,8 +322,8 @@ public:
   constexpr iterator upper_bound(KeyType const &) { return end(); }
 
 /* observers */
-  constexpr key_compare const& key_comp() const { return value_comp(); }
-  constexpr key_compare const& value_comp() const { return static_cast<impl::CompareKey<Compare> const&>(*this); }
+  constexpr key_compare const& key_comp() const { return value_comp().key_comp(); }
+  constexpr value_compare const& value_comp() const { return static_cast<impl::CompareKey<Compare> const&>(*this); }
 };
 
 template <typename T, typename U, typename Compare = std::less<T>>
