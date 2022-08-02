@@ -52,7 +52,7 @@ template <class Key, class Value, std::size_t N, typename Hash = anna<Key>,
 class unordered_map : private KeyEqual {
   static constexpr std::size_t storage_size =
       bits::next_highest_power_of_two(N) * (N < 32 ? 2 : 1); // size adjustment to prevent high collision rate for small sets
-  using container_type = bits::carray<std::pair<Key, Value>, N>;
+  using container_type = bits::carray<std::pair<const Key, Value>, N>;
   using tables_type = bits::pmh_tables<storage_size, Hash>;
 
   container_type items_;

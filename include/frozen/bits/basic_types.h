@@ -28,6 +28,7 @@
 #include <array>
 #include <utility>
 #include <string>
+#include <type_traits>
 
 namespace frozen {
 
@@ -88,9 +89,6 @@ template <class T, std::size_t N>
 class carray {
   T data_ [N] = {}; // zero-initialization for scalar type T, default-initialized otherwise
 
-  template <std::size_t M, std::size_t... I>
-  constexpr carray(T const (&init)[M], std::index_sequence<I...>)
-      : data_{init[I]...} {}
   template <class Iter, std::size_t... I>
   constexpr carray(Iter iter, std::index_sequence<I...>)
       : data_{((void)I, *iter++)...} {}
@@ -114,23 +112,29 @@ public:
   constexpr carray() = default;
   constexpr carray(const value_type& val)
     : carray(val, std::make_index_sequence<N>()) {}
-  template <std::size_t M>
-  constexpr carray(T const (&init)[M])
+  template <typename U, std::enable_if_t<std::is_convertible<U, T>::value, std::size_t> M>
+  constexpr carray(U const (&init)[M])
     : carray(init, std::make_index_sequence<N>())
   {
     static_assert(M >= N, "Cannot initialize a carray with an smaller array");
   }
-  template <std::size_t M>
-  constexpr carray(std::array<T, M> const &init)
-    : carray(&init[0], std::make_index_sequence<N>())
+  template <typename U, std::enable_if_t<std::is_convertible<U, T>::value, std::size_t> M>
+  constexpr carray(std::array<U, M> const &init)
+    : carray(init.begin(), std::make_index_sequence<N>())
   {
     static_assert(M >= N, "Cannot initialize a carray with an smaller array");
   }
-  constexpr carray(std::initializer_list<T> init)
+  template <typename U, std::enable_if_t<std::is_convertible<U, T>::value>* = nullptr>
+  constexpr carray(std::initializer_list<U> init)
     : carray(init.begin(), std::make_index_sequence<N>())
   {
     // clang & gcc doesn't recognize init.size() as a constexpr
     // static_assert(init.size() >= N, "Cannot initialize a carray with an smaller initializer list");
+  }
+  template <typename U, std::enable_if_t<std::is_convertible<U, T>::value>* = nullptr>
+  constexpr carray(const carray<U, N>& rhs)
+    : carray(rhs.begin(), std::make_index_sequence<N>())
+  {
   }
 
   // Iterators

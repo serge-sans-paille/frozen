@@ -303,9 +303,9 @@ TEST_CASE("frozen::map <> frozen::make_map", "[map]") {
 }
 
 TEST_CASE("frozen::map constexpr", "[map]") {
-  constexpr frozen::map<int, unsigned, 2> ce = {{3,4}, {11,12}};
-  static_assert(*ce.begin() == std::pair<int, unsigned>{3,4}, "");
-  static_assert(*(ce.begin() + 1) == std::pair<int, unsigned>{11,12}, "");
+  constexpr frozen::map<int, unsigned, 2> ce = {{11,12}, {3,4}};
+  static_assert(*ce.begin() == std::pair<const int, unsigned>{3,4}, "");
+  static_assert(*(ce.begin() + 1) == std::pair<const int, unsigned>{11,12}, "");
   static_assert(ce.size() == 2, "");
   static_assert(ce.count(3), "");
   static_assert(!ce.count(0), "");
