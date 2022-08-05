@@ -113,10 +113,10 @@ public:
       : map{items, Compare{}} {}
 
   /* element access */
-  constexpr Value const& at(Key const &key) const {
+  constexpr decltype(auto) at(Key const &key) const {
     return at_impl(*this, key);
   }
-  constexpr Value& at(Key const &key) {
+  constexpr decltype(auto) at(Key const &key) {
     return at_impl(*this, key);
   }
 
@@ -195,12 +195,19 @@ public:
 
  private:
   template <class This, class KeyType>
-  static inline constexpr auto& at_impl(This&& self, KeyType const &key) {
-    auto where = self.find(key);
-    if (where != self.end())
-      return where->second;
-    else
+  static inline constexpr decltype(auto) at_impl(This&& self, KeyType const &key)
+  {
+    using return_type = bits::copy_cv_iter_ref_t<
+        This&&
+      , typename std::decay_t<This>::reference
+      , decltype(std::forward<This>(self).lower_bound(key)->second)
+      >;
+
+    auto where = std::forward<This>(self).find(key);
+    if (where == self.end())
+      // early escape to ensure type deduction works even when std::abort() isn't properly marked as [[noreturn]]
       FROZEN_THROW_OR_ABORT(std::out_of_range("unknown key"));
+    return static_cast<return_type>(where->second);
   }
 
   template <class This, class KeyType>

@@ -218,6 +218,7 @@ TEST_CASE("triple frozen map", "[map]") {
                      decltype(ze_map)::value_type(3, 14)) == 0);
   REQUIRE(std::count(ze_map.crbegin(), ze_map.crend(),
                      decltype(ze_map)::value_type(20, false)) == 1);
+  static_assert(std::is_same<decltype(ze_map.at(1)), const bool&>::value, "");
 }
 
 TEST_CASE("frozen::map <> std::map", "[map]") {

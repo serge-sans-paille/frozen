@@ -56,6 +56,7 @@ TEST_CASE("singleton frozen unordered map", "[unordered map]") {
 
   static_assert(std::is_same<typename decltype(ze_map)::key_type, int>::value, "");
   static_assert(std::is_same<typename decltype(ze_map)::mapped_type, double>::value, "");
+  static_assert(std::is_same<decltype(ze_map.at(1)), const double&>::value, "");
 }
 
 // This is mainly a test that construction does not time out

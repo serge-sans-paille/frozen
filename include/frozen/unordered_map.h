@@ -27,6 +27,7 @@
 #include "frozen/bits/constexpr_assert.h"
 #include "frozen/bits/elsa.h"
 #include "frozen/bits/exceptions.h"
+#include "frozen/bits/mpl.h"
 #include "frozen/bits/pmh.h"
 #include "frozen/bits/version.h"
 #include "frozen/random.h"
@@ -122,19 +123,19 @@ public:
   }
 
   template <class KeyType, class Hasher, class Equal>
-  constexpr Value const &at(KeyType const &key, Hasher const &hash, Equal const &equal) const {
+  constexpr decltype(auto) at(KeyType const &key, Hasher const &hash, Equal const &equal) const {
     return at_impl(*this, key, hash, equal);
   }
   template <class KeyType, class Hasher, class Equal>
-  constexpr Value &at(KeyType const &key, Hasher const &hash, Equal const &equal) {
+  constexpr decltype(auto) at(KeyType const &key, Hasher const &hash, Equal const &equal) {
     return at_impl(*this, key, hash, equal);
   }
   template <class KeyType>
-  constexpr Value const &at(KeyType const &key) const {
+  constexpr decltype(auto) at(KeyType const &key) const {
     return at(key, hash_function(), key_eq());
   }
   template <class KeyType>
-  constexpr Value &at(KeyType const &key) {
+  constexpr decltype(auto) at(KeyType const &key) {
     return at(key, hash_function(), key_eq());
   }
 
@@ -187,12 +188,19 @@ public:
 
 private:
   template <class This, class KeyType, class Hasher, class Equal>
-  static inline constexpr auto& at_impl(This&& self, KeyType const &key, Hasher const &hash, Equal const &equal) {
-    auto it = self.find(key, hash, equal);
-    if (it != self.end())
-      return it->second;
-    else
+  static inline constexpr decltype(auto) at_impl(This&& self, KeyType const &key, Hasher const &hash, Equal const &equal)
+  {
+    using return_type = bits::copy_cv_iter_ref_t<
+        This&&
+      , typename std::decay_t<This>::reference
+      , decltype(std::forward<This>(self).find(key, hash, equal)->second)
+      >;
+
+    auto it = std::forward<This>(self).find(key, hash, equal);
+    if (it == self.end())
+      // early escape to ensure type deduction works even when std::abort() isn't properly marked as [[noreturn]]
       FROZEN_THROW_OR_ABORT(std::out_of_range("unknown key"));
+    return static_cast<return_type>(it->second);
   }
 
   template <class This, class KeyType, class Hasher, class Equal>
