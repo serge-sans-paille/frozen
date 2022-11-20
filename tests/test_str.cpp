@@ -205,6 +205,23 @@ TEST_CASE("Knuth-Morris-Pratt str search", "[str-search]") {
     REQUIRE(index == haystack.end());
   }
 
+  {
+    std::string haystack = "nmnn";
+    auto index = frozen::search(haystack.begin(), haystack.end(), frozen::make_knuth_morris_pratt_searcher("n*"));
+    REQUIRE(index == haystack.end());
+  }
+
+  {
+    std::string haystack = "nmnn";
+    auto index = frozen::search(haystack.begin(), haystack.end(), frozen::make_knuth_morris_pratt_searcher("nnnn"));
+    REQUIRE(index == haystack.end());
+  }
+
+  {
+    std::string haystack = "nmnn";
+    auto index = frozen::search(haystack.begin(), haystack.end(), frozen::make_knuth_morris_pratt_searcher("nmnn*"));
+    REQUIRE(index == haystack.end());
+  }
 
   {
     std::string haystack = "ABC ABCDAB ABCDABCDABDE";
@@ -234,6 +251,23 @@ TEST_CASE("Boyer-Moore str search", "[str-search]") {
     REQUIRE(index == haystack.end());
   }
 
+  {
+    std::string haystack = "nmnn";
+    auto index = frozen::search(haystack.begin(), haystack.end(), frozen::make_boyer_moore_searcher("n*"));
+    REQUIRE(index == haystack.end());
+  }
+
+  {
+    std::string haystack = "nmnn";
+    auto index = frozen::search(haystack.begin(), haystack.end(), frozen::make_boyer_moore_searcher("nnnn"));
+    REQUIRE(index == haystack.end());
+  }
+
+  {
+    std::string haystack = "nmnn";
+    auto index = frozen::search(haystack.begin(), haystack.end(), frozen::make_boyer_moore_searcher("nmnn*"));
+    REQUIRE(index == haystack.end());
+  }
 
   {
     std::string haystack = "ABC ABCDAB ABCDABCDABDE";
