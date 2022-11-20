@@ -171,6 +171,9 @@ public:
     if (size == 0)
       return { first, first + size };
 
+    if (size > last - first)
+      return { last, last};  
+
     ForwardIterator iter = first + size - 1;
     while (iter < last) {
       std::ptrdiff_t j = size - 1;
@@ -178,12 +181,12 @@ public:
         --iter;
         --j;
       }
-      if (*iter == needle_[0])
+      if (*iter == needle_[0] && (iter <= last - size))
         return { iter, iter + size};
 
-      iter += std::max(skip_table_[*iter], suffix_table_[j]);
+      iter += std::min(last - iter, std::max(skip_table_[*iter], suffix_table_[j]));
     }
-    return { last, last + size};
+    return { last, last};
   }
 };
 
