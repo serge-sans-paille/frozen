@@ -250,6 +250,22 @@ constexpr auto make_unordered_map(
   return unordered_map<T, U, N, Hasher, Equal>{items, hash, equal};
 }
 
+template <class Key, class Value, std::size_t N, typename Hash = anna<Value>,
+          class KeyEqual = std::equal_to<Value>>
+constexpr auto invert_unordered_map(const unordered_map<Key, Value, N>& in)
+{
+    return make_unordered_map<Value, Key, N, Hash, KeyEqual>([&in] {
+        auto items = std::array<std::pair<Value, Key>, N>{};
+        auto o = items.begin();
+        auto i = in.cbegin();
+        for (auto end = in.end(); i != end; ++i, ++o) {
+            o->first = i->second;
+            o->second = i->first;
+        }
+        return items;
+    }());
+}
+
 } // namespace frozen
 
 #endif

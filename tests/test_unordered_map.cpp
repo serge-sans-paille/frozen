@@ -64,9 +64,11 @@ TEST_CASE("frozen::unordered_map powers of two", "[unordered_map]") {
     {1, 0}, {2, 1}, {4, 2}, {8, 3}, {16, 4}, {32, 5}, {64, 6}, {128, 7},
     {256, 8}, {512, 9}, {1024, 10}, {2048, 11}, {4096, 12}, {8192, 13}
   };
+  constexpr auto inverted = frozen::invert_unordered_map(frozen_map);
 
   for (const auto & pair : frozen_map) {
     REQUIRE(pair.first == (1 << pair.second));
+    REQUIRE(pair.first == inverted.at(pair.second));
   }
 }
 
@@ -82,11 +84,13 @@ TEST_CASE("frozen::unordered_map multiples of 64", "[unordered_map]") {
     M64(41), M64(42), M64(43), M64(44), M64(45), M64(46), M64(47), M64(48),
     M64(49), M64(50), M64(51), M64(52), M64(53), M64(54), M64(55), M64(56),
   };
+  constexpr auto inverted = frozen::invert_unordered_map(frozen_map);
 
 # undef M64
 
   for (const auto & pair : frozen_map) {
     REQUIRE(pair.first == 64 * pair.second);
+    REQUIRE(pair.first == inverted.at(pair.second));
   }
 }
 
