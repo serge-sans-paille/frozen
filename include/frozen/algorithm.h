@@ -166,27 +166,29 @@ public:
       suffix_table_{build_suffix_table(needle)},
       needle_(needle) {}
 
-  template <class ForwardIterator>
-  constexpr std::pair<ForwardIterator, ForwardIterator> operator()(ForwardIterator first, ForwardIterator last) const {
+  template <class RandomAccessIterator>
+  constexpr std::pair<RandomAccessIterator, RandomAccessIterator> operator()(RandomAccessIterator first, RandomAccessIterator last) const {
     if (size == 0)
-      return { first, first + size };
+      return { first, first };
 
-    if (size > last - first)
-      return { last, last};  
+    if (size > size_t(last - first))
+      return { last, last };
 
-    ForwardIterator iter = first + size - 1;
-    while (iter < last) {
+    RandomAccessIterator iter = first + size - 1;
+    while (true) {
       std::ptrdiff_t j = size - 1;
       while (j > 0 && (*iter == needle_[j])) {
         --iter;
         --j;
       }
-      if (*iter == needle_[0] && (iter <= last - size))
+      if (j == 0 && *iter == needle_[0])
         return { iter, iter + size};
 
-      iter += std::min(last - iter, std::max(skip_table_[*iter], suffix_table_[j]));
+      std::ptrdiff_t jump = std::max(skip_table_[*iter], suffix_table_[j]);
+      if (jump >= last - iter)
+        return { last, last };
+      iter += jump;
     }
-    return { last, last};
   }
 };
 
