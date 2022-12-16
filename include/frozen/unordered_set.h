@@ -105,7 +105,7 @@ public:
   /* lookup */
   template <class KeyType, class Hasher, class Equal>
   constexpr std::size_t count(KeyType const &key, Hasher const &hash, Equal const &equal) const {
-    auto const k = lookup(key, hash);
+    auto const & k = lookup(key, hash);
     return equal(k, key);
   }
   template <class KeyType>
