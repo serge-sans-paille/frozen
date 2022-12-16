@@ -65,7 +65,7 @@ TEST_CASE("tripleton str frozen unordered set", "[unordered set]") {
   constexpr auto max_size = ze_set.max_size();
   REQUIRE(max_size == 3);
 
-  constexpr auto nocount = ze_set.count(4);
+  const auto nocount = ze_set.count(4);
   REQUIRE(nocount == 0);
 
   constexpr auto count = ze_set.count(1);
