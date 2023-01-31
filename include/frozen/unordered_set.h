@@ -125,6 +125,11 @@ public:
   constexpr const_iterator find(KeyType const &key) const {
     return find(key, hash_function(), key_eq());
   }
+  
+  template <class KeyType>
+  constexpr bool contains(KeyType const &key) const {
+    return this->find(key) != keys_.end();
+  }
 
   template <class KeyType, class Hasher, class Equal>
   constexpr std::pair<const_iterator, const_iterator> equal_range(

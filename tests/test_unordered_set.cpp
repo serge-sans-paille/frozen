@@ -158,6 +158,8 @@ TEST_CASE("frozen::unordered_set constexpr", "[unordered_set]") {
   static_assert(ce.count(3), "");
   static_assert(!ce.count(0), "");
   static_assert(ce.find(0) == ce.end(), "");
+  static_assert(ce.contains(3), "");
+  static_assert(!ce.contains(0), "");
 }
 
 #ifdef FROZEN_LETITGO_HAS_DEDUCTION_GUIDES
