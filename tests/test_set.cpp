@@ -267,6 +267,8 @@ TEST_CASE("frozen::set constexpr", "[set]") {
   static_assert(ce.count(3), "");
   static_assert(!ce.count(0), "");
   static_assert(ce.find(0) == ce.end(), "");
+  static_assert(ce.contains(3), "");
+  static_assert(!ce.contains(0), "");
 }
 
 TEST_CASE("frozen::set of frozen::set", "[set]") {
@@ -278,6 +280,8 @@ TEST_CASE("frozen::set of frozen::set", "[set]") {
   static_assert(ce.count(s1({3})), "");
   static_assert(!ce.count(s1({0})), "");
   static_assert(ce.find(s1({0})) == ce.end(), "");
+  static_assert(ce.contains(s1({3})), "");
+  static_assert(!ce.contains(s1({0})), "");
 }
 
 struct Foo {

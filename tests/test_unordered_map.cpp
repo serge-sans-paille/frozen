@@ -179,6 +179,8 @@ TEST_CASE("frozen::unordered_map constexpr", "[unordered_map]") {
   static_assert(ce.count(3), "");
   static_assert(!ce.count(0), "");
   static_assert(ce.find(0) == ce.end(), "");
+  static_assert(ce.contains(3), "");
+  static_assert(!ce.contains(0), "");
 }
 
 TEST_CASE("access", "[unordered_map]") {

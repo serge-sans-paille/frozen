@@ -96,6 +96,11 @@ public:
     else
       return end();
   }
+  
+  template <class KeyType>
+  constexpr bool contains(KeyType const &key) const {
+    return this->find(key) != keys_.end();
+  }
 
   template <class KeyType>
   constexpr std::pair<const_iterator, const_iterator> equal_range(KeyType const &key) const {
