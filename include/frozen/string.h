@@ -28,6 +28,7 @@
 #include "frozen/bits/version.h"
 #include "frozen/bits/defines.h"
 
+#include <cstddef>
 #include <functional>
 
 #ifdef FROZEN_LETITGO_HAS_STRING_VIEW
@@ -138,7 +139,7 @@ constexpr u8string operator"" _s(const char8_t *data, std::size_t size) {
 
 namespace std {
 template <typename _CharT> struct hash<frozen::basic_string<_CharT>> {
-  size_t operator()(frozen::basic_string<_CharT> s) const {
+  std::size_t operator()(frozen::basic_string<_CharT> s) const {
     return frozen::elsa<frozen::basic_string<_CharT>>{}(s);
   }
 };
