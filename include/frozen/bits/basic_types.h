@@ -93,6 +93,9 @@ class carray {
   template <class Iter, std::size_t... I>
   constexpr carray(Iter iter, std::index_sequence<I...>)
       : data_{((void)I, *iter++)...} {}
+  template <std::size_t... I>
+  constexpr carray(const T& value, std::index_sequence<I...>)
+      : data_{((void)I, value)...} {}
 
 public:
   // Container typdefs
@@ -109,7 +112,9 @@ public:
   using difference_type = std::ptrdiff_t;
 
   // Constructors
-  constexpr carray(void) = default;
+  constexpr carray() = default;
+  constexpr carray(const value_type& val)
+    : carray(val, std::make_index_sequence<N>()) {}
   template <std::size_t M>
   constexpr carray(T const (&init)[M])
     : carray(init, std::make_index_sequence<N>())
@@ -171,12 +176,6 @@ public:
 
   constexpr       value_type* data() noexcept { return data_; }
   constexpr const value_type* data() const noexcept { return data_; }
-
-  // Modifiers
-  constexpr void fill(const value_type& val) {
-    for (std::size_t i = 0; i < N; ++i)
-      data_[i] = val;
-  }
 };
 template <class T>
 class carray<T, 0> {

@@ -204,12 +204,10 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
   const auto UNUSED = items.size();
 
   // G becomes the first hash table in the resulting pmh function
-  carray<seed_or_index, M> G; // Default constructed to "index 0"
-  G.fill({false, UNUSED});
+  carray<seed_or_index, M> G({false, UNUSED});
 
   // H becomes the second hash table in the resulting pmh function
-  carray<std::size_t, M> H;
-  H.fill(UNUSED);
+  carray<std::size_t, M> H(UNUSED);
 
   // Step 3: Map the items in buckets into hash tables.
   for (const auto & bucket : buckets) {
