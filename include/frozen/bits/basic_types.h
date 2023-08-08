@@ -37,10 +37,45 @@ namespace bits {
 // used as a fake argument for frozen::make_set and frozen::make_map in the case of N=0
 struct ignored_arg {};
 
+constexpr std::size_t number_of_bits(std::size_t x)
+{
+    return x < 2 ? x : 1 + number_of_bits(x >> 1);
+}
+
+template <std::size_t total_size>
+struct size_integer {
+  static constexpr std::size_t needed_bits = number_of_bits(total_size);
+
+  using type = std::conditional_t<
+      needed_bits <= 8u
+    , std::uint8_t
+    , std::conditional_t<
+        needed_bits <= 16u
+      , std::uint16_t
+      , std::conditional_t<
+          needed_bits <= 32u
+        , std::uint32_t
+        , std::conditional_t<
+            needed_bits <= 64u
+          , std::uint64_t
+          , std::size_t // 128 bit system: don't know, but lets stop optimizing for size here
+          >
+        >
+      >
+    >;
+};
+
+template <std::size_t total_size>
+using size_integer_t = typename size_integer<total_size>::type;
+
 template <class T, std::size_t N>
 class cvector {
+public:
+  using size_type = size_integer_t<N>;
+
+private:
   T data [N] = {}; // zero-initialization for scalar type T, default-initialized otherwise
-  std::size_t dsize = 0;
+  size_type dsize = 0;
 
 public:
   // Container typdefs
@@ -51,7 +86,6 @@ public:
   using const_pointer = const value_type *;
   using iterator = pointer;
   using const_iterator = const_pointer;
-  using size_type = std::size_t;
   using difference_type = std::ptrdiff_t;
 
   // Constructors
