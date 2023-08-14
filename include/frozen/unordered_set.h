@@ -176,20 +176,35 @@ constexpr auto make_unordered_set(std::array<T, N> const &keys, Hasher const& ha
   return unordered_set<T, N, Hasher, Equal>{keys, hash, equal};
 }
 
-template <typename T, typename Hasher, typename Equal, std::size_t... Ns,
-  std::enable_if_t<!std::is_array<Hasher>::value && !std::is_array<Equal>::value>* = nullptr>
+template <
+    typename T
+  , typename Hasher
+  , typename Equal
+  , typename ElemT
+  , std::enable_if_t<
+      !std::is_array<Hasher>::value
+   && !std::is_array<Equal>::value
+   && std::is_same<ElemT, typename T::value_type>::value
+    , std::size_t>... Ns
+  >
 constexpr auto make_unordered_set(
     Hasher const& hash,
     Equal const& equal,
-    const typename T::value_type (&... values)[Ns])
+    const ElemT (&... values)[Ns])
 {
   constexpr const auto storage_size = bits::accumulate({Ns...});
   using container_type = bits::pic_array<T, sizeof...(Ns), storage_size>;
   return unordered_set<T, sizeof...(Ns), Hasher, Equal, container_type>{container_type{values...}, hash, equal};
 }
 
-template <typename T, std::size_t... Ns>
-constexpr auto make_unordered_set(const typename T::value_type (&... values)[Ns]) {
+template <
+    typename T
+  , typename ElemT
+  , std::enable_if_t<
+      std::is_same<ElemT, typename T::value_type>::value
+    , std::size_t>... Ns
+  >
+constexpr auto make_unordered_set(const ElemT (&... values)[Ns]) {
   return make_unordered_set<T>(elsa<T>{}, std::equal_to<T>{}, values...);
 }
 

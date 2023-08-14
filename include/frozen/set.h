@@ -252,18 +252,31 @@ constexpr auto make_set(std::array<T, N> const &args, Compare const& compare = C
   return set<T, N, Compare>(args, compare);
 }
 
-template <typename T, typename Compare, std::size_t... Ns,
-  std::enable_if_t<!std::is_array<Compare>::value>* = nullptr>
+template <
+    typename T
+  , typename Compare
+  , typename ElemT
+  , std::enable_if_t<
+      !std::is_array<Compare>::value
+   && std::is_same<ElemT, typename T::value_type>::value
+    , std::size_t>... Ns
+  >
 constexpr auto make_set(
     Compare const& compare,
-    const typename T::value_type (&... values)[Ns]) {
+    const ElemT (&... values)[Ns]) {
   constexpr const auto storage_size = bits::accumulate({Ns...});
   using container_type = bits::pic_array<T, sizeof...(Ns), storage_size>;
   return set<T, sizeof...(Ns), Compare, container_type>{container_type{values...}, compare};
 }
 
-template <typename T, std::size_t... Ns>
-constexpr auto make_set(const typename T::value_type (&... values)[Ns]) {
+template <
+    typename T
+  , typename ElemT
+  , std::enable_if_t<
+      std::is_same<ElemT, typename T::value_type>::value
+    , std::size_t>... Ns
+  >
+constexpr auto make_set(const ElemT (&... values)[Ns]) {
   return make_set<T>(std::less<T>{}, values...);
 }
 
