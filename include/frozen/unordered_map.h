@@ -251,77 +251,145 @@ constexpr auto make_unordered_map(
   return unordered_map<T, U, N, Hasher, Equal>{items, hash, equal};
 }
 
-template <typename T, typename U, typename Hasher, typename Equal, std::size_t... KNs,
-          std::enable_if_t<
-             !bits::has_type<bits::element_type<U>>::value
-          && !bits::is_pair<Hasher>::value
-          && !bits::is_pair<Equal>::value>* = nullptr>
+template <
+    typename T
+  , typename U
+  , typename Hasher
+  , typename Equal
+  , typename ElemT
+  , std::enable_if_t<
+      !bits::has_type<bits::element_type<U>>::value
+   && !bits::is_pair<Hasher>::value
+   && !bits::is_pair<Equal>::value
+   && std::is_same<ElemT, bits::element_t<T>>::value
+    , std::size_t>... KNs
+  >
 constexpr auto make_unordered_map(
   Hasher const &hash,
   Equal const &equal,
   std::pair<
-    bits::element_t<T> const (&)[KNs]
+    bits::array_ref<const ElemT, KNs>
   , U> const&... items) {
   constexpr const auto key_storage_size = bits::accumulate({KNs...});
   using container_type = bits::pic_array<std::pair<const T, U>, sizeof...(KNs), key_storage_size>;
-  return unordered_map<T, U, sizeof...(KNs), Hasher, Equal, container_type>{container_type{items...}, hash, equal};
+  using value_type = typename container_type::value_type;
+  return unordered_map<T, U, sizeof...(KNs), Hasher, Equal, container_type>{
+    container_type{value_type(T(items.first.array), U(items.second))...},
+    hash,
+    equal,
+  };
 }
 
-template <typename T, typename U, std::size_t... KNs,
-          std::enable_if_t<!bits::has_type<bits::element_type<U>>::value>* = nullptr>
+template <
+    typename T
+  , typename U
+  , typename ElemT
+  , std::enable_if_t<
+      !bits::has_type<bits::element_type<U>>::value
+   && std::is_same<ElemT, bits::element_t<T>>::value
+    , std::size_t>... KNs
+  >
 constexpr auto make_unordered_map(
   std::pair<
-    bits::element_t<T> const (&)[KNs]
+    bits::array_ref<const ElemT, KNs>
   , U> const&... items) {
   return make_unordered_map<T, U>(anna<T>{}, std::equal_to<T>{}, items...);
 }
 
-template <typename T, typename U, typename Hasher, typename Equal, std::size_t... VNs,
-          std::enable_if_t<
-            !bits::has_type<bits::element_type<T>>::value
-         && !bits::is_pair<Hasher>::value
-         && !bits::is_pair<Equal>::value>* = nullptr>
+template <
+    typename T
+  , typename U
+  , typename Hasher
+  , typename Equal
+  , typename ElemT
+  , std::enable_if_t<
+      !bits::has_type<bits::element_type<T>>::value
+   && !bits::is_pair<Hasher>::value
+   && !bits::is_pair<Equal>::value
+   && std::is_same<ElemT, bits::element_t<U>>::value
+    , std::size_t>... VNs
+  >
 constexpr auto make_unordered_map(
   Hasher const &hash,
   Equal const &equal,
   std::pair<
     T
-  , bits::element_t<U> const (&)[VNs]
+  , bits::array_ref<const ElemT, VNs>
   > const&... items) {
   constexpr const auto val_storage_size = bits::accumulate({VNs...});
   using container_type = bits::pic_array<std::pair<const T, U>, sizeof...(VNs), val_storage_size>;
-  return unordered_map<T, U, sizeof...(VNs), Hasher, Equal, container_type>{container_type{items...}, hash, equal};
+  using value_type = typename container_type::value_type;
+  return unordered_map<T, U, sizeof...(VNs), Hasher, Equal, container_type>{
+    container_type{value_type(T(items.first), U(items.second.array))...},
+    hash,
+    equal,
+  };
 }
 
-template <typename T, typename U, std::size_t... VNs,
-          std::enable_if_t<!bits::has_type<bits::element_type<T>>::value>* = nullptr>
+template <
+    typename T
+  , typename U
+  , typename ElemT
+  , std::enable_if_t<
+      !bits::has_type<bits::element_type<T>>::value
+   && std::is_same<ElemT, bits::element_t<U>>::value
+    , std::size_t>... VNs
+  >
 constexpr auto make_unordered_map(
   std::pair<
     T
-  , bits::element_t<U> const (&)[VNs]
+  , bits::array_ref<const ElemT, VNs>
   > const&... items) {
   return make_unordered_map<T, U>(anna<T>{}, std::equal_to<T>{}, items...);
 }
 
-template <typename T, typename U, typename Hasher, typename Equal, std::size_t... KNs, std::size_t... VNs,
-          std::enable_if_t<!bits::is_pair<Hasher>::value && !bits::is_pair<Equal>::value>* = nullptr>
+template <
+    typename T
+  , typename U
+  , typename Hasher
+  , typename Equal
+  , typename ElemT
+  , typename ElemU
+  , std::size_t... KNs
+  , std::enable_if_t<
+      !bits::is_pair<Hasher>::value
+   && !bits::is_pair<Equal>::value
+   && std::is_same<ElemT, bits::element_t<T>>::value
+   && std::is_same<ElemU, bits::element_t<U>>::value
+    , std::size_t>... VNs
+  >
 constexpr auto make_unordered_map(
   Hasher const &hash,
   Equal const &equal,
   std::pair<
-    bits::element_t<T> const (&)[KNs]
-  , bits::element_t<U> const (&)[VNs]
+    bits::array_ref<const ElemT, KNs>
+  , bits::array_ref<const ElemU, VNs>
   > const&... items) {
   constexpr const auto key_storage_size = bits::accumulate({KNs...});
   constexpr const auto val_storage_size = bits::accumulate({VNs...});
   using container_type = bits::pic_array<std::pair<const T, U>, sizeof...(KNs), key_storage_size + val_storage_size>;
-  return unordered_map<T, U, sizeof...(KNs), Hasher, Equal, container_type>{container_type{items...}, hash, equal};
+  using value_type = typename container_type::value_type;
+  return unordered_map<T, U, sizeof...(KNs), Hasher, Equal, container_type>{
+    container_type{value_type(T(items.first.array), U(items.second.array))...},
+    hash,
+    equal,
+  };
 }
 
-template <typename T, typename U, std::size_t... KNs, std::size_t... VNs>
+template <
+    typename T
+  , typename U
+  , typename ElemT
+  , typename ElemU
+  , std::size_t... KNs
+  , std::enable_if_t<
+      std::is_same<ElemT, bits::element_t<T>>::value
+   && std::is_same<ElemU, bits::element_t<U>>::value
+    , std::size_t>... VNs
+  >
 constexpr auto make_unordered_map(std::pair<
-    bits::element_t<T> const (&)[KNs]
-  , bits::element_t<U> const (&)[VNs]
+    bits::array_ref<const ElemT, KNs>
+  , bits::array_ref<const ElemU, VNs>
   > const&... items) {
   return make_unordered_map<T, U>(anna<T>{}, std::equal_to<T>{}, items...);
 }

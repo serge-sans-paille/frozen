@@ -525,23 +525,23 @@ private:
 
 // Helpers to preserve arrays in type information, instead of letting them decay to pointers
 template <typename T, typename U, std::size_t TN, std::size_t UN>
-constexpr std::pair<T (&)[TN], U (&)[UN]> kv_pair(T (& key)[TN], U (& val)[UN]) {
-  return {key, val};
+constexpr auto kv_pair(T (& key)[TN], U (& val)[UN]) {
+  return std::pair<bits::array_ref<T, TN>, bits::array_ref<U, UN>>{{key}, {val}};
 }
 
 template <typename T, typename U, std::size_t N>
-constexpr std::pair<T (&)[N], U> kv_pair(T (& key)[N], U val) {
-  return {key, val};
+constexpr auto kv_pair(T (& key)[N], U val) {
+  return std::pair<bits::array_ref<T, N>, U>{{key}, {val}};
 }
 
 template <typename T, typename U, std::size_t N>
-constexpr std::pair<T, U (&)[N]> kv_pair(T key, U (& val)[N]) {
-  return {key, val};
+constexpr auto kv_pair(T key, U (& val)[N]) {
+  return std::pair<T, bits::array_ref<U, N>>{{key}, {val}};
 }
 
 template <typename T, typename U>
-constexpr std::pair<T, U> kv_pair(T key, U val) {
-  return {key, val};
+constexpr auto kv_pair(T key, U val) {
+  return std::pair<T, U>{{key}, {val}};
 }
 
 } // namespace frozen

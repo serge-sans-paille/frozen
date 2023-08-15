@@ -68,6 +68,19 @@ struct size_integer {
 template <std::size_t total_size>
 using size_integer_t = typename size_integer<total_size>::type;
 
+// Helper type to work around apparent compiler bugs in MSVC related to having "too complex"
+// template parameters involving either NTTP or references-to-array.
+template <class T, std::size_t N>
+struct array_ref {
+  using array_type = const T(&) [N];
+  using pointer = T*;
+
+  pointer array;
+
+  operator pointer   () const noexcept { return array; }
+  operator array_type() const noexcept { return array; }
+};
+
 template <class T, std::size_t N>
 class cvector {
 public:

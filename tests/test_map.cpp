@@ -499,3 +499,23 @@ TEST_CASE("frozen::map <> frozen::make_map transparent", "[map]") {
     REQUIRE(frozen_empty_map3.begin() == frozen_empty_map3.end());
   }
 }
+
+TEST_CASE("frozen::make_map variations with frozen::string", "[map]") {
+  using frozen::kv_pair;
+
+  constexpr auto si = frozen::make_map<frozen::string, int>(
+      kv_pair("a", 1)
+    , kv_pair("b", 2)
+  );
+  constexpr auto is = frozen::make_map<int, frozen::string>(
+      kv_pair(1, "a")
+    , kv_pair(2, "b")
+  );
+  constexpr auto ss = frozen::make_map<frozen::string, frozen::string>(
+      kv_pair("1", "a")
+    , kv_pair("2", "b")
+  );
+
+  static_assert(is.at(si.at("a")) == "a", "");
+  static_assert(ss.at("1") == "a", "");
+}
