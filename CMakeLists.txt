@@ -113,7 +113,7 @@ if(frozen.installation)
   # directory. Source file permissions preserved.
   #
   install(DIRECTORY include/
-    DESTINATION include
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
     USE_SOURCE_PERMISSIONS
     FILES_MATCHING PATTERN "*.h")
 
@@ -131,12 +131,12 @@ if(frozen.installation)
     COMPATIBILITY SameMajorVersion)
 
   install(FILES "${PROJECT_BINARY_DIR}/frozenConfigVersion.cmake"
-    DESTINATION share/cmake/frozen)
+    DESTINATION "${CMAKE_INSTALL_DATADIR}/cmake/frozen")
 
   install(EXPORT frozenConfig
     FILE frozenConfig.cmake
     NAMESPACE frozen::
-    DESTINATION share/cmake/frozen)
+    DESTINATION "${CMAKE_INSTALL_DATADIR}/cmake/frozen")
 
   #
   # Rudimentary CPack support.
