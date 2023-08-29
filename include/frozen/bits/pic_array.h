@@ -30,6 +30,7 @@
 #include "frozen/string.h"
 
 #include <cstdint>
+#include <iterator>
 #include <memory>
 #include <type_traits>
 #include <utility>
@@ -475,8 +476,11 @@ private:
       constexpr_assert(str_value.data_size == item.size(), "size field causes truncation");
 
       // constexpr std::copy before C++20
-      for (const auto& val : item) {
-        array_data[store_pos++] = val;
+      // manual expansion of range-based-for because MSVC fails on that but not this
+      using std::begin;
+      using std::end;
+      for (auto i = begin(item), last = end(item); i != last; ++i) {
+        array_data[store_pos++] = *i;
       }
       if (is_nul_terminated)
         str_value.data_size -= 1;
