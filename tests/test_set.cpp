@@ -284,6 +284,22 @@ TEST_CASE("frozen::set of frozen::set", "[set]") {
   static_assert(!ce.contains(s1({0})), "");
 }
 
+TEST_CASE("frozen::set <frozen::string> frozen::make_set", "[set]") {
+  constexpr auto set = frozen::make_set<frozen::string>("3", "17", "109");
+  constexpr auto rset = frozen::make_set<frozen::string>(std::greater<>{}, "3", "17", "109");
+
+  SECTION("checking size, content and ordering") {
+    CHECK(set.size() == rset.size());
+    for (auto v : set)
+      CHECK(rset.count(v));
+    for (auto v : rset)
+      CHECK(set.count(v));
+    CHECK(std::distance(set.begin(), set.find("3")) == std::distance(rset.rbegin(), std::make_reverse_iterator(rset.find("3"))) - 1);
+    CHECK(std::distance(set.begin(), set.find("17")) == std::distance(rset.rbegin(), std::make_reverse_iterator(rset.find("17"))) - 1);
+    CHECK(std::distance(set.begin(), set.find("109")) == std::distance(rset.rbegin(), std::make_reverse_iterator(rset.find("109"))) - 1);
+  }
+}
+
 struct Foo {
   int x;
 };

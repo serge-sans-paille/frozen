@@ -32,6 +32,8 @@ namespace bits {
 // Forward declarations
 template <class, std::size_t>
 class carray;
+template <typename T, std::size_t N, std::size_t string_size>
+struct pic_array;
 
 template <typename T>
 struct remove_cv : std::remove_cv<T> {};
@@ -46,8 +48,51 @@ struct remove_cv<carray<T, N>> {
   using type = carray<typename remove_cv<T>::type, N>;
 };
 
+template <typename T, std::size_t N, std::size_t string_size>
+struct remove_cv<pic_array<T, N, string_size>> {
+  using type = pic_array<typename remove_cv<T>::type, N, string_size>;
+};
+
 template <typename T>
 using remove_cv_t = typename remove_cv<T>::type;
+
+template <typename Container, typename ElemRef, typename Value>
+class copy_cv_iter_ref
+{
+private:
+  using cv_container = std::remove_reference_t<Container>;
+  using c_value = std::conditional_t<std::is_const<cv_container>::value, std::add_const_t<Value>, Value>;
+  using cv_value = std::conditional_t<std::is_volatile<cv_container>::value, std::add_volatile_t<c_value>, c_value>;
+  using cv_ref_value = std::conditional_t<std::is_lvalue_reference<ElemRef>::value, std::add_lvalue_reference_t<cv_value>, cv_value>;
+  using cv_rvref_value = std::conditional_t<
+      std::is_lvalue_reference<cv_ref_value>::value
+   && std::is_rvalue_reference<Container>::value
+   , std::add_rvalue_reference_t<cv_value>
+   , cv_ref_value>;
+public:
+  using type = cv_rvref_value;
+};
+
+template <typename Container, typename ElemRef, typename Value>
+using copy_cv_iter_ref_t = typename copy_cv_iter_ref<Container, ElemRef, Value>::type;
+
+struct has_type_selector
+{
+  // Relies on SFINAE to eliminate this overload when the type of it's first parameter does not
+  // have a 'type' member type.
+  template <class T>
+  static std::true_type test(const T&, typename T::type* = nullptr);
+  static std::false_type test(...);
+};
+
+template <class T>
+struct has_type : decltype(has_type_selector::test(std::declval<T>())) {};
+
+template <typename T>
+struct is_pair : std::false_type {};
+
+template <class... T>
+struct is_pair<std::pair<T...>> : std::true_type {};
 
 } // namespace bits
 

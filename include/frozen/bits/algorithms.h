@@ -229,6 +229,17 @@ constexpr bool lexicographical_compare(InputIt1 first1, InputIt1 last1, InputIt2
   return (first1 == last1) && (first2 != last2);
 }
 
+template <typename Int>
+constexpr Int accumulate(std::initializer_list<Int> items)
+{
+  Int sum {}; // zero or default init
+  for (const auto& item : items) {
+    sum += item;
+  }
+
+  return sum;
+}
+
 } // namespace bits
 } // namespace frozen
 

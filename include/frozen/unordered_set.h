@@ -26,10 +26,12 @@
 #include "frozen/bits/basic_types.h"
 #include "frozen/bits/constexpr_assert.h"
 #include "frozen/bits/elsa.h"
+#include "frozen/bits/pic_array.h"
 #include "frozen/bits/pmh.h"
 #include "frozen/bits/version.h"
 #include "frozen/random.h"
 
+#include <type_traits>
 #include <utility>
 
 namespace frozen {
@@ -45,11 +47,12 @@ struct Get {
 } // namespace bits
 
 template <class Key, std::size_t N, typename Hash = elsa<Key>,
-          class KeyEqual = std::equal_to<Key>>
+          class KeyEqual = std::equal_to<Key>,
+	  class Container = bits::carray<Key, N>>
 class unordered_set : private KeyEqual {
   static constexpr std::size_t storage_size =
       bits::next_highest_power_of_two(N) * (N < 32 ? 2 : 1); // size adjustment to prevent high collision rate for small sets
-  using container_type = bits::carray<Key, N>;
+  using container_type = Container;
   using tables_type = bits::pmh_tables<storage_size, Hash>;
 
   container_type keys_;
@@ -171,6 +174,38 @@ constexpr auto make_unordered_set(std::array<T, N> const &keys) {
 template <typename T, std::size_t N, typename Hasher, typename Equal>
 constexpr auto make_unordered_set(std::array<T, N> const &keys, Hasher const& hash, Equal const& equal) {
   return unordered_set<T, N, Hasher, Equal>{keys, hash, equal};
+}
+
+template <
+    typename T
+  , typename Hasher
+  , typename Equal
+  , typename ElemT
+  , std::enable_if_t<
+      !std::is_array<Hasher>::value
+   && !std::is_array<Equal>::value
+   && std::is_same<ElemT, typename T::value_type>::value
+    , std::size_t>... Ns
+  >
+constexpr auto make_unordered_set(
+    Hasher const& hash,
+    Equal const& equal,
+    const ElemT (&... values)[Ns])
+{
+  constexpr const auto storage_size = bits::accumulate({Ns...});
+  using container_type = bits::pic_array<T, sizeof...(Ns), storage_size>;
+  return unordered_set<T, sizeof...(Ns), Hasher, Equal, container_type>{container_type{values...}, hash, equal};
+}
+
+template <
+    typename T
+  , typename ElemT
+  , std::enable_if_t<
+      std::is_same<ElemT, typename T::value_type>::value
+    , std::size_t>... Ns
+  >
+constexpr auto make_unordered_set(const ElemT (&... values)[Ns]) {
+  return make_unordered_set<T>(elsa<T>{}, std::equal_to<T>{}, values...);
 }
 
 #ifdef FROZEN_LETITGO_HAS_DEDUCTION_GUIDES

@@ -26,16 +26,19 @@
 #include "frozen/bits/algorithms.h"
 #include "frozen/bits/basic_types.h"
 #include "frozen/bits/constexpr_assert.h"
+#include "frozen/bits/pic_array.h"
 #include "frozen/bits/version.h"
 #include "frozen/bits/defines.h"
 
 #include <iterator>
+#include <type_traits>
 #include <utility>
 
 namespace frozen {
 
-template <class Key, std::size_t N, class Compare = std::less<Key>> class set : private Compare {
-  using container_type = bits::carray<Key, N>;
+template <class Key, std::size_t N, class Compare = std::less<Key>,
+	  class Container = bits::carray<Key, N>> class set : private Compare {
+  using container_type = Container;
   container_type keys_;
 
 public:
@@ -153,8 +156,9 @@ public:
   constexpr bool operator>=(set const& rhs) const { return (*this > rhs) || (*this == rhs); }
 };
 
-template <class Key, class Compare> class set<Key, 0, Compare> : private Compare {
-  using container_type = bits::carray<Key, 0>; // just for the type definitions
+template <class Key, class Compare, class Container>
+class set<Key, 0, Compare, Container> : private Compare {
+  using container_type = Container; // just for the type definitions
 
 public:
   /* container typedefs*/
@@ -176,8 +180,8 @@ public:
 public:
   /* constructors */
   constexpr set(const set &other) = default;
-  constexpr set(bits::carray<Key, 0>, Compare const &) {}
-  explicit constexpr set(bits::carray<Key, 0>) {}
+  constexpr set(container_type, Compare const &) {}
+  explicit constexpr set(container_type) {}
 
   constexpr set(std::initializer_list<Key>, Compare const &comp)
       : Compare{comp} {}
@@ -246,6 +250,34 @@ constexpr auto make_set(const T (&args)[N], Compare const& compare = Compare{}) 
 template <typename T, typename Compare, std::size_t N>
 constexpr auto make_set(std::array<T, N> const &args, Compare const& compare = Compare{}) {
   return set<T, N, Compare>(args, compare);
+}
+
+template <
+    typename T
+  , typename Compare
+  , typename ElemT
+  , std::enable_if_t<
+      !std::is_array<Compare>::value
+   && std::is_same<ElemT, typename T::value_type>::value
+    , std::size_t>... Ns
+  >
+constexpr auto make_set(
+    Compare const& compare,
+    const ElemT (&... values)[Ns]) {
+  constexpr const auto storage_size = bits::accumulate({Ns...});
+  using container_type = bits::pic_array<T, sizeof...(Ns), storage_size>;
+  return set<T, sizeof...(Ns), Compare, container_type>{container_type{values...}, compare};
+}
+
+template <
+    typename T
+  , typename ElemT
+  , std::enable_if_t<
+      std::is_same<ElemT, typename T::value_type>::value
+    , std::size_t>... Ns
+  >
+constexpr auto make_set(const ElemT (&... values)[Ns]) {
+  return make_set<T>(std::less<T>{}, values...);
 }
 
 #ifdef FROZEN_LETITGO_HAS_DEDUCTION_GUIDES

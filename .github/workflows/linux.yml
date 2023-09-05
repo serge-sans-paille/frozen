@@ -1,6 +1,8 @@
-name: CI
+name: Linux
 
-on: [push]
+on:
+  push:
+  pull_request:
 
 jobs:
   build_frozen:
@@ -32,16 +34,13 @@ jobs:
       run: cmake -E make_directory build
 
     - name: Configure
-      working-directory: build
       env:
           CXX: ${{matrix.compiler}}
-          CXXFLAGS: -std=c++${{matrix.cxxstandard}}
-      run: cmake -DCMAKE_BUILD_TYPE=DEBUG "-Dfrozen.coverage=ON" -DCMAKE_VERBOSE_MAKEFILE=ON ..
+          CXXFLAGS: -std=c++${{matrix.cxxstandard}} -fdiagnostics-color=always
+      run: cmake -DCMAKE_BUILD_TYPE=DEBUG "-Dfrozen.coverage=ON" -DCMAKE_VERBOSE_MAKEFILE=ON -B build -S .
 
     - name: Build
-      working-directory: build
-      run: cmake --build .
+      run: cmake --build build
 
     - name: Test
-      working-directory: build
-      run: cmake --build . --target test
+      run: cmake --build build --target test

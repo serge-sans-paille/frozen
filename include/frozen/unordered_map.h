@@ -27,12 +27,15 @@
 #include "frozen/bits/constexpr_assert.h"
 #include "frozen/bits/elsa.h"
 #include "frozen/bits/exceptions.h"
+#include "frozen/bits/mpl.h"
+#include "frozen/bits/pic_array.h"
 #include "frozen/bits/pmh.h"
 #include "frozen/bits/version.h"
 #include "frozen/random.h"
 
 #include <tuple>
 #include <functional>
+#include <type_traits>
 #include <utility>
 
 namespace frozen {
@@ -48,11 +51,12 @@ struct GetKey {
 } // namespace bits
 
 template <class Key, class Value, std::size_t N, typename Hash = anna<Key>,
-          class KeyEqual = std::equal_to<Key>>
+          class KeyEqual = std::equal_to<Key>,
+          class Container = bits::carray<std::pair<const Key, Value>, N>>
 class unordered_map : private KeyEqual {
   static constexpr std::size_t storage_size =
       bits::next_highest_power_of_two(N) * (N < 32 ? 2 : 1); // size adjustment to prevent high collision rate for small sets
-  using container_type = bits::carray<std::pair<const Key, Value>, N>;
+  using container_type = Container;
   using tables_type = bits::pmh_tables<storage_size, Hash>;
 
   container_type items_;
@@ -60,7 +64,7 @@ class unordered_map : private KeyEqual {
 
 public:
   /* typedefs */
-  using Self = unordered_map<Key, Value, N, Hash, KeyEqual>;
+  using Self = unordered_map<Key, Value, N, Hash, KeyEqual, Container>;
   using key_type = Key;
   using mapped_type = Value;
   using value_type = typename container_type::value_type;
@@ -121,19 +125,19 @@ public:
   }
 
   template <class KeyType, class Hasher, class Equal>
-  constexpr Value const &at(KeyType const &key, Hasher const &hash, Equal const &equal) const {
+  constexpr decltype(auto) at(KeyType const &key, Hasher const &hash, Equal const &equal) const {
     return at_impl(*this, key, hash, equal);
   }
   template <class KeyType, class Hasher, class Equal>
-  constexpr Value &at(KeyType const &key, Hasher const &hash, Equal const &equal) {
+  constexpr decltype(auto) at(KeyType const &key, Hasher const &hash, Equal const &equal) {
     return at_impl(*this, key, hash, equal);
   }
   template <class KeyType>
-  constexpr Value const &at(KeyType const &key) const {
+  constexpr decltype(auto) at(KeyType const &key) const {
     return at(key, hash_function(), key_eq());
   }
   template <class KeyType>
-  constexpr Value &at(KeyType const &key) {
+  constexpr decltype(auto) at(KeyType const &key) {
     return at(key, hash_function(), key_eq());
   }
 
@@ -186,12 +190,19 @@ public:
 
 private:
   template <class This, class KeyType, class Hasher, class Equal>
-  static inline constexpr auto& at_impl(This&& self, KeyType const &key, Hasher const &hash, Equal const &equal) {
-    auto it = self.find(key, hash, equal);
-    if (it != self.end())
-      return it->second;
-    else
+  static inline constexpr decltype(auto) at_impl(This&& self, KeyType const &key, Hasher const &hash, Equal const &equal)
+  {
+    using return_type = bits::copy_cv_iter_ref_t<
+        This&&
+      , typename std::decay_t<This>::reference
+      , decltype(std::forward<This>(self).find(key, hash, equal)->second)
+      >;
+
+    auto it = std::forward<This>(self).find(key, hash, equal);
+    if (it == self.end())
+      // early escape to ensure type deduction works even when std::abort() isn't properly marked as [[noreturn]]
       FROZEN_THROW_OR_ABORT(std::out_of_range("unknown key"));
+    return static_cast<return_type>(it->second);
   }
 
   template <class This, class KeyType, class Hasher, class Equal>
@@ -238,6 +249,149 @@ constexpr auto make_unordered_map(
         Hasher const &hash = elsa<T>{},
         Equal const &equal = std::equal_to<T>{}) {
   return unordered_map<T, U, N, Hasher, Equal>{items, hash, equal};
+}
+
+template <
+    typename T
+  , typename U
+  , typename Hasher
+  , typename Equal
+  , typename ElemT
+  , std::enable_if_t<
+      !bits::has_type<bits::element_type<U>>::value
+   && !bits::is_pair<Hasher>::value
+   && !bits::is_pair<Equal>::value
+   && std::is_same<ElemT, bits::element_t<T>>::value
+    , std::size_t>... KNs
+  >
+constexpr auto make_unordered_map(
+  Hasher const &hash,
+  Equal const &equal,
+  std::pair<
+    bits::array_ref<const ElemT, KNs>
+  , U> const&... items) {
+  constexpr const auto key_storage_size = bits::accumulate({KNs...});
+  using container_type = bits::pic_array<std::pair<const T, U>, sizeof...(KNs), key_storage_size>;
+  using value_type = typename container_type::value_type;
+  return unordered_map<T, U, sizeof...(KNs), Hasher, Equal, container_type>{
+    container_type{value_type(T(items.first.array), U(items.second))...},
+    hash,
+    equal,
+  };
+}
+
+template <
+    typename T
+  , typename U
+  , typename ElemT
+  , std::enable_if_t<
+      !bits::has_type<bits::element_type<U>>::value
+   && std::is_same<ElemT, bits::element_t<T>>::value
+    , std::size_t>... KNs
+  >
+constexpr auto make_unordered_map(
+  std::pair<
+    bits::array_ref<const ElemT, KNs>
+  , U> const&... items) {
+  return make_unordered_map<T, U>(anna<T>{}, std::equal_to<T>{}, items...);
+}
+
+template <
+    typename T
+  , typename U
+  , typename Hasher
+  , typename Equal
+  , typename ElemT
+  , std::enable_if_t<
+      !bits::has_type<bits::element_type<T>>::value
+   && !bits::is_pair<Hasher>::value
+   && !bits::is_pair<Equal>::value
+   && std::is_same<ElemT, bits::element_t<U>>::value
+    , std::size_t>... VNs
+  >
+constexpr auto make_unordered_map(
+  Hasher const &hash,
+  Equal const &equal,
+  std::pair<
+    T
+  , bits::array_ref<const ElemT, VNs>
+  > const&... items) {
+  constexpr const auto val_storage_size = bits::accumulate({VNs...});
+  using container_type = bits::pic_array<std::pair<const T, U>, sizeof...(VNs), val_storage_size>;
+  using value_type = typename container_type::value_type;
+  return unordered_map<T, U, sizeof...(VNs), Hasher, Equal, container_type>{
+    container_type{value_type(T(items.first), U(items.second.array))...},
+    hash,
+    equal,
+  };
+}
+
+template <
+    typename T
+  , typename U
+  , typename ElemT
+  , std::enable_if_t<
+      !bits::has_type<bits::element_type<T>>::value
+   && std::is_same<ElemT, bits::element_t<U>>::value
+    , std::size_t>... VNs
+  >
+constexpr auto make_unordered_map(
+  std::pair<
+    T
+  , bits::array_ref<const ElemT, VNs>
+  > const&... items) {
+  return make_unordered_map<T, U>(anna<T>{}, std::equal_to<T>{}, items...);
+}
+
+template <
+    typename T
+  , typename U
+  , typename Hasher
+  , typename Equal
+  , typename ElemT
+  , typename ElemU
+  , std::size_t... KNs
+  , std::enable_if_t<
+      !bits::is_pair<Hasher>::value
+   && !bits::is_pair<Equal>::value
+   && std::is_same<ElemT, bits::element_t<T>>::value
+   && std::is_same<ElemU, bits::element_t<U>>::value
+    , std::size_t>... VNs
+  >
+constexpr auto make_unordered_map(
+  Hasher const &hash,
+  Equal const &equal,
+  std::pair<
+    bits::array_ref<const ElemT, KNs>
+  , bits::array_ref<const ElemU, VNs>
+  > const&... items) {
+  constexpr const auto key_storage_size = bits::accumulate({KNs...});
+  constexpr const auto val_storage_size = bits::accumulate({VNs...});
+  using container_type = bits::pic_array<std::pair<const T, U>, sizeof...(KNs), key_storage_size + val_storage_size>;
+  using value_type = typename container_type::value_type;
+  return unordered_map<T, U, sizeof...(KNs), Hasher, Equal, container_type>{
+    container_type{value_type(T(items.first.array), U(items.second.array))...},
+    hash,
+    equal,
+  };
+}
+
+template <
+    typename T
+  , typename U
+  , typename ElemT
+  , typename ElemU
+  , std::size_t... KNs
+  , std::enable_if_t<
+      std::is_same<ElemT, bits::element_t<T>>::value
+   && std::is_same<ElemU, bits::element_t<U>>::value
+    , std::size_t>... VNs
+  >
+constexpr auto make_unordered_map(std::pair<
+    bits::array_ref<const ElemT, KNs>
+  , bits::array_ref<const ElemU, VNs>
+  > const&... items) {
+  return make_unordered_map<T, U>(anna<T>{}, std::equal_to<T>{}, items...);
 }
 
 } // namespace frozen

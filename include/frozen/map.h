@@ -28,6 +28,7 @@
 #include "frozen/bits/constexpr_assert.h"
 #include "frozen/bits/exceptions.h"
 #include "frozen/bits/mpl.h"
+#include "frozen/bits/pic_array.h"
 #include "frozen/bits/version.h"
 
 #include <iterator>
@@ -72,9 +73,10 @@ public:
 
 } // namespace impl
 
-template <class Key, class Value, std::size_t N, class Compare = std::less<Key>>
+template <class Key, class Value, std::size_t N, class Compare = std::less<Key>,
+          class Container = bits::carray<std::pair<const Key, Value>, N>>
 class map : private impl::CompareKey<Compare> {
-  using container_type = bits::carray<std::pair<const Key, Value>, N>;
+  using container_type = Container;
   container_type items_;
 
 public:
@@ -112,10 +114,10 @@ public:
       : map{items, Compare{}} {}
 
   /* element access */
-  constexpr Value const& at(Key const &key) const {
+  constexpr decltype(auto) at(Key const &key) const {
     return at_impl(*this, key);
   }
-  constexpr Value& at(Key const &key) {
+  constexpr decltype(auto) at(Key const &key) {
     return at_impl(*this, key);
   }
 
@@ -194,12 +196,19 @@ public:
 
  private:
   template <class This, class KeyType>
-  static inline constexpr auto& at_impl(This&& self, KeyType const &key) {
-    auto where = self.find(key);
-    if (where != self.end())
-      return where->second;
-    else
+  static inline constexpr decltype(auto) at_impl(This&& self, KeyType const &key)
+  {
+    using return_type = bits::copy_cv_iter_ref_t<
+        This&&
+      , typename std::decay_t<This>::reference
+      , decltype(std::forward<This>(self).lower_bound(key)->second)
+      >;
+
+    auto where = std::forward<This>(self).find(key);
+    if (where == self.end())
+      // early escape to ensure type deduction works even when std::abort() isn't properly marked as [[noreturn]]
       FROZEN_THROW_OR_ABORT(std::out_of_range("unknown key"));
+    return static_cast<return_type>(where->second);
   }
 
   template <class This, class KeyType>
@@ -236,9 +245,9 @@ public:
   }
 };
 
-template <class Key, class Value, class Compare>
-class map<Key, Value, 0, Compare> : private impl::CompareKey<Compare> {
-  using container_type = bits::carray<std::pair<Key, Value>, 0>;
+template <class Key, class Value, class Compare, class Container>
+class map<Key, Value, 0, Compare, Container> : private impl::CompareKey<Compare> {
+  using container_type = Container;
 
 public:
   using key_type = Key;
@@ -350,6 +359,111 @@ constexpr auto make_map(std::pair<T, U> const (&items)[N], Compare const& compar
 template <typename T, typename U, typename Compare, std::size_t N>
 constexpr auto make_map(std::array<std::pair<T, U>, N> const &items, Compare const& compare = Compare{}) {
   return map<T, U, N, Compare>{items, compare};
+}
+
+template <
+    typename T
+  , typename U
+  , typename Compare
+  , std::enable_if_t<
+      !bits::is_pair<Compare>::value
+    , std::size_t>... KNs
+  >
+constexpr auto make_map(
+  Compare const& compare,
+  std::pair<
+    bits::array_ref<const bits::element_t<T>, KNs>
+  , U> const&... items) {
+  constexpr const auto key_storage_size = bits::accumulate({KNs...});
+  using container_type = bits::pic_array<std::pair<const T, U>, sizeof...(KNs), key_storage_size>;
+  using value_type = typename container_type::value_type;
+  return map<T, U, sizeof...(KNs), Compare, container_type>{
+    container_type{value_type(T(items.first.array), U(items.second))...},
+    compare,
+  };
+}
+
+template <
+    typename T
+  , typename U
+  , std::size_t... KNs
+  >
+constexpr auto make_map(
+  std::pair<
+    bits::array_ref<const bits::element_t<T>, KNs>
+  , U> const&... items) {
+  return make_map<T, U>(std::less<T>{}, items...);
+}
+
+template <
+    typename T
+  , typename U
+  , typename Compare
+  , std::enable_if_t<
+      !bits::is_pair<Compare>::value
+    , std::size_t>... VNs
+  >
+constexpr auto make_map(
+  Compare const& compare,
+  std::pair<
+    T
+  , bits::array_ref<const bits::element_t<U>, VNs>> const&... items) {
+  constexpr const auto key_storage_size = bits::accumulate({VNs...});
+  using container_type = bits::pic_array<std::pair<const T, U>, sizeof...(VNs), key_storage_size>;
+  using value_type = typename container_type::value_type;
+  return map<T, U, sizeof...(VNs), Compare, container_type>{
+    container_type{value_type(T(items.first), U(items.second.array))...},
+    compare,
+  };
+}
+
+template <
+    typename T
+  , typename U
+  , std::size_t... KNs
+  >
+constexpr auto make_map(
+  std::pair<
+    T
+  , bits::array_ref<const bits::element_t<U>, KNs>> const&... items) {
+  return make_map<T, U>(std::less<T>{}, items...);
+}
+
+template <
+    typename T
+  , typename U
+  , typename Compare
+  , std::size_t... KNs
+  , std::enable_if_t<
+      !bits::is_pair<Compare>::value
+    , std::size_t>... VNs
+  >
+constexpr auto make_map(
+  Compare const& compare,
+  std::pair<
+    bits::array_ref<const bits::element_t<T>, KNs>
+  , bits::array_ref<const bits::element_t<U>, VNs>> const&... items) {
+  constexpr const auto key_storage_size = bits::accumulate({KNs...});
+  constexpr const auto val_storage_size = bits::accumulate({VNs...});
+  using container_type = bits::pic_array<std::pair<const T, U>, sizeof...(KNs), key_storage_size + val_storage_size>;
+  using value_type = typename container_type::value_type;
+  return map<T, U, sizeof...(KNs), Compare, container_type>{
+    container_type{value_type(T(items.first.array), U(items.second.array))...},
+    compare,
+  };
+}
+
+template <
+    typename T
+  , typename U
+  , std::size_t... KNs
+  , std::size_t... VNs
+  >
+constexpr auto make_map(
+  std::pair<
+    bits::array_ref<const bits::element_t<T>, KNs>
+  , bits::array_ref<const bits::element_t<U>, VNs>> const&... items) {
+  return make_map<T, U>(std::less<T>{}, items...);
 }
 
 } // namespace frozen

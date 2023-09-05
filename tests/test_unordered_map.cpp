@@ -56,6 +56,7 @@ TEST_CASE("singleton frozen unordered map", "[unordered map]") {
 
   static_assert(std::is_same<typename decltype(ze_map)::key_type, int>::value, "");
   static_assert(std::is_same<typename decltype(ze_map)::mapped_type, double>::value, "");
+  static_assert(std::is_same<decltype(ze_map.at(1)), const double&>::value, "");
 }
 
 // This is mainly a test that construction does not time out
@@ -234,7 +235,12 @@ struct eq {
 };
 
 TEST_CASE("frozen::unordered_map heterogeneous lookup", "[unordered_map]") {
-  constexpr auto map = frozen::make_unordered_map<frozen::string, int>({{"one", 1}, {"two", 2}, {"three", 3}});
+  using frozen::kv_pair;
+  constexpr auto map = frozen::make_unordered_map<frozen::string, int>(
+      kv_pair("one", 1)
+    , kv_pair("two", 2)
+    , kv_pair("three", 3)
+  );
 
   REQUIRE(map.find(std::string{"two"}, frozen::elsa<std::string>{}, eq{})->second == 2);
 }
