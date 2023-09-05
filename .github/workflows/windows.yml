@@ -22,15 +22,10 @@ jobs:
       with:
         fetch-depth: 1
 
-    - name: Prepare
-      run: cmake -E make_directory build
-
     - name: Configure
-      working-directory: build
       env:
           CXXFLAGS: /std:c++${{matrix.cxxstandard}}
-      run: cmake -DCMAKE_BUILD_TYPE=DEBUG "-Dfrozen.coverage=ON" -DCMAKE_VERBOSE_MAKEFILE=ON ..
+      run: cmake -DCMAKE_BUILD_TYPE=DEBUG "-Dfrozen.coverage=ON" -DCMAKE_VERBOSE_MAKEFILE=ON -B build -S .
 
     - name: Build
-      working-directory: build
-      run: cmake --build .
+      run: cmake --build build
