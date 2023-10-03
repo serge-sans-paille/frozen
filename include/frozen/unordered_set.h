@@ -102,13 +102,9 @@ public:
   constexpr size_type max_size() const { return N; }
 
   /* lookup */
-  template <class KeyType, class Hasher, class Equal>
-  constexpr std::size_t count(KeyType const &key, Hasher const &hash, Equal const &equal) const {
-    return find(key, hash, equal) != end();
-  }
   template <class KeyType>
   constexpr std::size_t count(KeyType const &key) const {
-    return count(key, hash_function(), key_eq());
+    return find(key, hash_function(), key_eq()) != end();
   }
 
   template <class KeyType, class Hasher, class Equal>
@@ -122,7 +118,12 @@ public:
   }
   template <class KeyType>
   constexpr const_iterator find(KeyType const &key) const {
-    return find(key, hash_function(), key_eq());
+    auto const pos = tables_.lookup(key, hash_function());
+    auto it = keys_.begin() + pos;
+    if (it != keys_.end() && key_eq()(*it, key))
+      return it;
+    else
+      return keys_.end();
   }
 
   template <class KeyType>
@@ -130,18 +131,13 @@ public:
     return this->find(key) != keys_.end();
   }
 
-  template <class KeyType, class Hasher, class Equal>
-  constexpr std::pair<const_iterator, const_iterator> equal_range(
-          KeyType const &key, Hasher const &hash, Equal const &equal) const {
-    auto const it = find(key, hash, equal);
+  template <class KeyType>
+  constexpr std::pair<const_iterator, const_iterator> equal_range(KeyType const &key) const {
+    auto const it = find(key);
     if (it != end())
       return {it, it + 1};
     else
       return {keys_.end(), keys_.end()};
-  }
-  template <class KeyType>
-  constexpr std::pair<const_iterator, const_iterator> equal_range(KeyType const &key) const {
-    return equal_range(key, hash_function(), key_eq());
   }
 
   /* bucket interface */

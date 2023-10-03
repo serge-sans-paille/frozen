@@ -5,6 +5,9 @@
 #include <unordered_map>
 #include <string>
 
+#include <cctype>
+#include <algorithm>
+
 #include "bench.hpp"
 #include "catch.hpp"
 TEST_CASE("singleton frozen unordered map", "[unordered map]") {
@@ -233,12 +236,6 @@ struct eq {
   }
 };
 
-TEST_CASE("frozen::unordered_map heterogeneous lookup", "[unordered_map]") {
-  constexpr auto map = frozen::make_unordered_map<frozen::string, int>({{"one", 1}, {"two", 2}, {"three", 3}});
-
-  REQUIRE(map.find(std::string{"two"}, frozen::elsa<std::string>{}, eq{})->second == 2);
-}
-
 TEST_CASE("frozen::unordered_map heterogeneous container", "[unordered_map]") {
   constexpr auto map = frozen::make_unordered_map<frozen::string, int>(
           {{"one", 1}, {"two", 2}, {"three", 3}},
@@ -246,4 +243,35 @@ TEST_CASE("frozen::unordered_map heterogeneous container", "[unordered_map]") {
 
   REQUIRE(map.find(std::string{"two"})->second == 2);
   REQUIRE(map.find(frozen::string{"two"})->second == 2);
+}
+
+
+// Dummy structure to check/showcase transparent comparison
+struct case_insensitive {
+  const char data[3];
+  case_insensitive(const char (&s)[4]) : data{s[0], s[1], s[2]} {}
+
+  friend bool operator==(frozen::string self, case_insensitive other) {
+    return std::equal(self.begin(), self.end(), other.data, other.data + 3,
+        [](char s, char o) { return std::tolower(s) == std::tolower(o);});
+  }
+};
+
+template <>
+struct frozen::elsa<case_insensitive> {
+  constexpr std::size_t operator()(case_insensitive const &value, std::size_t seed) const {
+    char tmp[3];
+    for(size_t i = 0; i < 3; ++i)
+      tmp[i] = tolower(value.data[i]);
+    return frozen::elsa<>()(frozen::string(tmp, 3), seed);
+  }
+};
+
+TEST_CASE("frozen::unordered_map transparent container", "[unordered_map]") {
+  constexpr frozen::unordered_map<frozen::string, int, 1, frozen::anna<>, std::equal_to<>> map = {{"one", 1}};
+
+  REQUIRE(map.find(case_insensitive("OnE"))->second == 1);
+  REQUIRE(map.count(case_insensitive("One")) == 1);
+  REQUIRE(map.count(case_insensitive("TwO")) == 0);
+  REQUIRE(map.count(case_insensitive("333")) == 0);
 }
