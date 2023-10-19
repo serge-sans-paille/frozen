@@ -3,16 +3,11 @@ set_project("frozen")
 
 set_version("1.1.0", { build = "%Y%m%d%H%M" })
 
-option("enable_module")
-do
-    add_defines("EXAMPLES_USE_MODULE")
-end
-
+option("enable_module", { defines = "EXAMPLES_USE_MODULE" })
 option("enable_tests")
 option("enable_benchmark")
 
-target("frozen")
-do
+target("frozen", function()
     set_languages("c++latest")
     if get_config("enable_module") then
         set_kind("object")
@@ -25,13 +20,11 @@ do
     if get_config("enable_module") then
         add_files("module/frozen.cppm", { install = true })
     end
-end
-target_end()
+end)
 
 if get_config("enable_benchmark") then
     add_requires("benchmark")
-    target("frozen.benchmark")
-    do
+    target("frozen.benchmark", function()
         set_kind("binary")
         set_languages("c++17")
 
@@ -44,12 +37,11 @@ if get_config("enable_benchmark") then
         add_packages("benchmark")
 
         add_deps("frozen")
-    end
+    end)
 end
 
 if get_config("enable_tests") then
-    target("frozen.tests")
-    do
+    target("frozen.tests", function()
         set_kind("binary")
         set_languages("c++latest")
         add_rules("mode.coverage")
@@ -66,10 +58,9 @@ if get_config("enable_tests") then
         end
 
         add_deps("frozen")
-    end
+    end)
 
-    target("frozen.tests.noexcept")
-    do
+    target("frozen.tests.noexcept", function()
         set_kind("binary")
         set_languages("c++latest")
         add_rules("mode.coverage")
@@ -87,11 +78,10 @@ if get_config("enable_tests") then
         end
 
         add_deps("frozen")
-    end
+    end)
 
     for _, example in ipairs(os.files("examples/*.cpp")) do
-        target("frozen.example." .. path.basename(example))
-        do
+        target("frozen.example." .. path.basename(example), function()
             set_kind("binary")
             set_languages("c++latest")
 
@@ -105,6 +95,6 @@ if get_config("enable_tests") then
                 add_cxxflags("-fconstexpr-steps=123456789", { tools = "clang" })
                 add_cxxflags("-fconstexpr-ops-limit=12345678910", { tools = "gcc" })
             end
-        end
+        end)
     end
 end
