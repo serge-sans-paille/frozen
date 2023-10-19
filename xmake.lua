@@ -9,14 +9,13 @@ option("enable_benchmark")
 
 target("frozen", function()
     set_languages("c++latest")
+    set_kind("headeronly")
     if get_config("enable_module") then
-        set_kind("object")
-    else
-        set_kind("headeronly")
+      set_kind("static") -- static atm because headeronly doesn't generate package metadata, a fix is incoming
     end
 
     add_includedirs("include", { public = true })
-    add_headerfiles("include/(frozen/**.hpp)")
+    add_headerfiles("include/(frozen/**.h)")
     if get_config("enable_module") then
         add_files("module/frozen.cppm", { install = true })
     end
