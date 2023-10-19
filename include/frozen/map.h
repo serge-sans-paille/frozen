@@ -30,8 +30,10 @@
 #include "frozen/bits/mpl.h"
 #include "frozen/bits/version.h"
 
+#ifndef FROZEN_DONT_INCLUDE_STL
 #include <iterator>
 #include <utility>
+#endif
 
 namespace frozen {
 

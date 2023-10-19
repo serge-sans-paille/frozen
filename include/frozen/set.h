@@ -29,8 +29,10 @@
 #include "frozen/bits/version.h"
 #include "frozen/bits/defines.h"
 
+#ifndef FROZEN_DONT_INCLUDE_STL
 #include <iterator>
 #include <utility>
+#endif
 
 namespace frozen {
 

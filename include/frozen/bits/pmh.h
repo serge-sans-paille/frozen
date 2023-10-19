@@ -27,10 +27,12 @@
 #include "frozen/bits/algorithms.h"
 #include "frozen/bits/basic_types.h"
 
+#ifndef FROZEN_DONT_INCLUDE_STL
 #include <array>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
+#endif
 
 namespace frozen {
 

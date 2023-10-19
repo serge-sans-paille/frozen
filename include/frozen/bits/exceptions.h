@@ -30,7 +30,9 @@
 
 #else
 
+#ifndef FROZEN_DONT_INCLUDE_STL
 #include <stdexcept>
+#endif
 #define FROZEN_THROW_OR_ABORT(err) throw err
 
 

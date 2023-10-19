@@ -23,7 +23,9 @@
 #ifndef FROZEN_LETITGO_ELSA_H
 #define FROZEN_LETITGO_ELSA_H
 
+#ifndef FROZEN_DONT_INCLUDE_STL
 #include <type_traits>
+#endif
 
 namespace frozen {
 

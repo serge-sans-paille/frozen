@@ -29,10 +29,12 @@
 #include "frozen/bits/defines.h"
 
 #include <cstddef>
+#ifndef FROZEN_DONT_INCLUDE_STL
 #include <functional>
 
 #ifdef FROZEN_LETITGO_HAS_STRING_VIEW
 #include <string_view>
+#endif
 #endif
 
 namespace frozen {

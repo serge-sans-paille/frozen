@@ -1,6 +1,11 @@
+#ifdef EXAMPLES_USE_MODULE
+import frozen;
+#else 
 #include <frozen/set.h>
 #include <frozen/string.h>
 #include <frozen/unordered_map.h>
+#endif
+
 #include <iostream>
 
 /// MAYBE_CONSTINIT expands to `constinit` if available.
