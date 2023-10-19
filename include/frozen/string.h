@@ -28,8 +28,8 @@
 #include "frozen/bits/version.h"
 #include "frozen/bits/defines.h"
 
-#include <cstddef>
 #ifndef FROZEN_DONT_INCLUDE_STL
+#include <cstddef>
 #include <functional>
 
 #ifdef FROZEN_LETITGO_HAS_STRING_VIEW
