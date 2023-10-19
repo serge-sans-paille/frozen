@@ -26,8 +26,8 @@
 #include "frozen/bits/algorithms.h"
 #include "frozen/bits/version.h"
 
-#include <cstdint>
 #ifndef FROZEN_DONT_INCLUDE_STL
+#include <cstdint>
 #include <type_traits>
 #endif
 
