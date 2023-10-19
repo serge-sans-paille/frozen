@@ -16,7 +16,7 @@ target("frozen", function()
     end
 
     add_includedirs("include", { public = true })
-    add_headerfiles("include/frozen/**.hpp")
+    add_headerfiles("include/(frozen/**.hpp)")
     if get_config("enable_module") then
         add_files("module/frozen.cppm", { install = true })
     end
