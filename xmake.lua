@@ -4,6 +4,10 @@ set_project("frozen")
 set_version("1.1.0", { build = "%Y%m%d%H%M" })
 
 option("enable_module")
+do
+    add_defines("EXAMPLES_USE_MODULE")
+end
+
 option("enable_tests")
 option("enable_benchmark")
 
@@ -94,6 +98,8 @@ if get_config("enable_tests") then
             add_files(example)
 
             add_deps("frozen")
+
+            add_options("enable_module")
 
             if path.basename(example) == "html_entities_map" then
                 add_cxxflags("-fconstexpr-steps=123456789", { tools = "clang" })

@@ -27,7 +27,9 @@
 #include "frozen/bits/version.h"
 
 #include <cstdint>
+#ifndef FROZEN_DONT_INCLUDE_STL
 #include <type_traits>
+#endif
 
 namespace frozen {
 template <class UIntType, UIntType a, UIntType c, UIntType m>

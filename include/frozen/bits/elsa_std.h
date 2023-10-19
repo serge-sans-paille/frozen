@@ -5,10 +5,12 @@
 #include "elsa.h"
 #include "hash_string.h"
 
+#ifndef FROZEN_DONT_INCLUDE_STL
 #ifdef FROZEN_LETITGO_HAS_STRING_VIEW
 #include <string_view>
 #endif
 #include <string>
+#endif 
 
 namespace frozen {
 
