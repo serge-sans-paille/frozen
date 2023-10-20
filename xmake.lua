@@ -4,6 +4,7 @@ set_project("frozen")
 set_version("1.1.0", { build = "%Y%m%d%H%M" })
 
 option("enable_module", { defines = "EXAMPLES_USE_MODULE" })
+option("enable_std_import", { defines = "FROZEN_DONT_INCLUDE_STL" })
 option("enable_tests")
 option("enable_benchmark")
 
@@ -16,6 +17,9 @@ target("frozen", function()
 
     add_includedirs("include", { public = true })
     add_headerfiles("include/(frozen/**.h)")
+
+    add_options("enable_std_import")
+
     if get_config("enable_module") then
         add_files("module/frozen.cppm", { install = true })
     end
