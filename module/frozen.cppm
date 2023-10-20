@@ -20,11 +20,22 @@
  * under the License.
  */
 
+module;
+
+#ifndef FROZEN_DONT_INCLUDE_STL
+#include <frozen/algorithm.h>
+#include <frozen/map.h>
+#include <frozen/random.h>
+#include <frozen/set.h>
+#include <frozen/string.h>
+#include <frozen/unordered_set.h>
+#include <frozen/unordered_map.h>
+#endif
+
 export module frozen;
 
 #ifdef FROZEN_DONT_INCLUDE_STL
 import std;
-#endif 
 
 extern "C++" {
 #include <frozen/algorithm.h>
@@ -35,6 +46,7 @@ extern "C++" {
 #include <frozen/unordered_set.h>
 #include <frozen/unordered_map.h>
 }
+#endif 
 
 export namespace frozen {
     /* algorithm */ 
