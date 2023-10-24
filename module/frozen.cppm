@@ -91,4 +91,3 @@ export namespace frozen {
     using frozen::make_unordered_set;
 }
 
-export std::hash;
