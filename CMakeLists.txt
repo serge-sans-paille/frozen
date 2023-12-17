@@ -126,9 +126,13 @@ if(frozen.installation)
   # generate a CMake configuration file for consumption by CMake's `find_package`
   # intrinsic
   #
+  if(${CMAKE_VERSION} VERSION_GREATER "3.14")
+    set(OPTIONAL_ARCH_INDEPENDENT "ARCH_INDEPENDENT")
+  endif()
   write_basic_package_version_file("frozenConfigVersion.cmake"
     VERSION ${PROJECT_VERSION}
-    COMPATIBILITY SameMajorVersion)
+    COMPATIBILITY SameMajorVersion
+    ${OPTIONAL_ARCH_INDEPENDENT})
 
   install(FILES "${PROJECT_BINARY_DIR}/frozenConfigVersion.cmake"
     DESTINATION "${CMAKE_INSTALL_DATADIR}/cmake/frozen")
