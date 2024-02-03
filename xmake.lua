@@ -21,7 +21,7 @@ target("frozen", function()
     add_options("enable_std_import")
 
     if get_config("enable_module") then
-        add_files("module/frozen.cppm", { install = true })
+        add_files("module/frozen.cppm", { public = true })
     end
 end)
 
