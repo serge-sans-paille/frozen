@@ -8,20 +8,25 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compiler:
-          # - g++-9
-          - g++-10
-          - g++-11
-          - g++-12
-          # - clang++-12
-          - clang++-13
-          - clang++-14
-        cmake_args:
-          - ""
         cxxstandard:
           - 14
           - 17
           - 2a
+        include:
+          - compiler: g++-10
+            stdlib: libstdc++
+          - compiler: g++-11
+            stdlib: libstdc++
+          - compiler: g++-12
+            stdlib: libstdc++
+          - compiler: g++-13
+            stdlib: libstdc++
+          - compiler: clang++-13
+            stdlib: libc++
+          - compiler: clang++-14
+            stdlib: libc++
+          - compiler: clang++-15
+            stdlib: libstdc++
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -35,7 +40,7 @@ jobs:
       working-directory: build
       env:
           CXX: ${{matrix.compiler}}
-          CXXFLAGS: -std=c++${{matrix.cxxstandard}}
+          CXXFLAGS: -std=c++${{matrix.cxxstandard}} -stdlib=${{matrix.stdlib}}
       run: cmake -DCMAKE_BUILD_TYPE=DEBUG "-Dfrozen.coverage=ON" -DCMAKE_VERBOSE_MAKEFILE=ON ..
 
     - name: Build
