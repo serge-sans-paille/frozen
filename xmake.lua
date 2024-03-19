@@ -3,29 +3,35 @@ set_project("frozen")
 
 set_version("1.1.0", { build = "%Y%m%d%H%M" })
 
-option("enable_module", { defines = "EXAMPLES_USE_MODULE" })
-option("enable_std_import", { defines = "FROZEN_DONT_INCLUDE_STL" })
-option("enable_tests")
-option("enable_benchmark")
+option("modules", { defines = "EXAMPLES_USE_MODULE" })
+option("std_import", { defines = "FROZEN_DONT_INCLUDE_STL" })
+option("tests", {default = false})
+option("benchmark", {default = false})
+
+local kind = "static"
+if xmake:version():ge("2.8.7") then
+    kind = "moduleonly"
+end
 
 target("frozen", function()
     set_languages("c++latest")
-    set_kind("headeronly")
-    if get_config("enable_module") then
-      set_kind("static") -- static atm because headeronly doesn't generate package metadata, a fix is incoming
+    if get_config("modules") then
+        set_kind(kind)
+    else
+        set_kind("headeronly")
     end
 
     add_includedirs("include", { public = true })
     add_headerfiles("include/(frozen/**.h)")
 
-    add_options("enable_std_import")
+    add_options("std_import")
 
-    if get_config("enable_module") then
+    if get_config("modules") then
         add_files("module/frozen.cppm", { public = true })
     end
 end)
 
-if get_config("enable_benchmark") then
+if get_config("benchmark") then
     add_requires("benchmark")
     target("frozen.benchmark", function()
         set_kind("binary")
@@ -33,7 +39,7 @@ if get_config("enable_benchmark") then
 
         add_files("benchmarks/**.cpp")
 
-        if not get_config("enable_benchmark_str_search") then
+        if not get_config("benchmark_str_search") then
             remove_files("benchmarks/bench_str_search.cpp")
         end
 
@@ -43,7 +49,7 @@ if get_config("enable_benchmark") then
     end)
 end
 
-if get_config("enable_tests") then
+if get_config("tests") then
     target("frozen.tests", function()
         set_kind("binary")
         set_languages("c++latest")
@@ -92,7 +98,7 @@ if get_config("enable_tests") then
 
             add_deps("frozen")
 
-            add_options("enable_module")
+            add_options("modules")
 
             if path.basename(example) == "html_entities_map" then
                 add_cxxflags("-fconstexpr-steps=123456789", { tools = "clang" })
