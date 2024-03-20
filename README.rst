@@ -26,6 +26,15 @@ Once initialized, the container keys cannot be updated, and in exchange, lookups
 are faster. And initialization is free when ``constexpr`` or ``constinit`` is 
 used :-).
 
+Stable Version
+--------------
+
+The Frozen library is pretty stable now, have been so for years, so:
+
+1. The ``master`` version can be used as the default **stable** version.
+2. It is in maintenance mode. I still accept commits that make the code cleaner
+   ``|`` faster ``|`` more modern, but expect some latency in the review process.
+
 
 Installation
 ------------
