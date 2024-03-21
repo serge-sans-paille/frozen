@@ -30,7 +30,9 @@
 #include "frozen/bits/version.h"
 #include "frozen/random.h"
 
+#ifndef FROZEN_DONT_INCLUDE_STL
 #include <utility>
+#endif 
 
 namespace frozen {
 
