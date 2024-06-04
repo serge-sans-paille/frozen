@@ -1,7 +1,12 @@
-
-#include <cinttypes>
+#ifdef EXAMPLES_USE_MODULE
+import frozen;
+#else 
 #include <frozen/unordered_map.h>
 #include <frozen/string.h>
+#endif
+
+#include <cinttypes>
+#include <utility>
 
 struct codes_t
 {

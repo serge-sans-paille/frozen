@@ -25,8 +25,10 @@
 
 #include "frozen/bits/basic_types.h"
 
+#ifndef FROZEN_DONT_INCLUDE_STL
 #include <limits>
 #include <tuple>
+#endif
 
 namespace frozen {
 

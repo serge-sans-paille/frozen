@@ -1,3 +1,5 @@
+build/
+.xmake
 tests/test_main
 tests/*.o
 *.*~

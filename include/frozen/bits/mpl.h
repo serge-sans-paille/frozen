@@ -23,7 +23,9 @@
 #ifndef FROZEN_LETITGO_BITS_MPL_H
 #define FROZEN_LETITGO_BITS_MPL_H
 
+#ifndef FROZEN_DONT_INCLUDE_STL
 #include <utility>
+#endif
 
 namespace frozen {
 
