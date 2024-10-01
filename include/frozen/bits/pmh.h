@@ -103,6 +103,11 @@ pmh_buckets<M> constexpr make_pmh_buckets(const carray<Item, N> & items,
     bool rejected = false;
     for (std::size_t i = 0; i < items.size(); ++i) {
       auto & bucket = result.buckets[hash(key(items[i]), static_cast<std::size_t>(result.seed)) % M];
+      for (const auto item_index : bucket) {
+        if (key(items[item_index]) == key(items[i])) {
+          (void)"Duplicate keys present, check your input data"; exit(1);
+        }
+      }
       if (bucket.size() >= result_t::bucket_max) {
         rejected = true;
         break;
