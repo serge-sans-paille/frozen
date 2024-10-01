@@ -90,11 +90,26 @@ struct pmh_buckets {
   }
 };
 
-template <std::size_t M, class Item, std::size_t N, class Hash, class Key, class PRG>
+inline void check(const char[]) {}
+
+template <class Bucket, class Item, std::size_t N, class Key, class KeyType, class KeyEqual>
+constexpr void
+check_for_duplicate_keys(const carray<Item, N> &items,
+                         const Bucket & bucket, Key const &key,
+                         KeyType const &current_key, KeyEqual const &keyequal) {
+  for (const auto item_index : bucket) {
+    if (keyequal(key(items[item_index]), current_key)) {
+      check("Duplicate keys present, check your input data");
+    }
+  }
+}
+
+template <std::size_t M, class Item, std::size_t N, class Hash, class Key, class PRG, class KeyEqual>
 pmh_buckets<M> constexpr make_pmh_buckets(const carray<Item, N> & items,
                                 Hash const & hash,
                                 Key const & key,
-                                PRG & prg) {
+                                PRG & prg,
+                                KeyEqual const & keyequal) {
   using result_t = pmh_buckets<M>;
   // Continue until all items are placed without exceeding bucket_max
   while (1) {
@@ -102,12 +117,9 @@ pmh_buckets<M> constexpr make_pmh_buckets(const carray<Item, N> & items,
     result.seed = prg();
     bool rejected = false;
     for (std::size_t i = 0; i < items.size(); ++i) {
-      auto & bucket = result.buckets[hash(key(items[i]), static_cast<std::size_t>(result.seed)) % M];
-      for (const auto item_index : bucket) {
-        if (key(items[item_index]) == key(items[i])) {
-          (void)"Duplicate keys present, check your input data"; exit(1);
-        }
-      }
+      const auto & current_key = key(items[i]);
+      auto & bucket = result.buckets[hash(current_key, static_cast<std::size_t>(result.seed)) % M];
+      check_for_duplicate_keys(items, bucket, key, current_key, keyequal);
       if (bucket.size() >= result_t::bucket_max) {
         rejected = true;
         break;
@@ -189,14 +201,15 @@ struct pmh_tables : private Hasher {
 };
 
 // Make pmh tables for given items, hash function, prg, etc.
-template <std::size_t M, class Item, std::size_t N, class Hash, class Key, class PRG>
+template <std::size_t M, class Item, std::size_t N, class Hash, class Key, class PRG, class KeyEqual>
 pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
                                                                items,
                                                            Hash const &hash,
                                                            Key const &key,
-                                                           PRG prg) {
+                                                           PRG prg,
+                                                           KeyEqual const &keyequal) {
   // Step 1: Place all of the keys into buckets
-  auto step_one = make_pmh_buckets<M>(items, hash, key, prg);
+  auto step_one = make_pmh_buckets<M>(items, hash, key, prg, keyequal);
 
   // Step 2: Sort the buckets to process the ones with the most items first.
   auto buckets = step_one.get_sorted_buckets();

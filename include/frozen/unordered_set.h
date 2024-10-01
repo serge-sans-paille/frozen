@@ -78,7 +78,7 @@ public:
       : KeyEqual{equal}
       , keys_{keys}
       , tables_{bits::make_pmh_tables<storage_size>(
-            keys_, hash, bits::Get{}, default_prg_t{})} {}
+            keys_, hash, bits::Get{}, default_prg_t{}, equal)} {}
   explicit constexpr unordered_set(container_type keys)
       : unordered_set{keys, Hash{}, KeyEqual{}} {}
 
