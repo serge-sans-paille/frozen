@@ -5,7 +5,7 @@
 #include "elsa.h"
 #include "hash_string.h"
 
-#ifndef FROZEN_DONT_INCLUDE_STL
+#ifndef FROZEN_USE_STD_MODULE
 #ifdef FROZEN_LETITGO_HAS_STRING_VIEW
 #include <string_view>
 #endif

@@ -23,7 +23,7 @@
 #ifndef FROZEN_LETITGO_ELSA_H
 #define FROZEN_LETITGO_ELSA_H
 
-#ifndef FROZEN_DONT_INCLUDE_STL
+#ifndef FROZEN_USE_STD_MODULE
 #include <type_traits>
 #endif
 

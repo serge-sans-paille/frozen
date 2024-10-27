@@ -31,7 +31,7 @@
 #include "frozen/bits/version.h"
 #include "frozen/random.h"
 
-#ifndef FROZEN_DONT_INCLUDE_STL
+#ifndef FROZEN_USE_STD_MODULE
 #include <tuple>
 #include <functional>
 #include <utility>

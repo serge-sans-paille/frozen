@@ -20,13 +20,19 @@
  * under the License.
  */
 
+module;
+
+#include <cassert>
+
 export module frozen;
 
-#ifdef FROZEN_DONT_INCLUDE_STL
+#ifdef FROZEN_USE_STD_MODULE
 import std;
 #endif 
 
 extern "C++" {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Winclude-angled-in-module-purview"
 #include <frozen/algorithm.h>
 #include <frozen/map.h>
 #include <frozen/random.h>
@@ -34,6 +40,7 @@ extern "C++" {
 #include <frozen/string.h>
 #include <frozen/unordered_set.h>
 #include <frozen/unordered_map.h>
+#pragma clang diagnostic pop
 }
 
 export namespace frozen {

@@ -1,12 +1,16 @@
-#ifdef EXAMPLES_USE_MODULE
+#ifdef FROZEN_USE_STD_MODULE
+import std;
+#else
+#include <iostream>
+#endif
+
+#ifdef FROZEN_USE_MODULE
 import frozen;
 #else 
 #include <frozen/set.h>
 #include <frozen/string.h>
 #include <frozen/unordered_map.h>
 #endif
-
-#include <iostream>
 
 /// MAYBE_CONSTINIT expands to `constinit` if available.
 #if __cpp_constinit

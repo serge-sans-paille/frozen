@@ -30,7 +30,7 @@
 #include "frozen/bits/mpl.h"
 #include "frozen/bits/version.h"
 
-#ifndef FROZEN_DONT_INCLUDE_STL
+#ifndef FROZEN_USE_STD_MODULE
 #include <iterator>
 #include <utility>
 #endif

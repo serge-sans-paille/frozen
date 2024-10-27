@@ -25,14 +25,14 @@
 
 #if defined(FROZEN_NO_EXCEPTIONS) || (defined(_MSC_VER) && !defined(_CPPUNWIND)) || (!defined(_MSC_VER) && !defined(__cpp_exceptions))
 
-#ifndef FROZEN_DONT_INCLUDE_STL
+#ifndef FROZEN_USE_STD_MODULE
 #include <cstdlib>
 #endif
 #define FROZEN_THROW_OR_ABORT(_) std::abort()
 
 #else
 
-#ifndef FROZEN_DONT_INCLUDE_STL
+#ifndef FROZEN_USE_STD_MODULE
 #include <stdexcept>
 #endif
 #define FROZEN_THROW_OR_ABORT(err) throw err

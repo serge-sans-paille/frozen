@@ -167,7 +167,7 @@ public:
     if (size == 0)
       return { first, first };
 
-    if (size > size_t(last - first))
+    if (size > std::size_t(last - first))
       return { last, last };
 
     RandomAccessIterator iter = first + size - 1;

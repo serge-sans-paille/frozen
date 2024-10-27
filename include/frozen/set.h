@@ -29,7 +29,7 @@
 #include "frozen/bits/version.h"
 #include "frozen/bits/defines.h"
 
-#ifndef FROZEN_DONT_INCLUDE_STL
+#ifndef FROZEN_USE_STD_MODULE
 #include <iterator>
 #include <utility>
 #endif

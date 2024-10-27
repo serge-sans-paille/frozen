@@ -25,7 +25,7 @@
 
 #include "frozen/bits/basic_types.h"
 
-#ifndef FROZEN_DONT_INCLUDE_STL
+#ifndef FROZEN_USE_STD_MODULE
 #include <limits>
 #include <tuple>
 #endif

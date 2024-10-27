@@ -1,4 +1,4 @@
-#ifdef EXAMPLES_USE_MODULE
+#ifdef FROZEN_USE_MODULE
 import frozen;
 #else 
 #include <frozen/set.h>

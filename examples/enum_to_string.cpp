@@ -1,5 +1,3 @@
-#include <cstdio> // for std::puts
-
 /* ELF Relocations */
 
 #define ELF_RELOC(name, value) name = value,
@@ -57,10 +55,17 @@ ELF_RELOC(R_386_NUM,            43)
 
 #ifndef SWITCH_VERSION
 
-#ifdef FROZEN_VERSION
-#include "frozen/map.h"
+#ifdef FROZEN_USE_STD_MODULE
+import std;
 #else
+#include <cstdio>
 #include <map>
+#endif
+
+#ifdef FROZEN_USE_MODULE
+import frozen;
+#else
+#include "frozen/map.h"
 #endif
 
 #ifdef FROZEN_VERSION

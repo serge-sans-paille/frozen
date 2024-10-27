@@ -1,10 +1,20 @@
-#include <algorithm>
-#include <frozen/random.h>
-#include <iostream>
-#include <random>
-
+// include catch before import std to avoid STL issues
 #include "bench.hpp"
 #include "catch.hpp"
+
+#ifdef FROZEN_USE_STD_MODULE
+import std;
+#else
+#include <algorithm>
+#include <iostream>
+#include <random>
+#endif
+
+#ifdef FROZEN_USE_MODULE
+import frozen;
+#else 
+#include <frozen/random.h>
+#endif
 
 TEST_CASE("linear_congruential_engine", "[random]") {
 
