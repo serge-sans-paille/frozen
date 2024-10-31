@@ -74,7 +74,7 @@ export namespace frozen {
     using frozen::u32string;
 
     namespace string_literals {
-      using frozen::string_literals::operator"" _s;
+      using frozen::string_literals::operator""_s;
     }
 
     /* unordered_map */
