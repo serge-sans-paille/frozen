@@ -54,6 +54,17 @@ public:
 #ifdef FROZEN_LETITGO_HAS_STRING_VIEW
   constexpr basic_string(std::basic_string_view<chr_t> data)
       : data_(data.data()), size_(data.size()) {}
+
+  constexpr operator std::basic_string_view<chr_t>() const { return std::basic_string_view<chr_t>(data_, size_); }
+
+  constexpr bool operator==(std::basic_string_view<chr_t> other) const {
+    if (size_ != other.size())
+      return false;
+    for (std::size_t i = 0; i < size_; ++i)
+      if (data_[i] != other.data()[i])
+        return false;
+    return true;
+  }
 #endif
 
   constexpr basic_string(const basic_string &) noexcept = default;
