@@ -59,6 +59,7 @@ public:
   constexpr basic_string(const basic_string &) noexcept = default;
   constexpr basic_string &operator=(const basic_string &) noexcept = default;
 
+  constexpr std::size_t length() const { return size_; }
   constexpr std::size_t size() const { return size_; }
 
   constexpr chr_t operator[](std::size_t i) const { return data_[i]; }
