@@ -51,22 +51,6 @@ public:
   constexpr basic_string(chr_t const *data, std::size_t size)
       : data_(data), size_(size) {}
 
-#ifdef FROZEN_LETITGO_HAS_STRING_VIEW
-  constexpr basic_string(std::basic_string_view<chr_t> data)
-      : data_(data.data()), size_(data.size()) {}
-
-  constexpr operator std::basic_string_view<chr_t>() const { return std::basic_string_view<chr_t>(data_, size_); }
-
-  constexpr bool operator==(std::basic_string_view<chr_t> other) const {
-    if (size_ != other.size())
-      return false;
-    for (std::size_t i = 0; i < size_; ++i)
-      if (data_[i] != other.data()[i])
-        return false;
-    return true;
-  }
-#endif
-
   constexpr basic_string(const basic_string &) noexcept = default;
   constexpr basic_string &operator=(const basic_string &) noexcept = default;
 
@@ -74,6 +58,32 @@ public:
   constexpr std::size_t size() const { return size_; }
 
   constexpr chr_t operator[](std::size_t i) const { return data_[i]; }
+
+#ifdef FROZEN_LETITGO_HAS_STRING_VIEW
+  constexpr basic_string(std::basic_string_view<chr_t> data)
+      : data_(data.data()), size_(data.size()) {}
+
+  constexpr operator std::basic_string_view<chr_t>() const {
+    return std::basic_string_view<chr_t>(data_, size_);
+  }
+
+  constexpr bool operator==(std::basic_string_view<chr_t> other) const {
+    return (std::basic_string_view<chr_t>(data_, size_) == other);
+  }
+
+  constexpr bool operator<(const std::basic_string_view<chr_t> &other) const {
+    return (std::basic_string_view<chr_t>(data_, size_) < other);
+  }
+
+  constexpr bool operator==(basic_string other) const {
+    return (std::basic_string_view<chr_t>(data_, size_) == std::basic_string_view<chr_t>(other.data_, other.size_));
+  }
+
+  constexpr bool operator<(const basic_string &other) const {
+    return (std::basic_string_view<chr_t>(data_, size_) < std::basic_string_view<chr_t>(other.data_, other.size_));
+  }
+
+#else
 
   constexpr bool operator==(basic_string other) const {
     if (size_ != other.size_)
@@ -97,6 +107,8 @@ public:
     }
     return size() < other.size();
   }
+
+#endif
 
   friend constexpr bool operator>(const basic_string& lhs, const basic_string& rhs) {
     return rhs < lhs;
