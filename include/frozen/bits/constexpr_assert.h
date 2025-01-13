@@ -29,11 +29,10 @@
 
 // FIXME: find a way to implement that correctly for msvc
 #define constexpr_assert(cond, msg)
-
 #else
 
 #define constexpr_assert(cond, msg)\
-    assert(cond && msg);
+    assert(cond && msg)
 #endif
 
 #endif

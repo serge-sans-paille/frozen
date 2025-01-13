@@ -25,7 +25,6 @@
 
 #include "frozen/bits/algorithms.h"
 #include "frozen/bits/basic_types.h"
-#include "frozen/bits/constexpr_assert.h"
 #include "frozen/bits/exceptions.h"
 #include "frozen/bits/mpl.h"
 #include "frozen/bits/version.h"
@@ -105,7 +104,6 @@ public:
 
   constexpr map(std::initializer_list<value_type> items, Compare const &compare)
       : map{container_type {items}, compare} {
-        constexpr_assert(items.size() == N, "Inconsistent initializer_list size and type size argument");
       }
 
   constexpr map(std::initializer_list<value_type> items)

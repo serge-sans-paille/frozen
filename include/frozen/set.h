@@ -25,7 +25,6 @@
 
 #include "frozen/bits/algorithms.h"
 #include "frozen/bits/basic_types.h"
-#include "frozen/bits/constexpr_assert.h"
 #include "frozen/bits/version.h"
 #include "frozen/bits/defines.h"
 
@@ -69,7 +68,6 @@ public:
 
   constexpr set(std::initializer_list<Key> keys, Compare const & comp)
       : set{container_type{keys}, comp} {
-        constexpr_assert(keys.size() == N, "Inconsistent initializer_list size and type size argument");
       }
 
   constexpr set(std::initializer_list<Key> keys)
