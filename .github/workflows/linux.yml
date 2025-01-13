@@ -25,7 +25,7 @@ jobs:
             stdlib: libc++
           - compiler: clang++-14
             stdlib: libc++
-          - compiler: clang++-15
+          - compiler: clang++-16
             stdlib: libstdc++
     steps:
     - name: Checkout
