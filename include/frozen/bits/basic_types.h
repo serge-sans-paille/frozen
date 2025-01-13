@@ -24,6 +24,7 @@
 #define FROZEN_LETITGO_BASIC_TYPES_H
 
 #include "frozen/bits/exceptions.h"
+#include "frozen/bits/constexpr_assert.h"
 
 #include <array>
 #include <utility>
@@ -96,6 +97,10 @@ class carray {
   constexpr carray(const T& value, std::index_sequence<I...>)
       : data_{((void)I, value)...} {}
 
+  static constexpr void check_initializer(std::initializer_list<T> init) {
+    constexpr_assert(init.size() >= N, "Cannot initialize a carray with an smaller initializer list");
+  }
+
 public:
   // Container typdefs
   using value_type = T;
@@ -126,10 +131,8 @@ public:
   }
   template <typename U, std::enable_if_t<std::is_convertible<U, T>::value>* = nullptr>
   constexpr carray(std::initializer_list<U> init)
-    : carray(init.begin(), std::make_index_sequence<N>())
+    : carray((check_initializer(init), init.begin()), std::make_index_sequence<N>())
   {
-    // clang & gcc doesn't recognize init.size() as a constexpr
-    // static_assert(init.size() >= N, "Cannot initialize a carray with an smaller initializer list");
   }
   template <typename U, std::enable_if_t<std::is_convertible<U, T>::value>* = nullptr>
   constexpr carray(const carray<U, N>& rhs)

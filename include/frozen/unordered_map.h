@@ -24,7 +24,6 @@
 #define FROZEN_LETITGO_UNORDERED_MAP_H
 
 #include "frozen/bits/basic_types.h"
-#include "frozen/bits/constexpr_assert.h"
 #include "frozen/bits/elsa.h"
 #include "frozen/bits/exceptions.h"
 #include "frozen/bits/pmh.h"
@@ -86,12 +85,12 @@ public:
             bits::make_pmh_tables<storage_size>(
                 items_, hash, bits::GetKey{}, default_prg_t{})} {}
   explicit constexpr unordered_map(container_type items)
-      : unordered_map{items, Hash{}, KeyEqual{}} {}
+      : unordered_map{items, Hash{}, KeyEqual{}} {
+      }
 
   constexpr unordered_map(std::initializer_list<value_type> items,
                           Hash const & hash, KeyEqual const & equal)
       : unordered_map{container_type{items}, hash, equal} {
-        constexpr_assert(items.size() == N, "Inconsistent initializer_list size and type size argument");
       }
 
   constexpr unordered_map(std::initializer_list<value_type> items)

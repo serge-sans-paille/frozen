@@ -24,7 +24,6 @@
 #define FROZEN_LETITGO_UNORDERED_SET_H
 
 #include "frozen/bits/basic_types.h"
-#include "frozen/bits/constexpr_assert.h"
 #include "frozen/bits/elsa.h"
 #include "frozen/bits/pmh.h"
 #include "frozen/bits/version.h"
@@ -87,7 +86,6 @@ public:
 
   constexpr unordered_set(std::initializer_list<Key> keys, Hash const & hash, KeyEqual const & equal)
       : unordered_set{container_type{keys}, hash, equal} {
-        constexpr_assert(keys.size() == N, "Inconsistent initializer_list size and type size argument");
       }
 
   /* iterators */
