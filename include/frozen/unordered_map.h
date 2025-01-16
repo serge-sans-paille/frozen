@@ -83,7 +83,7 @@ public:
       , items_{items}
       , tables_{
             bits::make_pmh_tables<storage_size>(
-                items_, hash, bits::GetKey{}, default_prg_t{})} {}
+                items_, hash, equal, bits::GetKey{}, default_prg_t{})} {}
   explicit constexpr unordered_map(container_type items)
       : unordered_map{items, Hash{}, KeyEqual{}} {
       }

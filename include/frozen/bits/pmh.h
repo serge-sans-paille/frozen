@@ -184,14 +184,22 @@ struct pmh_tables : private Hasher {
 };
 
 // Make pmh tables for given items, hash function, prg, etc.
-template <std::size_t M, class Item, std::size_t N, class Hash, class Key, class PRG>
+template <std::size_t M, class Item, std::size_t N, class Hash, class Key, class KeyEqual, class PRG>
 pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
                                                                items,
                                                            Hash const &hash,
+                                                           KeyEqual const &equal,
                                                            Key const &key,
                                                            PRG prg) {
   // Step 1: Place all of the keys into buckets
   auto step_one = make_pmh_buckets<M>(items, hash, key, prg);
+
+#ifndef NDEBUG
+  // Step 1.5: Detect redundant keys.
+  for(auto const& bucket : step_one.buckets)
+    for(std::size_t i = 1; i < bucket.size(); ++i)
+      constexpr_assert(!equal(key(items[0]), key(items[i])), "unique keys");
+#endif
 
   // Step 2: Sort the buckets to process the ones with the most items first.
   auto buckets = step_one.get_sorted_buckets();
