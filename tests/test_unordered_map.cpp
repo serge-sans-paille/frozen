@@ -1,15 +1,26 @@
-#include <frozen/unordered_map.h>
-#include <frozen/string.h>
-#include <frozen/bits/elsa_std.h>
+// include catch before import std to avoid STL issues
+#include "bench.hpp"
+#include "catch.hpp"
+
+#ifdef FROZEN_USE_STD_MODULE
+import std;
+#else
 #include <iostream>
 #include <unordered_map>
 #include <string>
-
 #include <cctype>
 #include <algorithm>
+#endif
 
-#include "bench.hpp"
-#include "catch.hpp"
+#ifdef FROZEN_USE_MODULE
+import frozen;
+#else 
+#include <frozen/unordered_map.h>
+#include <frozen/string.h>
+#endif
+
+#include <frozen/bits/elsa_std.h>
+
 TEST_CASE("singleton frozen unordered map", "[unordered map]") {
   constexpr frozen::unordered_map<int, double, 1> ze_map{{1, 2.}};
 

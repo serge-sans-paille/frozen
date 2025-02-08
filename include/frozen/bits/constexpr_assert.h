@@ -23,7 +23,9 @@
 #ifndef FROZEN_LETITGO_CONSTEXPR_ASSERT_H
 #define FROZEN_LETITGO_CONSTEXPR_ASSERT_H
 
+#ifndef FROZEN_USE_STD_MODULE
 #include <cassert>
+#endif
 
 #ifdef _MSC_VER
 

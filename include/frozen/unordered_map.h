@@ -30,9 +30,11 @@
 #include "frozen/bits/version.h"
 #include "frozen/random.h"
 
+#ifndef FROZEN_USE_STD_MODULE
 #include <tuple>
 #include <functional>
 #include <utility>
+#endif
 
 namespace frozen {
 

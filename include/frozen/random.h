@@ -26,8 +26,10 @@
 #include "frozen/bits/algorithms.h"
 #include "frozen/bits/version.h"
 
+#ifndef FROZEN_USE_STD_MODULE
 #include <cstdint>
 #include <type_traits>
+#endif
 
 namespace frozen {
 template <class UIntType, UIntType a, UIntType c, UIntType m>

@@ -1,7 +1,9 @@
 #ifndef FROZEN_LETITGO_BITS_HASH_STRING_H
 #define FROZEN_LETITGO_BITS_HASH_STRING_H
 
+#ifndef FROZEN_USE_STD_MODULE
 #include <cstddef>
+#endif
 
 namespace frozen {
 

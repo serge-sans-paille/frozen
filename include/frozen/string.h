@@ -28,11 +28,13 @@
 #include "frozen/bits/version.h"
 #include "frozen/bits/defines.h"
 
+#ifndef FROZEN_USE_STD_MODULE
 #include <cstddef>
 #include <functional>
 
 #ifdef FROZEN_LETITGO_HAS_STRING_VIEW
 #include <string_view>
+#endif
 #endif
 
 namespace frozen {

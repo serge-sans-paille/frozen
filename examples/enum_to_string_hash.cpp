@@ -1,5 +1,3 @@
-#include <cstdio> // for std::puts
-
 /* ELF Relocations */
 
 #define ELF_RELOC(name, value) name = value,
@@ -55,15 +53,23 @@ ELF_RELOC(R_386_IRELATIVE,      42)
 ELF_RELOC(R_386_NUM,            43)
 };
 
-#ifdef FROZEN_VERSION
-#include "frozen/unordered_map.h"
+#ifdef FROZEN_USE_STD_MODULE
+import std;
+#else
+#include <cstdio>
+#include <unordered_map>
+#endif
+
+#ifdef FROZEN_USE_MODULE
+import frozen;
+#else 
+#include <frozen/unordered_map.h>
+#endif
+#include <frozen/bits/elsa.h> // this is not exported by the module
 namespace frozen {
     template <> struct elsa<RELOC_i386> : elsa<int> {
     };
 }
-#else
-#include <unordered_map>
-#endif
 
 #ifdef FROZEN_VERSION
 constexpr

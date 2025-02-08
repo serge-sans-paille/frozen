@@ -1,5 +1,10 @@
-#include <frozen/string.h>
-#include <frozen/algorithm.h>
+// include catch before import std to avoid STL issues
+#include "bench.hpp"
+#include "catch.hpp"
+
+#ifdef FROZEN_USE_STD_MODULE
+import std;
+#else
 #include <string>
 #include <iostream>
 
@@ -8,9 +13,14 @@
 #include <type_traits>
 #include <tuple>
 #endif
+#endif
 
-#include "bench.hpp"
-#include "catch.hpp"
+#ifdef FROZEN_USE_MODULE
+import frozen;
+#else 
+#include <frozen/string.h>
+#include <frozen/algorithm.h>
+#endif
 
 using namespace frozen::string_literals;
 using namespace std::literals;

@@ -1,10 +1,20 @@
-#include <frozen/string.h>
-#include <frozen/unordered_map.h>
-#include <iostream>
-#include <unordered_map>
-
+// include catch before import std to avoid STL issues
 #include "bench.hpp"
 #include "catch.hpp"
+
+#ifdef FROZEN_USE_STD_MODULE
+import std;
+#else
+#include <iostream>
+#include <unordered_map>
+#endif
+
+#ifdef FROZEN_USE_MODULE
+import frozen;
+#else 
+#include <frozen/string.h>
+#include <frozen/unordered_map.h>
+#endif
 
 TEST_CASE("frozen::unordered_map<str, int> <> std::unordered_map",
           "[unordered_map]") {

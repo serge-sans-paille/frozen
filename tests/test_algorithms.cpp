@@ -1,9 +1,15 @@
-#include <algorithm>
-#include <frozen/bits/algorithms.h>
-#include <iostream>
-
+// include catch before import std to avoid STL issues
 #include "bench.hpp"
 #include "catch.hpp"
+
+#ifdef FROZEN_USE_STD_MODULE
+import std;
+#else
+#include <algorithm>
+#include <iostream>
+#endif
+
+#include <frozen/bits/algorithms.h>
 
 TEST_CASE("next_highest_power_of_two", "[algorithm]") {
   REQUIRE(frozen::bits::next_highest_power_of_two(1) == 1);
