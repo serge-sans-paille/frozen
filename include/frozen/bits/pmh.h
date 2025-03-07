@@ -199,6 +199,8 @@ pmh_tables<M, Hash> constexpr make_pmh_tables(const carray<Item, N> &
   for(auto const& bucket : step_one.buckets)
     for(std::size_t i = 1; i < bucket.size(); ++i)
       constexpr_assert(!equal(key(items[0]), key(items[i])), "unique keys");
+#else
+  (void)equal;
 #endif
 
   // Step 2: Sort the buckets to process the ones with the most items first.
