@@ -115,24 +115,24 @@ using u8string = basic_string<char8_t>;
 
 namespace string_literals {
 
-constexpr string operator"" _s(const char *data, std::size_t size) {
+constexpr string operator""_s(const char *data, std::size_t size) {
   return {data, size};
 }
 
-constexpr wstring operator"" _s(const wchar_t *data, std::size_t size) {
+constexpr wstring operator""_s(const wchar_t *data, std::size_t size) {
   return {data, size};
 }
 
-constexpr u16string operator"" _s(const char16_t *data, std::size_t size) {
+constexpr u16string operator""_s(const char16_t *data, std::size_t size) {
   return {data, size};
 }
 
-constexpr u32string operator"" _s(const char32_t *data, std::size_t size) {
+constexpr u32string operator""_s(const char32_t *data, std::size_t size) {
   return {data, size};
 }
 
 #ifdef FROZEN_LETITGO_HAS_CHAR8T
-constexpr u8string operator"" _s(const char8_t *data, std::size_t size) {
+constexpr u8string operator""_s(const char8_t *data, std::size_t size) {
   return {data, size};
 }
 #endif
