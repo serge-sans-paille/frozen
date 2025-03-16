@@ -52,7 +52,7 @@ void test_string_view() {
     }
 #endif
   }();
-  
+
   const auto [
     letitgo,
     letitgo_s,
@@ -95,11 +95,27 @@ TEST_CASE("Various string operation", "[string]") {
   }
 
   {
+    static const char seed[] = "hello";
+    std::string ref(seed);
+    constexpr frozen::string obj(seed);
+    REQUIRE(ref.size() == obj.size());
+    REQUIRE(ref.length() == obj.length());
+    REQUIRE(ref[1] == obj[1]);
+    REQUIRE((ref =="h") == (obj == "h"));
+    REQUIRE((ref !="h") == (obj != "h"));
+    REQUIRE((ref > "h") == (obj > "h"));
+    REQUIRE((ref < "h") == (obj < "h"));
+#ifdef FROZEN_LETITGO_HAS_STRING_VIEW
+    REQUIRE((std::string_view)ref == (std::string_view)obj);
+#endif
+  }
+
+  {
     constexpr frozen::string letItGo = "Let it go !";
     static_assert(letItGo == "Let it go !",   "frozen::string constexpr");
     static_assert(letItGo == "Let it go !"_s, "frozen::string constexpr literal");
   }
-  
+
   test_string_view<char>();
 }
 
@@ -119,7 +135,7 @@ TEST_CASE("Various wstring operation", "[string]") {
     static_assert(letItGo == L"Let it go !",   "frozen::wstring constexpr");
     static_assert(letItGo == L"Let it go !"_s, "frozen::wstring constexpr literal");
   }
-  
+
   test_string_view<wchar_t>();
 }
 
@@ -139,7 +155,7 @@ TEST_CASE("Various u16string operation", "[string]") {
     static_assert(letItGo == u"Let it go !",   "frozen::u16string constexpr");
     static_assert(letItGo == u"Let it go !"_s, "frozen::u16string constexpr literal");
   }
-  
+
   test_string_view<char16_t>();
 }
 
@@ -159,7 +175,7 @@ TEST_CASE("Various u32string operation", "[string]") {
     static_assert(letItGo == U"Let it go !",   "frozen::u32string constexpr");
     static_assert(letItGo == U"Let it go !"_s, "frozen::u32string constexpr literal");
   }
-  
+
   test_string_view<char32_t>();
 }
 
@@ -180,7 +196,7 @@ TEST_CASE("Various u8string operation", "[string]") {
     static_assert(letItGo == u8"Let it go !",   "frozen::u8string constexpr");
     static_assert(letItGo == u8"Let it go !"_s, "frozen::u8string constexpr literal");
   }
-  
+
   test_string_view<char8_t>();
 }
 #endif
