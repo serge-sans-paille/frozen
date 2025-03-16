@@ -54,6 +54,10 @@ public:
 #ifdef FROZEN_LETITGO_HAS_STRING_VIEW
   constexpr basic_string(std::basic_string_view<chr_t> data)
       : data_(data.data()), size_(data.size()) {}
+
+  explicit constexpr operator std::basic_string_view<chr_t>() const {
+    return std::basic_string_view<chr_t>(data_, size_);
+  }
 #endif
 
   constexpr basic_string(const basic_string &) noexcept = default;
