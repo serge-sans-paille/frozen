@@ -104,7 +104,9 @@ TEST_CASE("Various string operation", "[string]") {
     REQUIRE((ref =="h") == (obj == "h"));
     REQUIRE((ref !="h") == (obj != "h"));
     REQUIRE((ref > "h") == (obj > "h"));
+    REQUIRE((ref >= "h") == (obj >= "h"));
     REQUIRE((ref < "h") == (obj < "h"));
+    REQUIRE((ref <= "h") == (obj <= "h"));
 #ifdef FROZEN_LETITGO_HAS_STRING_VIEW
     REQUIRE((std::string_view)ref == (std::string_view)obj);
 #endif
