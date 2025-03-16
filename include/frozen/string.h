@@ -94,6 +94,12 @@ public:
   friend constexpr bool operator>(const basic_string& lhs, const basic_string& rhs) {
     return rhs < lhs;
   }
+  friend constexpr bool operator>=(const basic_string& lhs, const basic_string& rhs) {
+    return !(lhs < rhs);
+  }
+  friend constexpr bool operator<=(const basic_string& lhs, const basic_string& rhs) {
+    return !(lhs > rhs);
+  }
 
   constexpr const chr_t *data() const { return data_; }
   constexpr const chr_t *begin() const { return data(); }
