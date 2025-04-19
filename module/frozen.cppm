@@ -31,8 +31,13 @@ import std;
 #endif 
 
 extern "C++" {
+#ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Winclude-angled-in-module-purview"
+#elif defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:5244)
+#endif
 #include <frozen/algorithm.h>
 #include <frozen/map.h>
 #include <frozen/random.h>
@@ -40,7 +45,11 @@ extern "C++" {
 #include <frozen/string.h>
 #include <frozen/unordered_set.h>
 #include <frozen/unordered_map.h>
+#ifdef __clang__
 #pragma clang diagnostic pop
+#elif defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 }
 
 export namespace frozen {
@@ -74,7 +83,7 @@ export namespace frozen {
     using frozen::u32string;
 
     namespace string_literals {
-      using frozen::string_literals::operator"" _s;
+      using frozen::string_literals::operator""_s;
     }
 
     /* unordered_map */
