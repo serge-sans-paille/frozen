@@ -45,19 +45,19 @@ public:
   constexpr CompareKey(Comparator const &comparator)
       : Comparator(comparator) {}
 
-  template <class Key1, class Key2, class Value, std::enable_if_t<std::is_same<bits::remove_cv_t<Key1>, bits::remove_cv_t<Key2>>::value, int> = 0>
+  template <class Key1, class Key2, class Value, std::enable_if_t<bits::is_comparator<Comparator, Key1, Key2>::value, int> = 0>
   constexpr int operator()(std::pair<Key1, Value> const &self,
                            std::pair<Key2, Value> const &other) const {
     return key_comp()(std::get<0>(self), std::get<0>(other));
   }
 
-  template <class Key1, class Key2, class Value, std::enable_if_t<std::is_same<bits::remove_cv_t<Key1>, bits::remove_cv_t<Key2>>::value, int> = 0>
+  template <class Key1, class Key2, class Value, std::enable_if_t<bits::is_comparator<Comparator, Key1, Key2>::value, int> = 0>
   constexpr int operator()(Key1 const &self_key,
                            std::pair<Key2, Value> const &other) const {
     return key_comp()(self_key, std::get<0>(other));
   }
 
-  template <class Key1, class Key2, class Value, std::enable_if_t<std::is_same<bits::remove_cv_t<Key1>, bits::remove_cv_t<Key2>>::value, int> = 0>
+  template <class Key1, class Key2, class Value, std::enable_if_t<bits::is_comparator<Comparator, Key1, Key2>::value, int> = 0>
   constexpr int operator()(std::pair<Key1, Value> const &self,
                            Key2 const &other_key) const {
     return key_comp()(std::get<0>(self), other_key);

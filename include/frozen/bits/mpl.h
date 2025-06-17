@@ -49,6 +49,15 @@ struct remove_cv<carray<T, N>> {
 template <typename T>
 using remove_cv_t = typename remove_cv<T>::type;
 
+template <typename F, typename T, typename U, typename = void>
+struct is_comparator : std::false_type {};
+
+template <typename F, typename T, typename U>
+struct is_comparator<F, T, U, std::enable_if_t<std::is_convertible<
+  decltype(std::declval<F>()(std::declval<T>(), std::declval<U>())),
+  bool
+>::value>> : std::true_type {};
+
 } // namespace bits
 
 } // namespace frozen
