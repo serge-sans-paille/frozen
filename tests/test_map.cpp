@@ -498,3 +498,13 @@ TEST_CASE("frozen::map <> frozen::make_map transparent", "[map]") {
     REQUIRE(frozen_empty_map3.begin() == frozen_empty_map3.end());
   }
 }
+
+TEST_CASE("frozen::map constexpr std::pair key", "[map]") {
+  constexpr frozen::map<std::pair<int, int>, bool, 2> ce1 = {
+      {{1, 2}, true}, {{3, 4}, false}};
+  static_assert(ce1.find(std::pair<int, int>{1, 3}) == ce1.end(), "");
+
+  constexpr frozen::map<std::pair<int, int>, int, 2> ce2 = {
+      {{1, 2}, 5}, {{3, 4}, 6}};
+  static_assert(ce2.at({3, 4}) == 6, "");
+}

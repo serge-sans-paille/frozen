@@ -46,25 +46,25 @@ public:
       : Comparator(comparator) {}
 
   template <class Key1, class Key2, class Value>
-  constexpr int operator()(std::pair<Key1, Value> const &self,
-                           std::pair<Key2, Value> const &other) const {
+  constexpr auto operator()(std::pair<Key1, Value> const &self,
+                           std::pair<Key2, Value> const &other) const -> decltype(key_comp()(std::get<0>(self), std::get<0>(other))) {
     return key_comp()(std::get<0>(self), std::get<0>(other));
   }
 
   template <class Key1, class Key2, class Value>
-  constexpr int operator()(Key1 const &self_key,
-                           std::pair<Key2, Value> const &other) const {
+  constexpr auto operator()(Key1 const &self_key,
+                           std::pair<Key2, Value> const &other) const -> decltype(key_comp()(self_key, std::get<0>(other))) {
     return key_comp()(self_key, std::get<0>(other));
   }
 
   template <class Key1, class Key2, class Value>
-  constexpr int operator()(std::pair<Key1, Value> const &self,
-                           Key2 const &other_key) const {
+  constexpr auto operator()(std::pair<Key1, Value> const &self,
+                           Key2 const &other_key) const -> decltype(key_comp()(std::get<0>(self), other_key)) {
     return key_comp()(std::get<0>(self), other_key);
   }
 
   template <class Key1, class Key2>
-  constexpr int operator()(Key1 const &self_key, Key2 const &other_key) const {
+  constexpr auto operator()(Key1 const &self_key, Key2 const &other_key) const -> decltype(key_comp()(self_key, other_key)) {
     return key_comp()(self_key, other_key);
   }
 };
