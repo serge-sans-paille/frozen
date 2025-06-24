@@ -1,20 +1,35 @@
+// include catch before import std to avoid STL issues
+#include "catch.hpp"
+
+#ifdef FROZEN_USE_STD_MODULE
+import std;
+#endif 
+
+#ifdef FROZEN_USE_MODULE
+import frozen;
+#else 
 #include <frozen/bits/defines.h>
+#endif
 
 #ifdef FROZEN_LETITGO_HAS_STRING_VIEW
-
+#ifndef FROZEN_USE_MODULE
 #include <frozen/bits/elsa_std.h>
 #include <frozen/map.h>
 #include <frozen/set.h>
 #include <frozen/unordered_map.h>
 #include <frozen/unordered_set.h>
+#endif
 
-#include "catch.hpp"
-
+#ifndef FROZEN_USE_STD_MODULE
 #include <string_view>
+#include <tuple>
+#endif
 
 #ifdef FROZEN_LETITGO_HAS_CONSTEXPR_STRING
 
+#ifndef FROZEN_USE_STD_MODULE
 #include <string>
+#endif
 
 using StringTypes = std::tuple<std::string_view, std::string>;
 

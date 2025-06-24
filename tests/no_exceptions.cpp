@@ -1,4 +1,8 @@
+#ifdef FROZEN_USE_MODULE
+import frozen;
+#else 
 #include <frozen/unordered_map.h>
+#endif
 
 #include <csignal>
 #include <cstdlib>

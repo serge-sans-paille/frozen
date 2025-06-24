@@ -1,12 +1,21 @@
+#ifdef FROZEN_USE_STD_MODULE
+import std;
+#else
+#include <cstdint>
+#include <utility>
+#endif
 
-#include <cinttypes>
+#ifdef FROZEN_USE_MODULE
+import frozen;
+#else 
 #include <frozen/unordered_map.h>
 #include <frozen/string.h>
+#endif
 
 struct codes_t
 {
-	uint32_t iCodepoint1;
-	uint32_t iCodepoint2{0};
+  std::uint32_t iCodepoint1;
+  std::uint32_t iCodepoint2{0};
 };
 
 static constexpr std::pair<frozen::string, codes_t> s_Entities[]

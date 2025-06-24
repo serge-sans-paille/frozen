@@ -1,11 +1,21 @@
+// include catch before import std to avoid STL issues
+#include "bench.hpp"
+#include "catch.hpp"
+
+#ifdef FROZEN_USE_STD_MODULE
+import std;
+#else
 #include <algorithm>
-#include <frozen/set.h>
 #include <iostream>
 #include <set>
 #include <type_traits>
+#endif
 
-#include "bench.hpp"
-#include "catch.hpp"
+#ifdef FROZEN_USE_MODULE
+import frozen;
+#else 
+#include <frozen/set.h>
+#endif
 
 TEST_CASE("empty frozen set", "[set]") {
   constexpr frozen::set<int, 0> ze_set{};

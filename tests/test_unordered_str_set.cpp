@@ -1,11 +1,21 @@
-#include <frozen/string.h>
-#include <frozen/unordered_set.h>
+// include catch before import std to avoid STL issues
+#include "bench.hpp"
+#include "catch.hpp"
+
+#ifdef FROZEN_USE_STD_MODULE
+import std;
+#else
 #include <iostream>
 #include <unordered_set>
 #include <array>
+#endif
 
-#include "bench.hpp"
-#include "catch.hpp"
+#ifdef FROZEN_USE_MODULE
+import frozen;
+#else 
+#include <frozen/string.h>
+#include <frozen/unordered_set.h>
+#endif
 
 TEST_CASE("tripleton int frozen unordered set", "[unordered set]") {
   constexpr frozen::unordered_set<frozen::string, 3> ze_set{"1", "2", "3"};

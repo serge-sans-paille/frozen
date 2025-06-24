@@ -1,11 +1,21 @@
+// include catch before import std to avoid STL issues
+#include "bench.hpp"
+#include "catch.hpp"
+
+#ifdef FROZEN_USE_STD_MODULE
+import std;
+#else
 #include <algorithm>
-#include <frozen/map.h>
 #include <functional>
 #include <iostream>
 #include <map>
+#endif
 
-#include "bench.hpp"
-#include "catch.hpp"
+#ifdef FROZEN_USE_MODULE
+import frozen;
+#else 
+#include <frozen/map.h>
+#endif
 
 TEST_CASE("empty frozen map", "[map]") {
   constexpr frozen::map<int, float, 0> ze_map{};

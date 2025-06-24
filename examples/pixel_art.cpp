@@ -3,9 +3,18 @@ g++ $0 -std=c++14 -Iinclude && ./a.out && rm -f a.out && qiv panda.ppm 1up.ppm
 exit
 #else
 
+#ifdef FROZEN_USE_STD_MODULE
+import std;
+#else
 #include <array>
-#include <frozen/map.h>
 #include <fstream>
+#endif
+
+#ifdef FROZEN_USE_MODULE
+import frozen;
+#else 
+#include <frozen/map.h>
+#endif
 
 constexpr frozen::map<char, std::array<char, 3>, 5> Tans{
     {'R', {(char)0xFF, (char)0x00, (char)0x00}},
