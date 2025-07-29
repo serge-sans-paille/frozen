@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.10)
 #
 # Here we check whether frozen is being configured in isolation or as a component
 # of a larger proeject. To do so, we query whether the `PROJECT_NAME` CMake
