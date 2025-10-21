@@ -29,8 +29,10 @@
 #include "frozen/bits/mpl.h"
 #include "frozen/bits/version.h"
 
+#ifndef FROZEN_STD_MODULE
 #include <iterator>
 #include <utility>
+#endif
 
 namespace frozen {
 

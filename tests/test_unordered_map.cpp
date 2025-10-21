@@ -1,15 +1,26 @@
-#include <frozen/unordered_map.h>
-#include <frozen/string.h>
-#include <frozen/bits/elsa_std.h>
+// include catch before import std to avoid STL issues
+#include "bench.hpp"
+#include "catch.hpp"
+
+#ifdef FROZEN_STD_MODULE
+import std;
+#else
 #include <iostream>
 #include <unordered_map>
 #include <string>
-
 #include <cctype>
 #include <algorithm>
+#endif
 
-#include "bench.hpp"
-#include "catch.hpp"
+#ifdef FROZEN_MODULE
+import frozen;
+#else 
+#include <frozen/unordered_map.h>
+#include <frozen/string.h>
+#endif
+
+#include <frozen/bits/elsa_std.h>
+
 TEST_CASE("singleton frozen unordered map", "[unordered map]") {
   constexpr frozen::unordered_map<int, double, 1> ze_map{{1, 2.}};
 
@@ -260,7 +271,7 @@ struct case_insensitive {
 template <>
 struct frozen::elsa<case_insensitive> {
   constexpr std::size_t operator()(case_insensitive const &value, std::size_t seed) const {
-    char tmp[3];
+    char tmp[3] = {};
     for(size_t i = 0; i < 3; ++i)
       tmp[i] = tolower(value.data[i]);
     return frozen::elsa<>()(frozen::string(tmp, 3), seed);

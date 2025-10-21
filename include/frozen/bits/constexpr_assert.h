@@ -23,8 +23,10 @@
 #ifndef FROZEN_LETITGO_CONSTEXPR_ASSERT_H
 #define FROZEN_LETITGO_CONSTEXPR_ASSERT_H
 
+#ifndef FROZEN_STD_MODULE
 #include <cassert>
 #include <utility>
+#endif
 
 inline void constexpr_assert_failed() {}
 

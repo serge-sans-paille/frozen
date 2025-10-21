@@ -1,7 +1,11 @@
-#include <frozen/unordered_map.h>
-
 #include <csignal>
 #include <cstdlib>
+
+#ifdef FROZEN_MODULE
+import frozen;
+#else 
+#include <frozen/unordered_map.h>
+#endif
 
 // https://discourse.cmake.org/t/tests-that-are-meant-to-abort/537/3
 // This is a hack to implement death tests in CTest.

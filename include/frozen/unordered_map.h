@@ -27,12 +27,14 @@
 #include "frozen/bits/elsa.h"
 #include "frozen/bits/exceptions.h"
 #include "frozen/bits/pmh.h"
-#include "frozen/bits/version.h"
 #include "frozen/random.h"
 
-#include <tuple>
+#ifndef FROZEN_STD_MODULE
+#include <array>
 #include <functional>
 #include <utility>
+#include <stdexcept>
+#endif
 
 namespace frozen {
 

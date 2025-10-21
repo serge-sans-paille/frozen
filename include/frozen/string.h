@@ -28,11 +28,17 @@
 #include "frozen/bits/version.h"
 #include "frozen/bits/defines.h"
 
+#ifndef FROZEN_STD_MODULE
 #include <cstddef>
 #include <functional>
 
 #ifdef FROZEN_LETITGO_HAS_STRING_VIEW
 #include <string_view>
+#endif
+
+#ifdef FROZEN_LETITGO_HAS_THREE_WAY_COMPARISON
+#include <compare>
+#endif
 #endif
 
 namespace frozen {
@@ -55,7 +61,7 @@ public:
   constexpr basic_string(std::basic_string_view<chr_t> data)
       : data_(data.data()), size_(data.size()) {}
 
-  explicit constexpr operator std::basic_string_view<chr_t>() const {
+  constexpr explicit operator std::basic_string_view<chr_t>() const {
     return std::basic_string_view<chr_t>(data_, size_);
   }
 #endif
@@ -68,13 +74,42 @@ public:
 
   constexpr chr_t operator[](std::size_t i) const { return data_[i]; }
 
-  constexpr bool operator==(basic_string other) const {
+#ifdef FROZEN_LETITGO_HAS_THREE_WAY_COMPARISON
+  constexpr std::weak_ordering operator<=>(const basic_string &other) const {
+    bool equal = true;
+    if(size_ == other.size_)
+      for (std::size_t i = 0; i < size_; ++i)
+        if (data_[i] != other.data_[i]) {
+          equal = false;
+          break;
+        }
+
+    if(equal) return std::weak_ordering::equivalent;
+
+    unsigned i = 0;
+    while (i < size() && i < other.size()) {
+      if ((*this)[i] < other[i]) {
+        return std::weak_ordering::less;
+      }
+      if ((*this)[i] > other[i]) {
+        return std::weak_ordering::greater;
+      }
+      ++i;
+    }
+    return size() < other.size() ? std::weak_ordering::less : std::weak_ordering::greater;
+  }
+#else
+  constexpr bool operator==(const basic_string &other) const {
     if (size_ != other.size_)
       return false;
     for (std::size_t i = 0; i < size_; ++i)
       if (data_[i] != other.data_[i])
         return false;
     return true;
+  }
+
+  friend constexpr bool operator!=(const basic_string &lhs, const basic_string &rhs) {
+      return !(lhs == rhs);
   }
 
   constexpr bool operator<(const basic_string &other) const {
@@ -100,6 +135,7 @@ public:
   friend constexpr bool operator<=(const basic_string& lhs, const basic_string& rhs) {
     return !(lhs > rhs);
   }
+#endif
 
   constexpr const chr_t *data() const { return data_; }
   constexpr const chr_t *begin() const { return data(); }

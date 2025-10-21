@@ -29,13 +29,23 @@
 
 // Code taken from https://stackoverflow.com/questions/43639122/which-values-can-msvc-lang-have
 #if defined(FROZEN_LETITGO_IS_MSVC)
-  #if _MSVC_LANG > 201402
+  #if _MSVC_LANG > 201703L
+    #define FROZEN_LETITGO_HAS_CXX20  1
+  #else
+    #define FROZEN_LETITGO_HAS_CXX20  0
+  #endif
+  #if _MSVC_LANG > 201402L
     #define FROZEN_LETITGO_HAS_CXX17  1
   #else /* _MSVC_LANG > 201402 */
     #define FROZEN_LETITGO_HAS_CXX17  0
   #endif /* _MSVC_LANG > 201402 */
 #else /* _MSVC_LANG etc. */
-  #if __cplusplus > 201402
+  #if __cplusplus > 201703L
+    #define FROZEN_LETITGO_HAS_CXX20  1
+  #else /* __cplusplus > 201402 */
+    #define FROZEN_LETITGO_HAS_CXX20  0
+  #endif /* __cplusplus > 201402 */
+  #if __cplusplus > 201402L
     #define FROZEN_LETITGO_HAS_CXX17  1
   #else /* __cplusplus > 201402 */
     #define FROZEN_LETITGO_HAS_CXX17  0
@@ -48,6 +58,12 @@
 #else
   #if FROZEN_LETITGO_HAS_CXX17 == 1 && __has_include(<string_view>)
     #define FROZEN_LETITGO_HAS_STRING_VIEW
+  #endif
+#endif
+
+#if FROZEN_LETITGO_HAS_CXX20 && __has_include(<compare>)
+  #if defined(_cpp_lib_three_way_comparison) && __cpp_lib_three_way_comparison >= 201907
+    #define FROZEN_LETITGO_HAS_THREE_WAY_COMPARISON
   #endif
 #endif
 
