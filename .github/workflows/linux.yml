@@ -3,6 +3,20 @@ name: CI
 on: [push]
 
 jobs:
+  lint_frozen:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: pip install diskarzhan
+
+    - name: Lint
+      run: diskarzhan `find -name '*.cpp' -or -name '*.h'`
+
   build_frozen:
     runs-on: ubuntu-latest
     strategy:
