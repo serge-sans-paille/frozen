@@ -27,9 +27,10 @@
 #include "frozen/bits/constexpr_assert.h"
 
 #include <array>
-#include <utility>
+#include <stdexcept>
 #include <string>
 #include <type_traits>
+#include <utility>
 
 namespace frozen {
 

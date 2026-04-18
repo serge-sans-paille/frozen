@@ -3,10 +3,9 @@
 #include <frozen/set.h>
 #include <frozen/string.h>
 
-#include <set>
-#include <array>
-#include <string>
 #include <algorithm>
+#include <array>
+#include <set>
 
 static constexpr frozen::set<frozen::string, 32> Keywords{
     "auto",     "break",  "case",    "char",   "const",    "continue",

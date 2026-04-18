@@ -27,7 +27,6 @@
 #include "frozen/bits/algorithms.h"
 #include "frozen/bits/basic_types.h"
 
-#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <limits>

@@ -23,9 +23,6 @@
 #ifndef FROZEN_LETITGO_CONSTEXPR_ASSERT_H
 #define FROZEN_LETITGO_CONSTEXPR_ASSERT_H
 
-#include <cassert>
-#include <utility>
-
 inline void constexpr_assert_failed() {}
 
 #define constexpr_assert(cond, msg) ((void)((cond) ? 0 : (constexpr_assert_failed(), 0)))

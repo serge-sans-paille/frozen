@@ -30,7 +30,6 @@
 
 #else
 
-#include <stdexcept>
 #define FROZEN_THROW_OR_ABORT(err) throw err
 
 

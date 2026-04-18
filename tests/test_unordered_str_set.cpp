@@ -2,7 +2,6 @@
 #include <frozen/unordered_set.h>
 #include <iostream>
 #include <unordered_set>
-#include <array>
 
 #include "bench.hpp"
 #include "catch.hpp"

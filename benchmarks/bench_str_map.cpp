@@ -3,9 +3,6 @@
 #include <frozen/unordered_map.h>
 #include <frozen/string.h>
 
-#include <algorithm>
-#include <array>
-#include <string>
 #include <unordered_map>
 
 static constexpr frozen::unordered_map<frozen::string, frozen::string, 32> Keywords{
