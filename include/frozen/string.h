@@ -29,7 +29,6 @@
 #include "frozen/bits/defines.h"
 
 #include <cstddef>
-#include <functional>
 
 #ifdef FROZEN_LETITGO_HAS_STRING_VIEW
 #include <string_view>

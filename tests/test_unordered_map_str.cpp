@@ -1,6 +1,5 @@
 #include <frozen/string.h>
 #include <frozen/unordered_map.h>
-#include <iostream>
 #include <unordered_map>
 
 #include "bench.hpp"

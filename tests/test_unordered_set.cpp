@@ -1,9 +1,8 @@
+#include <frozen/bits/elsa_std.h>
 #include <frozen/string.h>
 #include <frozen/unordered_set.h>
-#include <frozen/bits/elsa_std.h>
-#include <iostream>
-#include <unordered_set>
 #include <string>
+#include <unordered_set>
 
 #include "bench.hpp"
 #include "catch.hpp"

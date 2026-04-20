@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <frozen/set.h>
-#include <iostream>
 #include <set>
 #include <type_traits>
 

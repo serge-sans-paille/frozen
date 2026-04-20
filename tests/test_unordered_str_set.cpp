@@ -1,6 +1,5 @@
 #include <frozen/string.h>
 #include <frozen/unordered_set.h>
-#include <iostream>
 #include <unordered_set>
 
 #include "bench.hpp"

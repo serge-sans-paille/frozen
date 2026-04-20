@@ -1,6 +1,5 @@
 #include <frozen/set.h>
 #include <frozen/string.h>
-#include <iostream>
 #include <set>
 
 #include "bench.hpp"

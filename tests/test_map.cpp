@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <frozen/map.h>
 #include <functional>
-#include <iostream>
 #include <map>
 
 #include "bench.hpp"

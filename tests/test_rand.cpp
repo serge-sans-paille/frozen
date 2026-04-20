@@ -1,5 +1,4 @@
 #include <frozen/random.h>
-#include <iostream>
 #include <random>
 
 #include "bench.hpp"
