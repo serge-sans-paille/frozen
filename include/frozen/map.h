@@ -325,6 +325,10 @@ public:
   constexpr value_compare const& value_comp() const { return static_cast<impl::CompareKey<Compare> const&>(*this); }
 };
 
+template <class Key, class Value, class... Rest>
+map(std::pair<Key,Value>, Rest...)
+  -> map<Key,Value,1+sizeof...(Rest)>;
+
 template <typename T, typename U, typename Compare = std::less<T>>
 constexpr auto make_map(bits::ignored_arg = {}/* for consistency with the initializer below for N = 0*/) {
   return map<T, U, 0, Compare>{};
