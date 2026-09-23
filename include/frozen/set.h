@@ -28,6 +28,7 @@
 #include "frozen/bits/version.h"
 #include "frozen/bits/defines.h"
 
+#include <functional>
 #include <iterator>
 #include <utility>
 
