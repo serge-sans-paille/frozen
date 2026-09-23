@@ -13,8 +13,10 @@ target_sources(frozen.tests PRIVATE
   ${CMAKE_CURRENT_LIST_DIR}/test_elsa_std.cpp
   ${CMAKE_CURRENT_LIST_DIR}/test_main.cpp
   ${CMAKE_CURRENT_LIST_DIR}/test_map.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/test_map_header.cpp
   ${CMAKE_CURRENT_LIST_DIR}/test_rand.cpp
   ${CMAKE_CURRENT_LIST_DIR}/test_set.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/test_set_header.cpp
   ${CMAKE_CURRENT_LIST_DIR}/test_str.cpp
   ${CMAKE_CURRENT_LIST_DIR}/test_str_set.cpp
   ${CMAKE_CURRENT_LIST_DIR}/test_unordered_map.cpp

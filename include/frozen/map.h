@@ -29,6 +29,7 @@
 #include "frozen/bits/mpl.h"
 #include "frozen/bits/version.h"
 
+#include <functional>
 #include <iterator>
 #include <utility>
 
