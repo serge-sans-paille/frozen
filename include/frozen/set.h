@@ -104,7 +104,7 @@ public:
   template <class KeyType>
   constexpr std::pair<const_iterator, const_iterator> equal_range(KeyType const &key) const {
     auto const lower = lower_bound(key);
-    if (lower == end())
+    if (lower == end() || value_comp()(key, *lower))
       return {lower, lower};
     else
       return {lower, lower + 1};
@@ -112,20 +112,16 @@ public:
 
   template <class KeyType>
   constexpr const_iterator lower_bound(KeyType const &key) const {
-    auto const where = bits::lower_bound<N>(keys_.begin(), key, value_comp());
-    if ((where != end()) && !value_comp()(key, *where))
-      return where;
-    else
-      return end();
+    return bits::lower_bound<N>(keys_.begin(), key, value_comp());
   }
 
   template <class KeyType>
   constexpr const_iterator upper_bound(KeyType const &key) const {
-    auto const where = bits::lower_bound<N>(keys_.begin(), key, value_comp());
+    auto const where = lower_bound(key);
     if ((where != end()) && !value_comp()(key, *where))
       return where + 1;
     else
-      return end();
+      return where;
   }
 
   /* observers */

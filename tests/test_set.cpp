@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <frozen/set.h>
+#include <functional>
 #include <set>
 #include <type_traits>
 
@@ -78,15 +79,15 @@ TEST_CASE("singleton frozen set", "[set]") {
   REQUIRE(find5 == ze_set.end());
 
   const auto range0 = ze_set.equal_range(0);
-  REQUIRE(std::get<0>(range0) == ze_set.end());
-  REQUIRE(std::get<1>(range0) == ze_set.end());
+  REQUIRE(std::get<0>(range0) == ze_set.begin());
+  REQUIRE(std::get<1>(range0) == ze_set.begin());
 
   const auto range1 = ze_set.equal_range(1);
   REQUIRE(std::get<0>(range1) == ze_set.begin());
   REQUIRE(std::get<1>(range1) == ze_set.end());
 
   const auto lower_bound0 = ze_set.lower_bound(0);
-  REQUIRE(lower_bound0 == ze_set.end());
+  REQUIRE(lower_bound0 == ze_set.begin());
 
   const auto lower_bound1 = ze_set.lower_bound(1);
   REQUIRE(lower_bound1 == ze_set.find(1));
@@ -95,7 +96,7 @@ TEST_CASE("singleton frozen set", "[set]") {
   REQUIRE(lower_bound2 == ze_set.end());
 
   const auto upper_bound0 = ze_set.upper_bound(0);
-  REQUIRE(upper_bound0 == ze_set.end());
+  REQUIRE(upper_bound0 == ze_set.begin());
 
   const auto upper_bound1 = ze_set.upper_bound(1);
   REQUIRE(upper_bound1 == ze_set.end());
@@ -148,15 +149,15 @@ TEST_CASE("triple frozen set", "[set]") {
   REQUIRE(find15 == ze_set.end());
 
   const auto range0 = ze_set.equal_range(0);
-  REQUIRE(std::get<0>(range0) == ze_set.end());
-  REQUIRE(std::get<1>(range0) == ze_set.end());
+  REQUIRE(std::get<0>(range0) == ze_set.begin());
+  REQUIRE(std::get<1>(range0) == ze_set.begin());
 
   const auto range1 = ze_set.equal_range(10);
   REQUIRE(std::get<0>(range1) == ze_set.begin());
   REQUIRE(std::get<1>(range1) == ze_set.begin() + 1);
 
   const auto lower_bound0 = ze_set.lower_bound(0);
-  REQUIRE(lower_bound0 == ze_set.end());
+  REQUIRE(lower_bound0 == ze_set.begin());
 
   for (auto val : ze_set) {
     const auto lower_bound = ze_set.lower_bound(val);
@@ -167,7 +168,7 @@ TEST_CASE("triple frozen set", "[set]") {
   REQUIRE(lower_bound2 == ze_set.end());
 
   const auto upper_bound0 = ze_set.upper_bound(0);
-  REQUIRE(upper_bound0 == ze_set.end());
+  REQUIRE(upper_bound0 == ze_set.begin());
 
   const auto upper_bound1 = ze_set.upper_bound(10);
   REQUIRE(upper_bound1 == (ze_set.begin() + 1));
@@ -193,6 +194,31 @@ TEST_CASE("triple frozen set", "[set]") {
   REQUIRE((std::size_t)std::distance(ze_set.rbegin(), ze_set.rend()) == ze_set.size());
   REQUIRE(std::count(ze_set.crbegin(), ze_set.crend(), 3) == 0);
   REQUIRE(std::count(ze_set.crbegin(), ze_set.crend(), 20) == 1);
+}
+
+template <class Key, std::size_t N, class Compare>
+void check_set_bounds(frozen::set<Key, N, Compare> const &actual) {
+  const std::set<Key, Compare> expected(actual.begin(), actual.end(), actual.key_comp());
+  for (int key = 0; key <= 40; ++key) {
+    INFO("key = " << key);
+    const auto lower = std::distance(expected.begin(), expected.lower_bound(key));
+    const auto upper = std::distance(expected.begin(), expected.upper_bound(key));
+    const auto range = actual.equal_range(key);
+    REQUIRE(actual.lower_bound(key) == actual.begin() + lower);
+    REQUIRE(actual.upper_bound(key) == actual.begin() + upper);
+    REQUIRE(range.first == actual.begin() + lower);
+    REQUIRE(range.second == actual.begin() + upper);
+    REQUIRE((actual.find(key) != actual.end()) == (expected.find(key) != expected.end()));
+    REQUIRE(actual.count(key) == expected.count(key));
+    REQUIRE(actual.contains(key) == (expected.find(key) != expected.end()));
+  }
+}
+
+TEST_CASE("frozen::set bounds follow comparison ordering", "[set]") {
+  check_set_bounds(frozen::set<int, 3>{10, 20, 30});
+  check_set_bounds(frozen::set<int, 3, std::greater<int>>{10, 20, 30});
+  check_set_bounds(frozen::set<int, 1>{20});
+  check_set_bounds(frozen::set<int, 1, std::greater<int>>{20});
 }
 
 TEST_CASE("frozen::set <> std::set", "[set]") {
@@ -268,6 +294,30 @@ TEST_CASE("frozen::set constexpr", "[set]") {
   static_assert(ce.find(0) == ce.end(), "");
   static_assert(ce.contains(3), "");
   static_assert(!ce.contains(0), "");
+  static_assert(ce.lower_bound(0) == ce.begin(), "");
+  static_assert(ce.upper_bound(0) == ce.begin(), "");
+  static_assert(ce.equal_range(0).first == ce.begin(), "");
+  static_assert(ce.equal_range(0).second == ce.begin(), "");
+  static_assert(ce.lower_bound(3) == ce.begin(), "");
+  static_assert(ce.upper_bound(3) == ce.begin() + 1, "");
+  static_assert(ce.equal_range(3).first == ce.begin(), "");
+  static_assert(ce.equal_range(3).second == ce.begin() + 1, "");
+  static_assert(ce.lower_bound(7) == ce.begin() + 1, "");
+  static_assert(ce.upper_bound(7) == ce.begin() + 1, "");
+  static_assert(ce.equal_range(7).first == ce.begin() + 1, "");
+  static_assert(ce.equal_range(7).second == ce.begin() + 1, "");
+  static_assert(ce.lower_bound(12) == ce.end(), "");
+  static_assert(ce.upper_bound(12) == ce.end(), "");
+  static_assert(ce.equal_range(12).first == ce.end(), "");
+  static_assert(ce.equal_range(12).second == ce.end(), "");
+  static_assert(ce.find(7) == ce.end(), "");
+  static_assert(!ce.contains(7), "");
+
+  constexpr frozen::set<int, 3, std::greater<int>> descending{10, 20, 30};
+  static_assert(descending.lower_bound(25) == descending.begin() + 1, "");
+  static_assert(descending.upper_bound(25) == descending.begin() + 1, "");
+  static_assert(descending.equal_range(25).first == descending.begin() + 1, "");
+  static_assert(descending.equal_range(25).second == descending.begin() + 1, "");
 }
 
 TEST_CASE("frozen::set of frozen::set", "[set]") {
@@ -303,6 +353,15 @@ TEST_CASE("frozen::set heterogeneous container", "[set]") {
     REQUIRE(set.count(2) == 1);
     REQUIRE(set.count(42) == 0);
   }
+}
+
+TEST_CASE("frozen::set heterogeneous bounds", "[set]") {
+  constexpr frozen::set<Foo, 3, std::less<>> values{{10}, {20}, {30}};
+  check_set_bounds(values);
+  static_assert(values.lower_bound(15) == values.begin() + 1, "");
+  static_assert(values.upper_bound(15) == values.begin() + 1, "");
+  static_assert(values.equal_range(15).first == values.begin() + 1, "");
+  static_assert(values.equal_range(15).second == values.begin() + 1, "");
 }
 
 #ifdef FROZEN_LETITGO_HAS_DEDUCTION_GUIDES
