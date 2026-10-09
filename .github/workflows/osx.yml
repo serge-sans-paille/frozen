@@ -1,6 +1,13 @@
 name: CI
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
 
 jobs:
   build_frozen:
@@ -16,7 +23,7 @@ jobs:
           - 2a
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Prepare
       run: cmake -E make_directory build
