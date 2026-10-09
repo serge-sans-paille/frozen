@@ -9,6 +9,7 @@ target_link_libraries(frozen.tests PUBLIC frozen::frozen)
 target_sources(frozen.tests PRIVATE
   ${CMAKE_CURRENT_LIST_DIR}/bench.hpp
   ${CMAKE_CURRENT_LIST_DIR}/catch.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/catch.cpp
   ${CMAKE_CURRENT_LIST_DIR}/test_algorithms.cpp
   ${CMAKE_CURRENT_LIST_DIR}/test_elsa_std.cpp
   ${CMAKE_CURRENT_LIST_DIR}/test_main.cpp
