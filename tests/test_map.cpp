@@ -2,6 +2,8 @@
 #include <frozen/map.h>
 #include <functional>
 #include <map>
+#include <string_view>
+#include <type_traits>
 
 #include "bench.hpp"
 #include "catch.hpp"
@@ -131,6 +133,21 @@ TEST_CASE("singleton frozen map", "[map]") {
                      decltype(ze_map)::value_type(3, 14)) == 0);
   REQUIRE(std::count(ze_map.crbegin(), ze_map.crend(),
                      decltype(ze_map)::value_type(1, 3.14)) == 1);
+}
+
+TEST_CASE("frozen::map CTAD", "[map]") {
+  constexpr frozen::map ze_map = {
+      std::pair{std::string_view{"one"}, 1},
+      std::pair{std::string_view{"two"}, 2}};
+
+  static_assert(
+      std::is_same<
+          std::remove_const_t<decltype(ze_map)>,
+          frozen::map<std::string_view, int, 2>>::value,
+      "");
+
+  REQUIRE(ze_map.at(std::string_view{"one"}) == 1);
+  REQUIRE(ze_map.at(std::string_view{"two"}) == 2);
 }
 
 TEST_CASE("triple frozen map", "[map]") {
